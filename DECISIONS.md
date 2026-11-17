@@ -92,3 +92,40 @@ Docker base image by digest; llama.cpp by tag + commit; models by repository rev
 The test machine is headless, lacks WebKitGTK development packages and has no passwordless sudo. The desktop is
 built and tested in `build/docker/Dockerfile` (Debian 13, pinned digest) under Xvfb with WebKitWebDriver; offline
 tests run the container with `--network none`. The same packages on a Debian 13 host work without Docker.
+
+## D-011 (resolved) Browser inference: wllama works on Chromium, Firefox and WebKit
+Experiment (TESTING.md): the same Qwen2.5-1.5B GGUF and prompt answer correctly with citations in Chromium 159
+(~38 s per answer, 8 threads, cross-origin isolated) and Firefox (~27 s). WebKit's 1000 MB origin quota here is too
+small for the 1.5B pack; the 0.5B model runs there (feasibility only). wllama's compat mode, which would download a
+different build from a CDN on Safari, is switched off: no silent network use. Requirements are checked at start
+(64-bit wasm memory, JSPI) and missing ones are reported in plain words.
+
+## D-014 Desktop media over a token-protected loopback responder
+WebKitGTK's GStreamer pipeline refuses media from custom URI schemes (measured: MEDIA_ERR_SRC_NOT_SUPPORTED with a
+correct 206 response from `lbn://`), and Blob URLs would put whole videos in memory. `<video>` sources on desktop
+come from a minimal HTTP/1.1 responder bound to 127.0.0.1 on a random port, with a 32-byte random token in every URL,
+GET/HEAD only, and only files listed in active pack manifests. Every other pack file uses the `lbn://` scheme.
+Trade-off: the app listens on loopback while running (upstream Lastbook had no listening port). Alternatives tried:
+custom scheme (fails), Blob URL (memory). MSE streaming would avoid the port but needs a WebM cue parser.
+
+## D-015 The desktop crate is its own Cargo workspace
+It needs WebKitGTK headers that the libraries and CLI do not; keeping it separate lets `cargo test --workspace` run on
+machines without them. It has its own Cargo.lock.
+
+## D-016 Integrity errors use 'checksum' and 'size' everywhere
+Defined once in `lbn_core::Error::code`, so native, browser and CLI report the same codes.
+
+## D-017 Answer safety checks beyond citations
+Small models loop and misread numbers (seen on the real imported library: "20 liters of bleach"). Answers are
+checked after generation: repeated sentences are removed, generation stops once a sentence repeats three times, and
+any number in a cited sentence that does not occur in the sources it cites is shown to the person as "check these
+numbers yourself". A repetition penalty (1.1) is part of the model pack's generation settings.
+
+## D-018 No Nix flake in this release candidate
+The pinned build container (digest-pinned Debian 13 + pinned toolchains) already gives a reproducible Linux build
+environment and is exercised by every desktop test. Nix is not installed on the test machine, so a flake could not be
+tested here; adding an untested one would only be a claim. Revisit when a maintainer can test it.
+
+## D-019 Browser storage support declared from runs
+Chromium, Firefox and Playwright WebKit pass the browser suite (OPFS + IndexedDB). WebKit gives no OPFS to
+private/ephemeral windows; the app detects this at start and explains it. Real Safari (macOS/iOS) is untested.
