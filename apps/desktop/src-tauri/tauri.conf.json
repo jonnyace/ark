@@ -41,10 +41,7 @@
   },
   "bundle": {
     "active": true,
-    "targets": [
-      "deb",
-      "appimage"
-    ],
+    "targets": "all",
     "category": "Education",
     "shortDescription": "Offline knowledge library with optional local AI",
     "longDescription": "Lastbook Next keeps documents, maps, videos and encyclopedias on your computer and works with every network disconnected. An optional local AI answers questions from your library with citations.",
@@ -72,6 +69,19 @@
           "/usr/share/doc/lastbook-next/LICENSE": "../../../LICENSE",
           "/usr/share/doc/lastbook-next/NOTICE.md": "../../../NOTICE.md"
         }
+      }
+    },
+    "macOS": {
+      "minimumSystemVersion": "14.0",
+      "signingIdentity": null,
+      "hardenedRuntime": true
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "downloadBootstrapper"
+      },
+      "nsis": {
+        "installMode": "currentUser"
       }
     }
   }

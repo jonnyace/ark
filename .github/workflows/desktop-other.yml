@@ -1,0 +1,26 @@
+# UNTESTED configuration for Windows and macOS desktop builds (no such machines were available while writing it).
+# Builds the runner and the Tauri bundles unsigned. Signing/notarization are separate, manual steps (docs/BUILDING.md).
+name: desktop-other
+on: workflow_dispatch
+permissions: { contents: read }
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: macos-14
+            runner: bash runner/build-macos.sh
+            bundles: app,dmg
+          - os: windows-2022
+            runner: bash runner/build-windows.sh   # needs the toolchain listed at the top of that script
+            bundles: nsis
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22.23.4 }
+      - run: corepack enable && corepack prepare pnpm@11.20.0 --activate && pnpm install --frozen-lockfile
+      - run: rustup show
+      - run: ${{ matrix.runner }}
+      - run: bash build/gen-ts.sh && bash build/build-wasm.sh && (cd apps/web && npx vite build)
+      - run: cd apps/desktop && npx tauri build --bundles ${{ matrix.bundles }}

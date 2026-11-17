@@ -11,7 +11,7 @@ build/in-container.sh '
   build/build-wasm.sh
   (cd apps/web && npx vite build >/dev/null)
   cd apps/desktop
-  APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=1 npx tauri build --config src-tauri/tauri.conf.json 2>&1 | tail -20
+  APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=1 npx tauri build --bundles deb,appimage --config src-tauri/tauri.conf.json 2>&1 | tail -20
   # Re-pack the .deb deterministically: same files, fixed modification times, root ownership (the bundler stamps the
   # build time into every entry, so two identical builds gave different packages).
   cd "$CARGO_TARGET_DIR/release/bundle/deb"
