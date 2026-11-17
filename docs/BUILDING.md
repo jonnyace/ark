@@ -60,6 +60,11 @@ The repository trusts one development key (`keys/trusted.json`). Its secret is n
    `Cross-Origin-Embedder-Policy: require-corp` (the service worker adds them to cached responses after the first
    visit).
 
+Before a public release run `build/public-readiness.sh`: it refuses while the development key is trusted, the tree
+is dirty, or the release is unsigned or built from uncommitted sources.
+
+Nix (optional): `nix develop` gives all tools and SDKs; `nix build .#lastbook-cli` builds the CLI reproducibly.
+
 ## Releases and updates
 
 - `SHA256SUMS` lists every artefact; `SHA256SUMS.minisig` signs it. People verify with `lastbook verify-file

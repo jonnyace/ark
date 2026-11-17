@@ -24,7 +24,9 @@ the acceptance matrix is in PLAN.md.
 - **CLI** `lastbook`: build, sign, zip, inspect, verify packs; install, search, resolve, ask, repair, rollback, export.
 - **Accessibility**: automated WCAG 2 A/AA (axe) clean on 11 views; 360 px layout; skip link.
 - **Release engineering**: `build/ci.sh`, signed SHA256SUMS, licence inventory, reproducible web app, packs, CLI,
-  wasm, desktop binary and `.deb`.
+  wasm, desktop binary and `.deb`; Nix flake (dev shell + CLI build) tested in a Nix container.
+- **Browser storage honesty**: quota shown, persistence requested only on request, message matches the browser's
+  answer in all three engines; model licence verification recorded (docs/AI.md).
 
 ## Implemented but untested
 - Windows and macOS desktop builds (Tauri platform configs, runner build scripts adapted from Lastbook, CI matrix).
@@ -43,7 +45,8 @@ the acceptance matrix is in PLAN.md.
 - Kiwix ZIM and Lastbook 1.x map import (reported as unsupported; originals kept).
 - Native mobile apps (engine API and `lbn-core` are ready for them).
 - Very large libraries: the search index is held in memory per pack (fine for the 2.8 GB imported library).
-- Nix flake (D-018): not added; the pinned container is the tested reproducible environment.
+- **Public release readiness**: `build/public-readiness.sh` passes everything except the trusted key (a decision
+  for the publisher, see above).
 
 ## Known limitations
 - AI answers can be wrong; the app checks citations and numbers but cannot guarantee correctness.

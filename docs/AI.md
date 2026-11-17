@@ -30,10 +30,20 @@ answers a question **only from the installed packs**, citing exact sources. Noth
 | Context | 4096 tokens |
 | Native runtime | `lastbook-llm` (Lastbook's pipe-only runner) on llama.cpp b12032 (`dde879bc`), CPU, all x86-64 CPU variants (SSE4.2 → AVX-512) selected at run time; Vulkan optional at build time (not built or tested here) |
 | Browser runtime | wllama 3.13.0 (llama.cpp in WebAssembly), 1 thread, or up to 8 when cross-origin isolated |
-| Hardware | ~1.9 GB RAM while answering (measured peak RSS 1.84 GB); ≥ 4 GB total RAM recommended; no GPU needed |
+| Hardware | x86-64 CPU with SSE4.2 or newer (or aarch64), ~1.9 GB RAM while answering (measured peak RSS 1.84 GB), ≥ 4 GB total RAM recommended, ~1.1 GB disk; no GPU needed. Browser: same RAM plus the 1.1 GB pack inside the origin's storage quota |
 
 A smaller pack (Qwen2.5-0.5B-Instruct, same licence) exists for constrained devices but is **not recommended**: it
 gave a wrong bleach dose in testing.
+
+## Licence verification (model packs)
+Checked on 2026-11-16 for the exact revision that is packed, not the model family:
+- Publisher: the model's own authors (`Qwen` organisation), repository `Qwen/Qwen2.5-1.5B-Instruct-GGUF` at revision
+  `91cad51…`; the repository is not gated (no click-through terms).
+- Licence: the repository's `LICENSE` file is the Apache License 2.0 text (SHA-256 `832dd9e0…292e92e`), and the model
+  card metadata says `license: apache-2.0`, `base_model: Qwen/Qwen2.5-1.5B-Instruct`. Apache-2.0 allows redistribution
+  with the licence and notices, so the pack ships `model/LICENSE` (same SHA-256) and the model card.
+- Same checks for `Qwen2.5-0.5B-Instruct-GGUF` @ `9217f5d…`. Not every size is Apache-2.0 (Qwen2.5-3B is not): check
+  each model and revision before packing. This is a licence reading, not legal advice.
 
 ## Measured on the test machine (Ryzen, 16 threads, 27 GiB RAM)
 - Native CPU (4 threads): load 1.0 s, first token 0.33 s, 52 tokens/s; typical answer 3–5 s. Grounded test: 7/7.

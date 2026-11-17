@@ -64,6 +64,7 @@ with the new citation target, a `personal-…-v1.sqlite` backup kept, and `lastb
 | ephemeral (private) window explains it cannot store a library | — | — | pass |
 | real AI answer (1.5B) with citation that opens | pass (37.6 s) | pass (27.4 s) | 1.5B refused up front: quota 1000 MB (low-space state) ; 0.5B feasibility answer 23 s |
 | axe-core WCAG 2 A/AA on 11 views + 360 px layout + skip link | pass | — | — |
+| storage card shows quota; persistence message matches `navigator.storage.persisted()` after the request; no page claims permanence | pass (headless denied persistence) | pass (denied) | pass (denied) |
 | broken app update (new service worker lists an undeliverable file): old version keeps running, online and offline | pass | — | — |
 
 ### Local AI quality and speed
@@ -86,6 +87,10 @@ Identical across two independent builds: web app, the four content `.lbpack` fil
 (container), desktop binary, and the `.deb` after deterministic re-packing (before that it differed by timestamps
 only). Not checked: AppImage, model packs.
 
+### Nix (in `nixos/nix` container, pinned digest)
+`nix develop`: Rust 1.95.0 (via rust-toolchain.toml), Node 22, WebKitGTK 2.54.2; core tests pass inside the shell.
+`nix build .#lastbook-cli`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
+
 ### Release
 `build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
 `lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
@@ -103,6 +108,8 @@ each test.
 - Real Safari (macOS/iOS), mobile browsers, Firefox map drawing with a GPU, offline cold start outside Chromium.
 - Vulkan/GPU inference; machines with little RAM (fit check measured only on this 27 GiB machine).
 - Manual screen-reader use (only automated axe checks).
+- The "persistent storage granted" message: every headless browser here denied persistence, so only the
+  "not persistent" path was observed.
 - Very large packs (index is held in memory per pack; tested up to the 2.8 GB imported library).
 - Hosting on a real HTTPS server (tests use a loopback HTTP server; HTTPS is used only for public downloads during
   development).
