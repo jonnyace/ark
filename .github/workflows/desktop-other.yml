@@ -34,7 +34,8 @@ jobs:
       - name: One real answer with the model (CPU)
         run: |
           curl -sSfL -o model.gguf "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf"
-          echo "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e  model.gguf" | shasum -a 256 -c
+          echo "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e  model.gguf" > model.sha256
+          if command -v sha256sum >/dev/null; then sha256sum -c model.sha256; else shasum -a 256 -c model.sha256; fi
           python3 tools/runner_probe.py "${{ matrix.runner_dir }}/lastbook-llm${{ matrix.exe }}" model.gguf
       - run: bash build/gen-ts.sh && bash build/build-wasm.sh && (cd apps/web && npx vite build)
       - run: cd apps/desktop && npx tauri build --bundles ${{ matrix.bundles }}

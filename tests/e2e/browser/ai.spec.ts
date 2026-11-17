@@ -9,7 +9,13 @@ test("browser local AI answers from the library with citations", async ({ page, 
   test.setTimeout(1_500_000);
   for (const p of ["org.lastbook.sample.docs", "org.lastbook.model.qwen2.5-1.5b-instruct"]) {
     await installFromAddress(page, `http://127.0.0.1:18787/packs/${p}/pack.json`);
-    await expect(page.locator(`[data-testid="pack"][data-pack="${p}"]`)).toBeVisible({ timeout: 600_000 });
+    try {
+      await expect(page.locator(`[data-testid="pack"][data-pack="${p}"]`)).toBeVisible({ timeout: 600_000 });
+    } catch (e) {
+      console.log(`install of ${p} did not finish; jobs: ${await page.locator('[data-testid="job"]').allTextContents()}`);
+      console.log(`storage: ${await page.getByRole("region", { name: "Storage" }).textContent().catch(() => "?")}`);
+      throw e;
+    }
   }
   await page.goto("/#/ai");
   await expect(page.getByText(/Runtime available: wllama/)).toBeVisible({ timeout: 30_000 });
