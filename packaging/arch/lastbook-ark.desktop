@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Lastbook Ark
+GenericName=Offline library
+Comment=Offline documents, maps and videos with optional local AI
+Exec=lastbook-ark
+Icon=lastbook-ark
+Terminal=false
+Categories=Education;Reference;
+Keywords=offline;library;survival;maps;
+StartupWMClass=lastbook-ark
