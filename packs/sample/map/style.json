@@ -1,6 +1,6 @@
 {
  "version": 8,
- "name": "Lastbook Ark offline map (light)",
+ "name": "Ark offline map (light)",
  "glyphs": "fonts/{fontstack}/{range}.pbf",
  "sprite": "sprites/light",
  "sources": {

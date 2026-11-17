@@ -1,4 +1,4 @@
-# Lastbook Ark pack format, version 1
+# Ark pack format, version 1
 
 A **pack** is an immutable, versioned bundle of library content (documents, encyclopedia articles, videos, maps) or of
 one AI model. Packs are installed, verified, activated, rolled back and removed independently. This document is the
@@ -36,7 +36,7 @@ Transports:
   "description": "…",
   "language": "en",
   "created": "2026-11-17",
-  "publisher": {"name": "Lastbook Ark contributors", "url": "https://…"},
+  "publisher": {"name": "Ark contributors", "url": "https://…"},
   "license": {"spdx": "CC0-1.0", "attribution": "…", "file": "LICENSES/CC0-1.0.txt", "redistributable": true},
   "compat": {"min_engine_api": 1, "note": "optional text for people"},
   "resources": [ … ],
@@ -142,6 +142,6 @@ the same way. A catalog's `expires` date only limits finding new packs; installe
 
 ## Building packs
 
-`lastbook pack build <src> <out> [--sign key]` from a folder with `pack.src.json` (the manifest without
+`ark-pack pack build <src> <out> [--sign key]` from a folder with `pack.src.json` (the manifest without
 `format`, `files` and `index`; PDFs may give `text_pages`, a JSON array of page texts from
-`apps/web/tools/pdf-pages.mjs`). `lastbook pack zip` writes the `.lbpack`. See `packs/sample/*/pack.src.json`.
+`apps/web/tools/pdf-pages.mjs`). `ark-pack pack zip` writes the `.lbpack`. See `packs/sample/*/pack.src.json`.

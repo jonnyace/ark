@@ -41,7 +41,7 @@ jobs:
       - run: cd apps/desktop && npx tauri build --bundles ${{ matrix.bundles }}
       - uses: actions/upload-artifact@v4
         with:
-          name: lastbook-ark-${{ matrix.os }}-unsigned
+          name: ark-library-${{ matrix.os }}-unsigned
           path: |
             target/release/bundle/**/*.dmg
             target/release/bundle/**/*.exe

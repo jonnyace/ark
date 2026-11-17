@@ -1,7 +1,7 @@
 {
   # Optional Nix entry points for development and for a reproducible build of the CLI. Nix is never needed to run
   # the apps. The desktop bundles are built in the pinned container (build/desktop.sh); see DECISIONS.md D-018.
-  description = "Lastbook Ark: offline knowledge library with optional local AI";
+  description = "Ark: offline knowledge library with optional local AI";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/b349185bb79c7cf7ad8ea8c097931730bf473c71"; # nixos-26.05, 2026-11-15
   outputs = { self, nixpkgs }:
     let
@@ -19,18 +19,18 @@
           ];
         };
       });
-      # `nix build .#lastbook-cli`: the command-line tool from the locked Cargo graph, in the Nix sandbox.
+      # `nix build .#ark-pack`: the command-line tool from the locked Cargo graph, in the Nix sandbox.
       packages = forAll (pkgs: rec {
-        lastbook-cli = pkgs.rustPlatform.buildRustPackage {
-          pname = "lastbook-cli";
+        ark-pack = pkgs.rustPlatform.buildRustPackage {
+          pname = "ark-pack";
           version = "0.9.0-rc.1";
           src = pkgs.lib.cleanSource ./.;
           cargoLock.lockFile = ./Cargo.lock;
           cargoBuildFlags = [ "-p" "lbn-cli" ];
           cargoTestFlags = [ "-p" "lbn-core" ];
-          meta = { description = "Build, inspect, verify, install and search Lastbook Ark packs"; license = pkgs.lib.licenses.mit; mainProgram = "lastbook"; };
+          meta = { description = "Build, inspect, verify, install and search Ark packs"; license = pkgs.lib.licenses.mit; mainProgram = "ark-pack"; };
         };
-        default = lastbook-cli;
+        default = ark-pack;
       });
     };
 }

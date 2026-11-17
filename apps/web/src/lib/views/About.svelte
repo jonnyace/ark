@@ -6,7 +6,7 @@
 
 <h1 tabindex="-1">About</h1>
 <section class="card">
-  <p><strong>Lastbook Ark</strong> {app.hello?.engine_version} · engine API {app.hello?.api_version} · {app.hello?.platform}{#if build} · app build {build.version}{/if}</p>
+  <p><strong>Ark</strong> {app.hello?.engine_version} · engine API {app.hello?.api_version} · {app.hello?.platform}{#if build} · app build {build.version}{/if}</p>
   <p>An open-source offline library. After you install packs, it needs no internet, account, server or subscription. It
     sends nothing anywhere. Downloads happen only when you choose them.</p>
   <p>Source code: MIT licence. Builds on <a href="https://github.com/Immortal-Protocols/lastbook">Lastbook</a> (MIT), llama.cpp (MIT),

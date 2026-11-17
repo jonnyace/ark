@@ -1,5 +1,5 @@
 {
-  "name": "@lastbook-ark/e2e",
+  "name": "@ark-library/e2e",
   "private": true,
   "type": "module",
   "scripts": {

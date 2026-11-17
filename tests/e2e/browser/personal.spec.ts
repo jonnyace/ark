@@ -8,7 +8,7 @@ test("personal data from schema 1 is migrated, kept and exportable", async ({ pa
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   // Play an older app: write a schema-1 record directly.
   await page.evaluate(() => new Promise<void>((res, rej) => {
-    const r = indexedDB.open("lastbook-ark");
+    const r = indexedDB.open("ark-library");
     r.onsuccess = () => {
       const tx = r.result.transaction("kv", "readwrite");
       tx.objectStore("kv").put({ schema: 1, data: { bookmarks: [{ id: "b1", pack: "org.lastbook.sample.docs", resource: "supplies-checklist", page: 2, title: "Old bookmark", created: "2026-01-01" }], history: [], settings: { ai_enabled: false } } }, "personal");
@@ -20,7 +20,7 @@ test("personal data from schema 1 is migrated, kept and exportable", async ({ pa
   await page.reload();
   await expect(page.getByRole("link", { name: "Old bookmark" })).toHaveAttribute("href", /supplies-checklist%23page%3D2/);
   const backups = await page.evaluate(() => new Promise<string[]>((res) => {
-    const r = indexedDB.open("lastbook-ark");
+    const r = indexedDB.open("ark-library");
     r.onsuccess = () => { const q = r.result.transaction("kv").objectStore("kv").getAllKeys(); q.onsuccess = () => res(q.result as string[]); };
   }));
   expect(backups.some((k) => /^backup-\d+-v1$/.test(k))).toBe(true);

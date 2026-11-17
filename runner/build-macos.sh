@@ -1,5 +1,5 @@
 #!/bin/bash
-# ADAPTED from Lastbook packaging/llm/build_llm_macos.sh (MIT, Lastbook contributors). UNTESTED in lastbook-ark:
+# ADAPTED from Lastbook packaging/llm/build_llm_macos.sh (MIT, Lastbook contributors). UNTESTED in ark-library:
 # no macOS machine was available. Output goes to $W/runner-bin-macos (default W=.dev-cache) instead of derived/llm/.
 # Builds lastbook-llm for Apple Silicon: llama.cpp at the pinned tag, Metal, linked into one program with nothing left
 # that can open a socket (no RPC backend, no common library beyond the fitting and its log). Run from anywhere:

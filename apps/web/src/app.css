@@ -1,4 +1,4 @@
-/* Lastbook Ark: system fonts only (nothing fetched), readable sizes, visible focus, light and dark themes. */
+/* Ark: system fonts only (nothing fetched), readable sizes, visible focus, light and dark themes. */
 :root {
   --bg: #f6f4ef; --fg: #1b1f24; --muted: #5a6470; --card: #ffffff; --line: #d9d4c8;
   --accent: #1d3557; --accent-fg: #ffffff; --link: #1b4f8a; --ok: #1f6f43; --warn: #8a5a00; --bad: #a3221c;

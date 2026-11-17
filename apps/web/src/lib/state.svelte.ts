@@ -47,7 +47,7 @@ export async function refreshStorage() {
 export async function boot() {
   try {
     engine = await getEngine();
-    app.hello = await engine.call({ cmd: "hello", args: { client: "lastbook-ark-ui" } });
+    app.hello = await engine.call({ cmd: "hello", args: { client: "ark-library-ui" } });
     engine.on((e) => {
       if (e.event === "job") {
         const i = app.jobs.findIndex((j) => j.job === e.data.job);

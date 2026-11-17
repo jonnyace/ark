@@ -4,11 +4,11 @@
 # .dev-cache/container-cargo/bin (installed by tests/e2e/desktop/run.sh).
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; cd "$ROOT"
-docker build -q -t lastbook-ark-arch-test:dev tests/arch >/dev/null
-APP="$(ls dist/desktop/lastbook-ark_*_x86_64.AppImage | head -1)"
+docker build -q -t ark-library-arch-test:dev tests/arch >/dev/null
+APP="$(ls dist/desktop/ark-library_*_x86_64.AppImage | head -1)"
 docker run --rm --network none -u "$(id -u):$(id -g)" -v /etc/passwd:/etc/passwd:ro -v "$ROOT:/src" \
   -v "$ROOT/.dev-cache/container-cargo/bin/tauri-driver:/usr/local/bin/tauri-driver:ro" -w /src \
-  -e HOME=/tmp -e LBN_DATA=${ARCH_DATA:-/src/.dev-cache/e2e/desktop-data} lastbook-ark-arch-test:dev bash -c "
+  -e HOME=/tmp -e LBN_DATA=${ARCH_DATA:-/src/.dev-cache/e2e/desktop-data} ark-library-arch-test:dev bash -c "
   export XDG_RUNTIME_DIR=/tmp/xdg APPIMAGE_EXTRACT_AND_RUN=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 LIBGL_ALWAYS_SOFTWARE=1 NO_AT_BRIDGE=1
   mkdir -p \$XDG_RUNTIME_DIR; chmod 700 \$XDG_RUNTIME_DIR
   Xvfb :99 -screen 0 1280x900x24 >/tmp/xvfb.log 2>&1 & export DISPLAY=:99

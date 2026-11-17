@@ -45,10 +45,10 @@ estimated unless it says so.
   WebKit ignores `default` on late-added tracks; an ask event race in the UI.
 
 ### Clean-machine install — `tests/clean-install/run.sh`
-Plain `debian:trixie-slim` (pinned digest), `apt-get install ./lastbook-ark_0.9.0-rc.1_amd64.deb`: installs app,
+Plain `debian:trixie-slim` (pinned digest), `apt-get install ./ark-library_0.9.0-rc.1_amd64.deb`: installs app,
 CLI and runner with dependencies resolved by apt. Then install phase 7/7 and offline phase 14/14 on
-`/usr/bin/lastbook-ark`; a schema-1 personal database seeded beforehand ("older app") is migrated, its bookmark shown
-with the new citation target, a `personal-…-v1.sqlite` backup kept, and `lastbook export` writes the data.
+`/usr/bin/ark-library`; a schema-1 personal database seeded beforehand ("older app") is migrated, its bookmark shown
+with the new citation target, a `personal-…-v1.sqlite` backup kept, and `ark-pack export` writes the data.
 
 ### Browser (PWA) — `tests/e2e/browser/` (Playwright)
 | Spec | Chromium 159 | Firefox | WebKit 27.2 |
@@ -83,7 +83,7 @@ Real 7.2 GB library (read-only): 234 items imported (148 PDF, 45 HTML, 41 video)
 list, sizes and modification times are unchanged (checked by hash of the listing before and after).
 
 ### Reproducibility — `build/repro-check.sh --desktop`
-Identical across two independent builds: web app, the four content `.lbpack` files, `lastbook` CLI and `lbn-wasm`
+Identical across two independent builds: web app, the four content `.lbpack` files, `ark-pack` CLI and `lbn-wasm`
 (container), desktop binary, and the `.deb` after deterministic re-packing (before that it differed by timestamps
 only). Not checked: AppImage, model packs.
 
@@ -97,7 +97,7 @@ only). Not checked: AppImage, model packs.
 
 ### Windows build, cross-compiled from Linux and run under Wine (`build/windows-cross.sh`)
 Wine is not Windows; these results show the Windows build compiles and its non-GUI parts work.
-- `lastbook.exe`, `lastbook-ark.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
+- `ark-pack.exe`, `ark-library.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
 - All 44 Rust tests compiled for `x86_64-pc-windows-gnu` pass under Wine, including the install-safety suite against a
   real HTTP server (renames, paths, resume, tamper, rollback).
 - Windows CLI under Wine: installed the four signed sample packs, verify/search/resolve/export work.
@@ -108,15 +108,15 @@ Wine is not Windows; these results show the Windows build compiles and its non-G
 
 ### Nix (in `nixos/nix` container, pinned digest)
 `nix develop`: Rust 1.95.0 (via rust-toolchain.toml), Node 22, WebKitGTK 2.54.2; core tests pass inside the shell.
-`nix build .#lastbook-cli`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
+`nix build .#ark-pack`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
 
 ### Release
 `build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
-`lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
+`ark-pack verify-file SHA256SUMS` accepts the real file and rejects a modified one.
 
-### Final full run after the rename to Lastbook Ark — 2026-11-17, commit a13640a + build-script fixes
+### Final full run after the rename to Ark — 2026-11-17, commit a13640a + build-script fixes
 `build/with-signing-key.sh … build/ci.sh --all` then `build/windows-cross.sh`, everything re-signed with the
-"Lastbook Ark publisher" key: fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build;
+"Ark publisher" key: fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build;
 browser suite 36 passed on Chromium, Firefox and WebKit (offline cold start on all three) plus headed Firefox drawing
 the map online and offline; desktop journey 7/7 and 14/14 offline; AppImage 14/14 offline; clean-machine install
 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7; Windows cross-build with 44 Rust tests
@@ -133,7 +133,7 @@ still in the build folder; the build scripts now clear old bundles and output fo
 
 ### Windows build, cross-compiled from Linux and run under Wine (`build/windows-cross.sh`)
 Wine is not Windows; these results show the Windows build compiles and its non-GUI parts work.
-- `lastbook.exe`, `lastbook-ark.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
+- `ark-pack.exe`, `ark-library.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
 - All 44 Rust tests compiled for `x86_64-pc-windows-gnu` pass under Wine, including the install-safety suite against a
   real HTTP server (renames, paths, resume, tamper, rollback).
 - Windows CLI under Wine: installed the four signed sample packs, verify/search/resolve/export work.
@@ -144,17 +144,17 @@ Wine is not Windows; these results show the Windows build compiles and its non-G
 
 ### Nix (in `nixos/nix` container, pinned digest)
 `nix develop`: Rust 1.95.0 (via rust-toolchain.toml), Node 22, WebKitGTK 2.54.2; core tests pass inside the shell.
-`nix build .#lastbook-cli`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
+`nix build .#ark-pack`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
 
 ### Release
 `build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
-`lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
+`ark-pack verify-file SHA256SUMS` accepts the real file and rejects a modified one.
 
 ### Final full run — `build/with-signing-key.sh … build/ci.sh --all`, 2026-11-17, commit 27cadc8
 After switching to the publisher key (packs, catalog, CLI, web app and desktop rebuilt and re-signed), all steps
 passed (exit 0): fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build; browser suite
 36 passed on Chromium, Firefox and WebKit (including offline cold start on all three), plus headed Firefox drawing the
-map online and offline; desktop journey 7/7 and 14/14 offline ("signed by Lastbook Ark publisher"); AppImage 14/14
+map online and offline; desktop journey 7/7 and 14/14 offline ("signed by Ark publisher"); AppImage 14/14
 offline; clean-machine install 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7.
 The GPU probe ran in the previous full run (commit 12926c0). An earlier run failed once because Playwright profiles
 were in a RAM-backed /tmp; they now go to `.dev-cache/tmp`.

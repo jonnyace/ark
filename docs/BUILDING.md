@@ -1,4 +1,4 @@
-# Building, testing and distributing Lastbook Ark
+# Building, testing and distributing Ark
 
 Everything here runs on an ordinary Linux machine with Docker. No account, service or machine of the original
 authors is needed. CI (`.github/workflows/`) only calls these same scripts.
@@ -24,7 +24,7 @@ source ~/.nvm/nvm.sh                                  # or any Node 22 on PATH
 pnpm install --frozen-lockfile
 npx --prefix tests/e2e playwright install chromium firefox webkit   # only for browser tests
 runner/build.sh                                       # llama.cpp runner (CPU) -> .dev-cache/runner-bin
-cargo build --release --locked -p lbn-cli             # the `lastbook` tool
+cargo build --release --locked -p lbn-cli             # the `ark-pack` tool
 build/gen-ts.sh && build/build-wasm.sh                # engine types + browser engine
 (cd apps/web && npx vite build)                       # PWA -> apps/web/dist
 LBN_SIGNING_KEY=<your key> build/make-sample-packs.sh # sample + model packs -> dist/packs (downloads models once)
@@ -46,19 +46,19 @@ build/repro-check.sh [--desktop]   # build twice, compare bytes
 
 ## Becoming the publisher (new maintainer)
 
-The apps trust the keys in `keys/trusted.json`, embedded at build time. Today that is the "Lastbook Ark publisher" key,
+The apps trust the keys in `keys/trusted.json`, embedded at build time. Today that is the "Ark publisher" key,
 whose secret is kept in the current maintainers' secret store (never in the repository). A maintainer who takes over
 without access to it publishes under their own key:
 
-1. `lastbook key gen ~/.config/lastbook-ark/keys/publisher --name "Your project"` (keep the `.key` secret; offline
+1. `ark-pack key gen ~/.config/ark-library/keys/publisher --name "Your project"` (keep the `.key` secret; offline
    backup recommended).
 2. Put the public key in `keys/trusted.json` (and remove keys you do not control). The apps embed this list at build
    time; people can add more keys at run time (`trusted-keys.json` in the data folder).
 3. Sign (`LBN_SIGNING_KEY=<key file>`, or `build/with-signing-key.sh <secret-store reference> <command>` so the key is
-   only on disk while signing) packs (`lastbook pack build … --sign key`), catalogs (`lastbook pack sign-catalog`) and release checksums
+   only on disk while signing) packs (`ark-pack pack build … --sign key`), catalogs (`ark-pack pack sign-catalog`) and release checksums
    (`build/release.sh` with `LBN_SIGNING_KEY`).
 4. Host `dist/packs/` on any static HTTPS server (catalog + pack folders + `.lbpack` files). Range requests make
-   downloads resumable. The PWA can be hosted on the same server (`lastbook-ark-web-<version>.tar.gz`); for
+   downloads resumable. The PWA can be hosted on the same server (`ark-library-web-<version>.tar.gz`); for
    multi-threaded browser AI the host should send `Cross-Origin-Opener-Policy: same-origin` and
    `Cross-Origin-Embedder-Policy: require-corp` (the service worker adds them to cached responses after the first
    visit).
@@ -67,11 +67,11 @@ Before a public release run `build/public-readiness.sh`: it refuses while the re
 release or catalog is not signed by a trusted key, the tree
 is dirty, or the release is unsigned or built from uncommitted sources.
 
-Nix (optional): `nix develop` gives all tools and SDKs; `nix build .#lastbook-cli` builds the CLI reproducibly.
+Nix (optional): `nix develop` gives all tools and SDKs; `nix build .#ark-pack` builds the CLI reproducibly.
 
 ## Releases and updates
 
-- `SHA256SUMS` lists every artefact; `SHA256SUMS.minisig` signs it. People verify with `lastbook verify-file
+- `SHA256SUMS` lists every artefact; `SHA256SUMS.minisig` signs it. People verify with `ark-pack verify-file
   SHA256SUMS` (or `minisign -Vm SHA256SUMS -p publisher.pub`) and then `sha256sum -c SHA256SUMS`.
 - The apps never update themselves. The desktop app is updated through the package manager (`apt install ./new.deb`);
   personal data migrates with a backup; packs are untouched. The PWA updates when its service worker finds a new build
@@ -83,7 +83,7 @@ Nix (optional): `nix develop` gives all tools and SDKs; `nix build .#lastbook-cl
 
 ## Reproducibility (measured, see TESTING.md)
 
-Byte-identical across two independent builds: web app, all content packs (.lbpack), `lastbook` CLI and wasm module
+Byte-identical across two independent builds: web app, all content packs (.lbpack), `ark-pack` CLI and wasm module
 (container), desktop binary, `.deb` (re-packed with fixed times). Not checked/not expected: AppImage (bundler pulls
 `linuxdeploy` "continuous" builds at build time — an unpinned input), model packs (identical inputs, but large; same
 builder as content packs).
@@ -92,7 +92,7 @@ builder as content packs).
 
 ```
 crates/lbn-core     engine rules (no I/O; native + wasm)        crates/lbn-native  desktop/CLI adapter
-crates/lbn-cli      `lastbook` tool                              crates/lbn-wasm    browser bindings
+crates/lbn-cli      `ark-pack` tool                              crates/lbn-wasm    browser bindings
 apps/web            shared Svelte UI + browser engine (worker)   apps/desktop       Tauri shell
 runner/             llama.cpp runner (from Lastbook)             packs/             sample + model pack sources
 tests/              browser (Playwright), desktop (WebDriver), clean install    build/  scripts, container

@@ -1,6 +1,6 @@
 {
-  "name": "Lastbook Ark",
-  "short_name": "Lastbook",
+  "name": "Ark",
+  "short_name": "Ark",
   "description": "An offline library of documents, maps and videos, with optional local AI.",
   "start_url": "./",
   "scope": "./",

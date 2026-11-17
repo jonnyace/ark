@@ -1,28 +1,28 @@
 # Handoff
 
 ## Where things are
-- Repository `~/src/lastbook-ark`, public at https://github.com/jonnyace/lastbook-ark. Work is on branch `work/rc1`,
+- Repository `~/src/ark-library`, public at https://github.com/jonnyace/ark. Work is on branch `work/rc1`,
   proposed to `main` in PR #1 (merge after review). No GitHub release has been published; artefacts are built locally.
 - Upstream references, read-only and unchanged: `~/src/lastbook`, `~/src/lastbook-omarchy`. The real old library
   used for import tests (a local copy outside this repository) was only read.
 - Outside git (rebuildable): `.dev-cache/` (llama.cpp checkout, runner build, models, container caches, test data),
   `dist/` (packs, desktop artefacts, release).
-- Publisher signing key: the secret is only in the maintainers' 1Password vault (item "Lastbook Ark publisher signing key
+- Publisher signing key: the secret is only in the maintainers' 1Password vault (item "Ark publisher signing key
   (minisign)", field "secret key"); public key in `keys/publisher.pub` and `keys/trusted.json`. Sign with
   `build/with-signing-key.sh "op://<vault>/<item id>/secret key" <command>` (maintainers know the reference).
-- Build image: `lastbook-ark-build:dev` from `build/docker/Dockerfile`.
+- Build image: `ark-library-build:dev` from `build/docker/Dockerfile`.
 - Test server port 18787 (and 18790–18792 in some specs). Port 8787 belongs to another service on this machine.
 
 ## Install the release candidate (clean Linux machine, Debian 13 tested)
 ```bash
 cd dist/release/0.9.0-rc.1
-tar xzf lastbook-cli-0.9.0-rc.1-linux-x86_64.tar.gz
-lastbook-cli-0.9.0-rc.1-linux-x86_64/lastbook verify-file SHA256SUMS   # or: minisign -Vm SHA256SUMS -p keys/publisher.pub
+tar xzf ark-pack-0.9.0-rc.1-linux-x86_64.tar.gz
+ark-pack-0.9.0-rc.1-linux-x86_64/ark-pack verify-file SHA256SUMS   # or: minisign -Vm SHA256SUMS -p keys/publisher.pub
 sha256sum -c SHA256SUMS
-sudo apt install ./lastbook-ark_0.9.0-rc.1_amd64.deb
-lastbook-ark                              # Packs → open packs/*.lbpack, or a catalog address
+sudo apt install ./ark-library_0.9.0-rc.1_amd64.deb
+ark-library                              # Packs → open packs/*.lbpack, or a catalog address
 ```
-Browser: serve `lastbook-ark-web-0.9.0-rc.1.tar.gz` (unpacked) and `packs/` from any static HTTPS host; open it once.
+Browser: serve `ark-library-web-0.9.0-rc.1.tar.gz` (unpacked) and `packs/` from any static HTTPS host; open it once.
 
 ## Rebuild and re-test from scratch
 ```bash
@@ -34,7 +34,7 @@ build/with-signing-key.sh "$K" build/ci.sh --all   # everything: fast, browser (
 build/with-signing-key.sh "$K" build/release.sh && build/public-readiness.sh
 build/repro-check.sh --desktop
 ```
-Desktop by hand (needs a display): `dist/desktop/lastbook-ark` (runner is found in `dist/desktop/runner/`).
+Desktop by hand (needs a display): `dist/desktop/ark-library` (runner is found in `dist/desktop/runner/`).
 Headless: `tests/e2e/desktop/run.sh <script.mjs> …` runs WebDriver scripts in the container under Xvfb.
 
 ## Next steps (in priority order)

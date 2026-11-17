@@ -1,4 +1,4 @@
-# Build and test environment for lastbook-ark on Linux.
+# Build and test environment for ark-library on Linux.
 # Holds everything the desktop (Tauri/WebKitGTK), the llama.cpp runner, the web app and
 # the end-to-end tests need, so a maintainer only needs Docker (or the same packages on a
 # Debian 13 machine) and not this project's original machines or accounts.

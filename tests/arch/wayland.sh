@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
-# Run a desktop test script with Lastbook Ark as a pure Wayland client on Arch: no X server, DISPLAY unset,
+# Run a desktop test script with Ark as a pure Wayland client on Arch: no X server, DISPLAY unset,
 # GDK_BACKEND=wayland. COMPOSITOR=sway (default; headless wlroots) or COMPOSITOR=hyprland (Hyprland nested in headless
 # sway, software rendering). Offline (--network none).
 #   tests/arch/wayland.sh <app path inside /src> [script] [args...]
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; cd "$ROOT"
-docker build -q -t lastbook-ark-arch-test:dev tests/arch >/dev/null
-docker build -q -t lastbook-ark-arch-wayland:dev -f tests/arch/wayland.Dockerfile tests/arch >/dev/null
+docker build -q -t ark-library-arch-test:dev tests/arch >/dev/null
+docker build -q -t ark-library-arch-wayland:dev -f tests/arch/wayland.Dockerfile tests/arch >/dev/null
 APP="$1"; shift; SCRIPT="${1:-tests/e2e/desktop/journey.mjs}"; shift || true; ARGS="${*:-offline /src/.dev-cache/e2e}"
 docker run --rm --network none -u "$(id -u):$(id -g)" -v /etc/passwd:/etc/passwd:ro -v "$ROOT:/src" \
   -v "$ROOT/.dev-cache/container-cargo/bin/tauri-driver:/usr/local/bin/tauri-driver:ro" -w /src \
   -e HOME=/tmp -e LBN_DATA="${LBN_DATA:-/src/.dev-cache/e2e/desktop-data}" -e COMPOSITOR="${COMPOSITOR:-sway}" \
-  lastbook-ark-arch-wayland:dev bash -c "
+  ark-library-arch-wayland:dev bash -c "
   export XDG_RUNTIME_DIR=/tmp/xdg APPIMAGE_EXTRACT_AND_RUN=1 LIBGL_ALWAYS_SOFTWARE=1 NO_AT_BRIDGE=1
   mkdir -p \$XDG_RUNTIME_DIR; chmod 700 \$XDG_RUNTIME_DIR; unset DISPLAY
   eval \$(dbus-launch --sh-syntax)

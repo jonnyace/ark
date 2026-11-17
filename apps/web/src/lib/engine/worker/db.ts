@@ -1,7 +1,7 @@
 // Small promise wrapper around IndexedDB for the browser registry and personal data.
 // Stores: builds [id, manifest_sha256] -> Build; active id -> Active; jobs id -> JobRecord; kv key -> value (personal data,
 // backups, settings that must survive an app update).
-export const DB_NAME = "lastbook-ark";
+export const DB_NAME = "ark-library";
 export const DB_VERSION = 1;
 
 let dbp: Promise<IDBDatabase> | null = null;

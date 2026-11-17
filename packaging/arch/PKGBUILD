@@ -1,14 +1,14 @@
-# Maintainer: Lastbook Ark contributors
+# Maintainer: Ark contributors
 # Native Arch Linux (and Omarchy) package, built from source with Arch's toolchain and run on Arch's own WebKitGTK and
 # GStreamer. No Python at run time. Test: packaging/arch/test.sh (builds in a clean Arch container, installs with
 # pacman, runs the offline journey and AV1/H.264 playback).
-pkgname=lastbook-ark
+pkgname=ark-library
 _ver=0.9.0-rc.1
 pkgver=${_ver//-/}
 pkgrel=1
 pkgdesc="Offline knowledge library (documents, PDFs, video, maps) with optional local AI"
 arch=('x86_64')
-url="https://github.com/jonnyace/lastbook-ark"
+url="https://github.com/jonnyace/ark"
 license=('MIT')
 depends=(
   'webkit2gtk-4.1' 'gtk3' 'libsoup3' 'glib2' 'cairo' 'pango' 'gdk-pixbuf2' 'openssl' 'gcc-libs' 'glibc' 'hicolor-icon-theme'
@@ -19,7 +19,7 @@ depends=(
 makedepends=('rust' 'rust-wasm' 'cargo' 'nodejs' 'pnpm' 'cmake' 'ninja' 'git' 'pkgconf')
 optdepends=('xdg-desktop-portal-gtk: native file dialogs on Wayland compositors such as Hyprland')
 options=('!lto' '!debug')
-source=("$pkgname-$_ver.tar.gz::https://github.com/jonnyace/lastbook-ark/archive/refs/tags/v$_ver.tar.gz")
+source=("$pkgname-$_ver.tar.gz::https://github.com/jonnyace/ark/archive/refs/tags/v$_ver.tar.gz")
 sha256sums=('SKIP')   # set to the tag tarball's SHA-256 when the tag is published
 
 prepare() {
@@ -49,14 +49,14 @@ check() {
 
 package() {
   cd "$pkgname-$_ver"
-  install -Dm755 "$srcdir/target/release/lastbook-ark" "$pkgdir/usr/bin/lastbook-ark"
-  install -Dm755 "$srcdir/target/release/lastbook" "$pkgdir/usr/bin/lastbook"
-  install -d "$pkgdir/usr/lib/lastbook-ark/runner"
-  cp -a .dev-cache/runner-bin/. "$pkgdir/usr/lib/lastbook-ark/runner/"
-  install -Dm644 packaging/arch/lastbook-ark.desktop "$pkgdir/usr/share/applications/lastbook-ark.desktop"
-  install -Dm644 apps/web/public/icons/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/lastbook-ark.svg"
+  install -Dm755 "$srcdir/target/release/ark-library" "$pkgdir/usr/bin/ark-library"
+  install -Dm755 "$srcdir/target/release/ark-pack" "$pkgdir/usr/bin/ark-pack"
+  install -d "$pkgdir/usr/lib/ark-library/runner"
+  cp -a .dev-cache/runner-bin/. "$pkgdir/usr/lib/ark-library/runner/"
+  install -Dm644 packaging/arch/ark-library.desktop "$pkgdir/usr/share/applications/ark-library.desktop"
+  install -Dm644 apps/web/public/icons/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/ark-library.svg"
   for s in 32 128 256 512; do
-    install -Dm644 "apps/web/public/icons/icon-$s.png" "$pkgdir/usr/share/icons/hicolor/${s}x${s}/apps/lastbook-ark.png"
+    install -Dm644 "apps/web/public/icons/icon-$s.png" "$pkgdir/usr/share/icons/hicolor/${s}x${s}/apps/ark-library.png"
   done
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
   install -Dm644 NOTICE.md "$pkgdir/usr/share/licenses/$pkgname/NOTICE.md"

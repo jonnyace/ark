@@ -14,7 +14,7 @@ for i in 1 2; do (cd apps/web && rm -rf dist && npx vite build >/dev/null 2>&1);
 report "web app (all files)" "$(h "$W/web1.tar")" "$(h "$W/web2.tar")"
 
 # Content packs: build each from source twice, compare pack.json and .lbpack.
-CLI=target/release/lastbook
+CLI=target/release/ark-pack
 for p in docs video map encyclopedia; do
   for i in 1 2; do "$CLI" pack build packs/sample/$p "$W/$p$i" >/dev/null && "$CLI" pack zip "$W/$p$i" "$W/$p$i.lbpack" >/dev/null; done
   report "pack $p (.lbpack)" "$(h "$W/${p}1.lbpack")" "$(h "$W/${p}2.lbpack")"
@@ -22,14 +22,14 @@ done
 
 # CLI binary: two builds in the pinned container with separate target directories.
 for i in 1 2; do LBN_ENV=CARGO_TARGET_DIR=/src/.dev-cache/repro-target-$i build/in-container.sh "cargo build -q --release --locked -p lbn-cli" >/dev/null 2>&1; done
-report "lastbook CLI (container)" "$(h .dev-cache/repro-target-1/release/lastbook)" "$(h .dev-cache/repro-target-2/release/lastbook)"
+report "ark-pack CLI (container)" "$(h .dev-cache/repro-target-1/release/ark-pack)" "$(h .dev-cache/repro-target-2/release/ark-pack)"
 # wasm module
 for i in 1 2; do LBN_ENV=CARGO_TARGET_DIR=/src/.dev-cache/repro-target-$i build/in-container.sh "cargo build -q --release --locked -p lbn-wasm --target wasm32-unknown-unknown" >/dev/null 2>&1; done
 report "lbn-wasm module (container)" "$(h .dev-cache/repro-target-1/wasm32-unknown-unknown/release/lbn_wasm.wasm)" "$(h .dev-cache/repro-target-2/wasm32-unknown-unknown/release/lbn_wasm.wasm)"
 
 if [ "${1:-}" = "--desktop" ]; then
-  cp dist/desktop/lastbook-ark_*_amd64.deb "$W/a.deb"; cp dist/desktop/lastbook-ark "$W/a.bin"
+  cp dist/desktop/ark-library_*_amd64.deb "$W/a.deb"; cp dist/desktop/ark-library "$W/a.bin"
   build/desktop.sh >/dev/null 2>&1
-  report "desktop binary" "$(h "$W/a.bin")" "$(h dist/desktop/lastbook-ark)"
-  report "desktop .deb" "$(h "$W/a.deb")" "$(h dist/desktop/lastbook-ark_*_amd64.deb)"
+  report "desktop binary" "$(h "$W/a.bin")" "$(h dist/desktop/ark-library)"
+  report "desktop .deb" "$(h "$W/a.deb")" "$(h dist/desktop/ark-library_*_amd64.deb)"
 fi
