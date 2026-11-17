@@ -9,19 +9,34 @@
   let stream = $state("");
   let result = $state<AskResult | null>(null);
   let err = $state("");
+  // Events can arrive before the reply that tells us the ask id (a refusal needs no model and finishes at once), so
+  // events for unknown asks are kept and replayed when the id is known.
+  const early = new Map<string, any[]>();
   const off = eng().on((e) => {
+    const id = (e as any).data?.ask;
+    if (id && id !== ask && e.event.startsWith("ask_")) {
+      if (!early.has(id)) early.set(id, []);
+      early.get(id)!.push(e);
+      return;
+    }
+    handle(e);
+  });
+  function handle(e: any) {
     if (e.event === "ask_status" && e.data.ask === ask) status = e.data.status;
     if (e.event === "ask_token" && e.data.ask === ask) stream += e.data.text;
     if (e.event === "ask_done" && e.data.ask === ask) { result = e.data; ask = null; say(e.data.outcome === "answered" ? "Answer ready" : e.data.outcome === "no_evidence" ? "The library does not cover this" : "Stopped"); }
     if (e.event === "ask_error" && e.data.ask === ask) { err = `${e.data.message}`; ask = null; say("The answer failed"); }
-  });
+  }
   onDestroy(off);
   async function submit(e: Event) {
     e.preventDefault();
     if (!q.trim() || ask) return;
     stream = ""; result = null; err = ""; status = "starting";
     try {
-      ask = (await eng().call<{ ask: string }>({ cmd: "ask", args: { question: q, model: null } })).ask;
+      const id = (await eng().call<{ ask: string }>({ cmd: "ask", args: { question: q, model: null } })).ask;
+      ask = id;
+      for (const e of early.get(id) ?? []) handle(e);
+      early.delete(id);
     } catch (x: any) {
       err = x.message;
     }
