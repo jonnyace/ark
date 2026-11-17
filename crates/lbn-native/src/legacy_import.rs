@@ -36,6 +36,15 @@ fn read_info(lib: &Path) -> Result<LegacyInfo> {
         }
     }
     plan.resources = keep;
+    // The 1.x offline map is a custom SQLite format that this version does not read: say so, keep it in place.
+    if lib.join("derived/geo").is_dir() {
+        plan.unsupported.push(Unsupported {
+            id: "derived/geo".into(),
+            kind: "map".into(),
+            title: "Offline map (Lastbook 1.x format)".into(),
+            reason: "this map format is not supported; install a map pack instead. The original files are left in place".into(),
+        });
+    }
     let pj: serde_json::Value = std::fs::read(lib.join("pack.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
     let name = pj["name"].as_str().unwrap_or("library");
     let name: String = name.chars().filter(|c| c.is_ascii_alphanumeric()).collect::<String>().to_lowercase();
