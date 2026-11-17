@@ -31,8 +31,12 @@ test("install sample packs and use every viewer", async ({ page, browserName }) 
   await expect.poll(() => v.evaluate((e: HTMLVideoElement) => Math.floor(e.currentTime))).toBeGreaterThanOrEqual(13);
 
   await page.goto("/" + uri("lbn:org.lastbook.sample.map/ithaca#at=42.4396,-76.4970,15"));
-  if (browserName === "firefox") {
-    // Headless Firefox on this machine has no WebGL (even when forced): the app must say so instead of failing quietly.
+  const webgl = await page.evaluate(() => !!document.createElement("canvas").getContext("webgl2"));
+  console.log(`${browserName}: WebGL ${webgl ? "available, map must draw" : "unavailable, explicit message expected"}`);
+  if (!webgl) {
+    // Headless Firefox here has no WebGL (even when forced): the app must say so instead of failing quietly.
+    // Run with LBN_HEADED=1 under Xvfb to draw the map in Firefox.
+    expect(browserName).toBe("firefox");
     await expect(page.getByRole("alert")).toContainText("cannot draw maps: WebGL is not available");
   } else {
     await expect(page.locator('[data-testid="map"][data-loaded="true"]')).toBeVisible({ timeout: 30_000 });

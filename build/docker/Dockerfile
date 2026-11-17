@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       webkit2gtk-driver xvfb xauth dbus-x11 at-spi2-core \
       gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-gl \
       ffmpeg fonts-dejavu-core sqlite3 zip unzip jq python3 procps imagemagick \
+      libvulkan-dev glslc spirv-headers mesa-vulkan-drivers vulkan-tools patchelf \
     && rm -rf /var/lib/apt/lists/*
 
 ENV RUSTUP_HOME=/opt/rustup CARGO_HOME=/opt/cargo PATH=/opt/cargo/bin:/opt/node/bin:$PATH

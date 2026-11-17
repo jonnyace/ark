@@ -8,7 +8,7 @@ SCRIPT="$1"; shift
 exec build/in-container.sh "
   set -e
   export XDG_RUNTIME_DIR=/tmp/xdg; mkdir -p \$XDG_RUNTIME_DIR; chmod 700 \$XDG_RUNTIME_DIR
-  export WEBKIT_DISABLE_COMPOSITING_MODE=1 LIBGL_ALWAYS_SOFTWARE=1 NO_AT_BRIDGE=1
+  export WEBKIT_DISABLE_COMPOSITING_MODE=1 LIBGL_ALWAYS_SOFTWARE=1 NO_AT_BRIDGE=1 APPIMAGE_EXTRACT_AND_RUN=1
   Xvfb :99 -screen 0 1280x900x24 >/tmp/xvfb.log 2>&1 & export DISPLAY=:99
   eval \$(dbus-launch --sh-syntax)
   sleep 1

@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """Probe the lastbook-llm runner: one generation, timing and peak memory (VmHWM) from /proc.
-Usage: runner_probe.py RUNNER MODEL [--threads N]"""
+Usage: runner_probe.py RUNNER MODEL [--threads N] [--gpu]   (--gpu: let llama.cpp offload to Vulkan instead of CPU only)"""
 import json, subprocess, sys, time, threading
 runner, model = sys.argv[1], sys.argv[2]
-extra = sys.argv[3:]
+extra = [a for a in sys.argv[3:] if a != "--gpu"]
+cpu = [] if "--gpu" in sys.argv[3:] else ["--cpu-only"]
 seg = [["<|im_start|>system\n", True], ["Answer in one sentence using only the source. End the sentence with [S1].", False],
        ["<|im_end|>\n<|im_start|>user\n", True],
        ["Source [S1]: Bring water to a rolling boil for one minute to kill germs. At elevations above 6,500 feet, boil for three minutes.\n\nQuestion: How long should I boil water at high altitude?", False],
        ["<|im_end|>\n<|im_start|>assistant\n", True]]
 t0 = time.time()
-p = subprocess.Popen([runner, "--model", model, "--ctx", "4096", "--cpu-only", *extra], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=open("/dev/null", "w"), text=True)
+p = subprocess.Popen([runner, "--model", model, "--ctx", "4096", *cpu, *extra], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=open("/dev/null", "w"), text=True)
 peak = [0]
 def watch():
     while p.poll() is None:

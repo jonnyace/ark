@@ -87,6 +87,14 @@ Identical across two independent builds: web app, the four content `.lbpack` fil
 (container), desktop binary, and the `.deb` after deterministic re-packing (before that it differed by timestamps
 only). Not checked: AppImage, model packs.
 
+### AppImage, Firefox map, persistence granted, GPU (added after the first full run)
+- AppImage (with bundled GStreamer), `--network none`: offline journey 14/14. Before bundling GStreamer it crashed at
+  the video step.
+- Firefox headed under Xvfb (`LBN_HEADED=1 xvfb-run …`): WebGL available, the map draws; journey passes.
+- Firefox with persistent storage allowed by preference: the page shows "Persistent storage granted" and still warns
+  that clearing site data deletes the library.
+- Vulkan GPU (AMD Radeon Phoenix, RADV, GPU passed into the container): see docs/AI.md — 65 tok/s, grounded 6/7.
+
 ### Nix (in `nixos/nix` container, pinned digest)
 `nix develop`: Rust 1.95.0 (via rust-toolchain.toml), Node 22, WebKitGTK 2.54.2; core tests pass inside the shell.
 `nix build .#lastbook-cli`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
@@ -105,11 +113,9 @@ each test.
 
 ## Coverage limits (not tested)
 - Windows and macOS builds and runtime (configurations exist; no machines).
-- Real Safari (macOS/iOS), mobile browsers, Firefox map drawing with a GPU, offline cold start outside Chromium.
-- Vulkan/GPU inference; machines with little RAM (fit check measured only on this 27 GiB machine).
+- Real Safari (macOS/iOS), mobile browsers, offline cold start outside Chromium.
+- GPU inference on other GPUs (NVIDIA, Intel, Apple Metal); machines with little RAM (fit check measured only here).
 - Manual screen-reader use (only automated axe checks).
-- The "persistent storage granted" message: every headless browser here denied persistence, so only the
-  "not persistent" path was observed.
 - Very large packs (index is held in memory per pack; tested up to the 2.8 GB imported library).
 - Hosting on a real HTTPS server (tests use a loopback HTTP server; HTTPS is used only for public downloads during
   development).

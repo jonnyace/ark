@@ -6,7 +6,8 @@ export default defineConfig({
   timeout: 120_000,
   workers: 1,
   reporter: [["list"], ["json", { outputFile: "../../.dev-cache/e2e/browser-results.json" }]],
-  use: { baseURL: "http://127.0.0.1:18787/", viewport: { width: 1100, height: 900 }, screenshot: "only-on-failure" },
+  // LBN_HEADED=1 runs real windows (e.g. under xvfb-run), which gives Firefox WebGL for the map.
+  use: { baseURL: "http://127.0.0.1:18787/", viewport: { width: 1100, height: 900 }, screenshot: "only-on-failure", headless: !process.env.LBN_HEADED },
   outputDir: "../../.dev-cache/e2e/browser-output",
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },

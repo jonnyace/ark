@@ -131,3 +131,9 @@ runtime requirement. The desktop bundles are still built in the pinned Docker im
 ## D-019 Browser storage support declared from runs
 Chromium, Firefox and Playwright WebKit pass the browser suite (OPFS + IndexedDB). WebKit gives no OPFS to
 private/ephemeral windows; the app detects this at start and explains it. Real Safari (macOS/iOS) is untested.
+
+## D-020 GPU inference stays optional; the AppImage bundles GStreamer
+Vulkan on the test machine's integrated Radeon is faster (65 vs 53 tok/s) and uses less host RAM, but scored 6/7 on
+the grounded check where CPU scores 7/7, so the packaged app keeps the CPU path and GPU is an opt-in build
+(`LBN_VULKAN=1`) and switch (`LBN_GPU=1`). The AppImage crashed on video until `bundleMediaFramework` was enabled
+(it ships its own WebKit without GStreamer otherwise); that needed `patchelf` in the build image.

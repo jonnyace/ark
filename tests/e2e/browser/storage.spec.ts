@@ -25,3 +25,19 @@ test("storage status reflects the browser's real persistence answer", async ({ p
   }
   console.log(`persisted after request: ${persisted}`);
 });
+
+// The "granted" path, observed for real: Firefox with its persistent-storage permission set to "allow".
+test("when the browser grants persistence, the page says so without promising permanence", async ({ browserName }) => {
+  test.skip(browserName !== "firefox", "uses a Firefox permission preference");
+  const { firefox } = await import("@playwright/test");
+  const b = await firefox.launch({ firefoxUserPrefs: { "permissions.default.persistent-storage": 1 } });
+  const page = await b.newPage();
+  await page.goto("http://127.0.0.1:18787/#/packs");
+  await page.getByRole("button", { name: "Ask the browser to keep my library" }).click();
+  await expect.poll(() => page.evaluate(() => navigator.storage.persisted())).toBe(true);
+  const card = page.getByRole("region", { name: "Storage" });
+  await expect(card).toContainText("Persistent storage granted");
+  await expect(card).toContainText("Clearing site data still deletes it");
+  await expect(page.getByRole("button", { name: "Ask the browser to keep my library" })).toHaveCount(0);
+  await b.close();
+});

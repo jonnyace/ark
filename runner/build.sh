@@ -29,7 +29,7 @@ cmake -S "$L" -B "$B" "${GEN[@]}" -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_COMPILER=
   -DCMAKE_SKIP_BUILD_RPATH=OFF -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON -DCMAKE_INSTALL_RPATH='$ORIGIN' \
   -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--enable-new-dtags" -DCMAKE_MODULE_LINKER_FLAGS="-Wl,--enable-new-dtags" \
   -DCMAKE_C_FLAGS="$MAP" -DCMAKE_CXX_FLAGS="$MAP" > "$W/runner-cmake.log"
-CPUS="$(cmake --build "$B" --target help | grep -oE 'ggml-cpu-[a-z0-9_.]+' | sort -u | tr '\n' ' ')"
+CPUS="$(cmake --build "$B" --target help | grep -oE 'ggml-cpu-[a-z0-9_]+' | sort -u | tr '\n' ' ')"
 EXTRA=""; [ "$VULKAN" = ON ] && EXTRA="ggml-vulkan"
 cmake --build "$B" -j "$(nproc)" --target llama $EXTRA $CPUS > "$W/runner-build.log"
 g++ -std=c++17 -O3 -DNDEBUG $MAP \

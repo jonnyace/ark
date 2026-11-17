@@ -7,7 +7,9 @@ IMAGE="${LBN_IMAGE:-lastbook-next-build:dev}"
 docker image inspect "$IMAGE" >/dev/null 2>&1 || docker build -t "$IMAGE" "$ROOT/build/docker"
 mkdir -p "$HOME/.cargo/registry" "$HOME/.cargo/git" "$ROOT/.dev-cache/container-home" "$ROOT/.dev-cache/container-cargo"
 NET=(); [ -n "${LBN_NETWORK:-}" ] && NET=(--network "$LBN_NETWORK")
-exec docker run --rm -i ${LBN_TTY:+-t} "${NET[@]}" -u "$(id -u):$(id -g)" \
+# LBN_GPU=1 passes the host GPU (/dev/dri) into the container for the optional Vulkan inference path.
+GPU=(); [ "${LBN_GPU_DEVICE:-0}" = 1 ] && GPU=(--device /dev/dri --group-add "$(getent group render | cut -d: -f3)" --group-add "$(getent group video | cut -d: -f3)")
+exec docker run --rm -i ${LBN_TTY:+-t} "${NET[@]}" "${GPU[@]}" -u "$(id -u):$(id -g)" \
   -e HOME=/src/.dev-cache/container-home -e CARGO_HOME=/src/.dev-cache/container-cargo -e RUSTUP_HOME=/opt/rustup \
   -e PATH=/src/.dev-cache/container-cargo/bin:/opt/cargo/bin:/opt/node/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
   -e CARGO_TARGET_DIR=/src/.dev-cache/container-target ${LBN_ENV:+-e "$LBN_ENV"} \

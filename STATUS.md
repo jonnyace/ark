@@ -25,13 +25,14 @@ the acceptance matrix is in PLAN.md.
 - **Accessibility**: automated WCAG 2 A/AA (axe) clean on 11 views; 360 px layout; skip link.
 - **Release engineering**: `build/ci.sh`, signed SHA256SUMS, licence inventory, reproducible web app, packs, CLI,
   wasm, desktop binary and `.deb`; Nix flake (dev shell + CLI build) tested in a Nix container.
+- **AppImage** (offline journey 14/14); **Firefox map drawing** with a display; **Vulkan GPU** inference on the AMD
+  integrated GPU (optional; 6/7 grounded vs 7/7 on CPU, so CPU stays default).
 - **Browser storage honesty**: quota shown, persistence requested only on request, message matches the browser's
   answer in all three engines; model licence verification recorded (docs/AI.md).
 
 ## Implemented but untested
 - Windows and macOS desktop builds (Tauri platform configs, runner build scripts adapted from Lastbook, CI matrix).
-- Optional Vulkan GPU acceleration for the runner (`LBN_VULKAN=1`; not built here).
-- AppImage: built, not run.
+- GPU acceleration on hardware other than the AMD integrated GPU tested here (see "tested" below).
 - Manual screen-reader use (only automated checks).
 - Real HTTPS hosting of packs and the PWA (tests use a loopback HTTP server).
 
@@ -52,6 +53,6 @@ the acceptance matrix is in PLAN.md.
 - AI answers can be wrong; the app checks citations and numbers but cannot guarantee correctness.
 - Browser AI is slow (20–40 s per answer on this machine) and needs a recent Chromium or Firefox; WebKit's quota here
   is too small for the recommended model; Safari untested.
-- Headless Firefox here has no WebGL, so Firefox map drawing is untested (the app shows a clear message instead).
+- Firefox without a display (headless) has no WebGL; the app then shows a clear message instead of the map.
 - The desktop app listens on 127.0.0.1 with a per-launch token while running, to stream video (D-014).
 - Browser storage can be cleared by the browser or the person; keep pack files and export personal data.

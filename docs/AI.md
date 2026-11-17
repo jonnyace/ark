@@ -28,7 +28,7 @@ answers a question **only from the installed packs**, citing exact sources. Noth
 | Prompt template | ChatML (`<|im_start|>role … <|im_end|>`), system prompt in `crates/lbn-core/src/rag.rs` |
 | Generation | temperature 0.1, top-k 40, top-p 0.9, min-p 0.05, max 400 tokens, seed 1, repeat penalty 1.1 over 64 tokens |
 | Context | 4096 tokens |
-| Native runtime | `lastbook-llm` (Lastbook's pipe-only runner) on llama.cpp b12032 (`dde879bc`), CPU, all x86-64 CPU variants (SSE4.2 → AVX-512) selected at run time; Vulkan optional at build time (not built or tested here) |
+| Native runtime | `lastbook-llm` (Lastbook's pipe-only runner) on llama.cpp b12032 (`dde879bc`), CPU, all x86-64 CPU variants (SSE4.2 → AVX-512) selected at run time; Vulkan optional at build time (`LBN_VULKAN=1`, tested on AMD Radeon/RADV; enable with `LBN_GPU=1`) |
 | Browser runtime | wllama 3.13.0 (llama.cpp in WebAssembly), 1 thread, or up to 8 when cross-origin isolated |
 | Hardware | x86-64 CPU with SSE4.2 or newer (or aarch64), ~1.9 GB RAM while answering (measured peak RSS 1.84 GB), ≥ 4 GB total RAM recommended, ~1.1 GB disk; no GPU needed. Browser: same RAM plus the 1.1 GB pack inside the origin's storage quota |
 
