@@ -103,13 +103,14 @@ only). Not checked: AppImage, model packs.
 `build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
 `lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
 
-### Final full run — `build/ci.sh --all`, 2026-11-17, branch work/rc1
+### Final full run — `build/ci.sh --all --gpu`, 2026-11-17, commit 12926c0
 All steps passed (exit 0): fmt, clippy `-D warnings`, 44 Rust tests, wasm32 build, TS drift, svelte-check, web build;
-browser suite 30 passed / 13 skipped by design (engine-specific tests) on Chromium, Firefox and WebKit; desktop build +
-journey 7/7 and 14/14 offline; clean-machine install 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded
-answers 7/7. An earlier run failed once because Playwright profiles were in this machine's RAM-backed /tmp (99 % full):
-the Firefox model download slowed to 2.4 MB/s and timed out. Profiles now go to `.dev-cache/tmp` and are deleted after
-each test.
+browser suite 34 passed / 15 skipped by design (engine-specific tests) on Chromium, Firefox and WebKit, plus headed
+Firefox under Xvfb drawing the map; desktop build + journey 7/7 and 14/14 offline; AppImage 14/14 offline;
+clean-machine install 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7; Vulkan probe on
+the Radeon GPU (warm: 69.9 tok/s, first token 0.16 s). An earlier full run failed once because Playwright profiles
+were in this machine's RAM-backed /tmp (99 % full): the Firefox model download slowed and timed out. Profiles now go to
+`.dev-cache/tmp` and are deleted after each test.
 
 ## Coverage limits (not tested)
 - Windows and macOS builds and runtime (configurations exist; no machines).
