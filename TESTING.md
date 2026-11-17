@@ -103,14 +103,14 @@ only). Not checked: AppImage, model packs.
 `build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
 `lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
 
-### Final full run — `build/ci.sh --all --gpu`, 2026-11-17, commit 12926c0
-All steps passed (exit 0): fmt, clippy `-D warnings`, 44 Rust tests, wasm32 build, TS drift, svelte-check, web build;
-browser suite 34 passed / 15 skipped by design (engine-specific tests) on Chromium, Firefox and WebKit, plus headed
-Firefox under Xvfb drawing the map; desktop build + journey 7/7 and 14/14 offline; AppImage 14/14 offline;
-clean-machine install 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7; Vulkan probe on
-the Radeon GPU (warm: 69.9 tok/s, first token 0.16 s). An earlier full run failed once because Playwright profiles
-were in this machine's RAM-backed /tmp (99 % full): the Firefox model download slowed and timed out. Profiles now go to
-`.dev-cache/tmp` and are deleted after each test.
+### Final full run — `build/with-signing-key.sh … build/ci.sh --all`, 2026-11-17, commit 27cadc8
+After switching to the publisher key (packs, catalog, CLI, web app and desktop rebuilt and re-signed), all steps
+passed (exit 0): fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build; browser suite
+36 passed on Chromium, Firefox and WebKit (including offline cold start on all three), plus headed Firefox drawing the
+map online and offline; desktop journey 7/7 and 14/14 offline ("signed by Lastbook Next publisher"); AppImage 14/14
+offline; clean-machine install 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7.
+The GPU probe ran in the previous full run (commit 12926c0). An earlier run failed once because Playwright profiles
+were in a RAM-backed /tmp; they now go to `.dev-cache/tmp`.
 
 ## Coverage limits (not tested)
 - Windows and macOS builds and runtime (configurations exist; no machines).
