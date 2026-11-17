@@ -45,9 +45,16 @@ docker run --rm --network none "${MOUNTS[@]}" lbn-arch-installed:latest bash -c 
   $DRIVE
   cd /src/tests/e2e
   node desktop/journey.mjs /usr/bin/ark-library offline /out
-  if [ -d /e2e/legacy-lib ] && [ -f /e2e/legacy-videos.txt ]; then
-    LBN_DATA=/e2e/legacy-lib node desktop/codecs.mjs /usr/bin/ark-library org.lastbook.legacy.small /e2e/legacy-videos.txt
-  fi
 "
+# The app inherits its environment from tauri-driver, so LBN_DATA must be set before the driver starts.
+if [ -d .dev-cache/e2e/legacy-lib ] && [ -f .dev-cache/e2e/legacy-videos.txt ]; then
+  docker run --rm --network none "${MOUNTS[@]}" lbn-arch-installed:latest bash -c "
+    set -e
+    export LBN_DATA=/e2e/legacy-lib
+    $DRIVE
+    cd /src/tests/e2e
+    node desktop/codecs.mjs /usr/bin/ark-library org.lastbook.legacy.small /e2e/legacy-videos.txt
+  "
+fi
 docker image rm lbn-arch-installed:latest >/dev/null
 ls -la "$OUT"/*.pkg.tar.zst
