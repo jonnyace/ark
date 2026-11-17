@@ -574,7 +574,8 @@ async function streamTo(path: string, stream: ReadableStream<Uint8Array>, from: 
   } finally {
     h.close();
   }
-  if (at !== size) fail(from === 0 && !ctl.cancel ? "size" : "network", `${path}: got ${at} of ${size} bytes`);
+  // A short body is a dropped connection (a longer one was refused above): keep the part and resume later.
+  if (at !== size) fail("network", `${path}: connection ended after ${at} of ${size} bytes`);
 }
 
 async function download(url: string, part: string, size: number, ctl: { cancel: boolean }, progress: (n: number) => void) {
