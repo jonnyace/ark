@@ -1,0 +1,19 @@
+{
+ "id": "org.lastbook.sample.map",
+ "version": "2026.11.15",
+ "kind": "map",
+ "title": "Sample map: Ithaca, New York",
+ "description": "An offline street map of central Ithaca, NY (zoom 0-15) from OpenStreetMap, with its own fonts, icons and style. 2.8 MB.",
+ "language": "en",
+ "created": "2026-11-15",
+ "publisher": {"name": "Lastbook Next contributors", "url": "https://protomaps.com"},
+ "license": {"spdx": "ODbL-1.0", "attribution": "© OpenStreetMap contributors. Map data available under the Open Database License. Tiles: Protomaps basemap build 20261115 (v4.15.2).", "file": "LICENSES/ODbL-1.0.txt", "redistributable": true},
+ "compat": {"min_engine_api": 1},
+ "resources": [
+  {"id": "ithaca", "type": "map", "title": "Ithaca, New York (street map)", "path": "map.pmtiles", "media_type": "application/vnd.pmtiles",
+   "map": {"style": "style.json", "bounds": [-76.535, 42.425, -76.465, 42.462], "minzoom": 0, "maxzoom": 15},
+   "category": "maps", "summary": "Street map of central Ithaca, New York: roads, buildings, water, parks and place names.",
+   "source": {"url": "https://build.protomaps.com/20261115.pmtiles", "publisher": "OpenStreetMap contributors via Protomaps", "retrieved": "2026-11-16"}}
+ ],
+ "include": ["style.json", "fonts", "sprites", "LICENSES"]
+}

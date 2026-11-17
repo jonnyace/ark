@@ -1,0 +1,33 @@
+{
+ "id": "org.lastbook.model.qwen2.5-1.5b-instruct",
+ "version": "2.5.0-q4km.1",
+ "kind": "model",
+ "title": "Local AI: Qwen2.5 1.5B Instruct (recommended)",
+ "description": "A small language model that runs on this computer's processor. About 1.1 GB to download and about 1.9 GB of memory while answering. Answers only from your installed library and cites its sources; it can still be wrong.",
+ "language": "en",
+ "created": "2026-11-17",
+ "publisher": {"name": "Qwen team, Alibaba Cloud (weights); packed by Lastbook Next contributors", "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF"},
+ "license": {"spdx": "Apache-2.0", "attribution": "Qwen2.5-1.5B-Instruct © Alibaba Cloud, Apache License 2.0.", "file": "model/LICENSE", "redistributable": true},
+ "compat": {"min_engine_api": 1, "note": "Needs about 4 GB of RAM in total. CPU only; no graphics card needed."},
+ "resources": [
+  {"id": "model", "type": "model", "title": "Qwen2.5 1.5B Instruct (Q4_K_M, GGUF)", "path": "model/qwen2.5-1.5b-instruct-q4_k_m.gguf", "media_type": "application/x-gguf",
+   "assets": ["model/MODEL-CARD.md"],
+   "source": {"url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf", "publisher": "Qwen", "retrieved": "2026-11-16"}}
+ ],
+ "model": {
+  "name": "Qwen2.5 1.5B Instruct",
+  "upstream": "Qwen/Qwen2.5-1.5B-Instruct-GGUF@91cad51170dc346986eccefdc2dd33a9da36ead9",
+  "runtime": "llama.cpp",
+  "min_runtime": "b12032",
+  "format": "gguf",
+  "quantization": "Q4_K_M",
+  "tokenizer": "embedded in the GGUF file (Qwen2 BPE)",
+  "template": "chatml",
+  "context_length": 4096,
+  "parameters": "1.54B",
+  "defaults": {"temperature": 0.1, "top_k": 40, "top_p": 0.9, "min_p": 0.05, "max_tokens": 400, "seed": 1},
+  "memory_bytes": 1900000000,
+  "min_ram_bytes": 4000000000,
+  "languages": ["en", "zh", "fr", "es", "de", "pt", "ru", "ja", "ko", "vi", "th", "ar"]
+ }
+}

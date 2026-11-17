@@ -1,0 +1,5 @@
+packages:
+  - apps/web
+  - tests/e2e
+minimumReleaseAgeExclude:
+  - '@tauri-apps/api@2.12.5'

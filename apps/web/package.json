@@ -1,0 +1,30 @@
+{
+  "name": "@lastbook-next/web",
+  "private": true,
+  "version": "0.9.0-rc.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "check": "svelte-check --tsconfig ./tsconfig.json",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "2.12.5",
+    "@wllama/wllama": "3.13.0",
+    "fflate": "0.8.3",
+    "maplibre-gl": "6.18.0",
+    "pdfjs-dist": "6.5.438",
+    "pmtiles": "4.5.0"
+  },
+  "devDependencies": {
+    "@protomaps/basemaps": "5.7.2",
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "@tsconfig/svelte": "5.0.9",
+    "svelte": "5.57.3",
+    "svelte-check": "4.7.8",
+    "typescript": "6.0.3",
+    "vite": "8.3.8",
+    "vitest": "5.1.0"
+  }
+}
