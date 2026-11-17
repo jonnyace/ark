@@ -1,0 +1,10 @@
+/target
+/.dev-cache
+/dist
+node_modules
+/apps/web/dist
+/apps/desktop/src-tauri/target
+/apps/desktop/src-tauri/gen
+*.part
+/test-results
+/playwright-report
