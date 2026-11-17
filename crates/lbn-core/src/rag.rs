@@ -20,6 +20,10 @@ Rules:
 
 pub const NOT_FOUND: &str = "Not found in the library.";
 
+/// Repeated at the end of the user turn: small models follow the most recent instruction best.
+pub const ANSWER_REMINDER: &str = "Answer in one to three short sentences using only the sources above. \
+Put the key of the source you used at the end of each sentence, for example: Boil the water for one minute [S2].";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Template {
     /// ChatML (`<|im_start|>role ... <|im_end|>`), used by Qwen2.5.
@@ -137,7 +141,7 @@ pub fn build_prompt(tpl: Template, question: &str, sources: &[Source]) -> Vec<Se
             s.key
         ));
     }
-    user.push_str(&format!("Question: {}", neutralize(question, tpl)));
+    user.push_str(&format!("Question: {}\n\n{}", neutralize(question, tpl), ANSWER_REMINDER));
     vec![
         Segment("<|im_start|>system\n".into(), true),
         Segment(SYSTEM_PROMPT.into(), false),
