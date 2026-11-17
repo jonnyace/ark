@@ -149,5 +149,5 @@ it now show as untrusted. A future maintainer without this secret publishes unde
 With no Windows machine, the Windows release is cross-compiled with MinGW-w64 (`x86_64-pc-windows-gnu`) in
 `build/docker/windows-cross.Dockerfile`: CLI, Tauri desktop + NSIS installer, and a static CPU runner (AVX2 baseline;
 the upstream-style llvm-mingw script with all CPU variants and Vulkan remains `runner/build-windows.sh`). Wine runs the
-Rust tests, the CLI and the runner; it cannot run the WebView2 window. Accepting Google's Android SDK licence to test
-in an Android emulator was not done on the owner's behalf; mobile browsers stay untested.
+Rust tests, the CLI and the runner; it cannot run the WebView2 window. On 2026-11-17 the owner chose not to accept Google's
+Android SDK licence for emulator testing; mobile browsers stay untested.

@@ -48,6 +48,9 @@ the acceptance matrix is in PLAN.md.
 - **Publisher key**: decided 2026-11-17: a new "Lastbook Next publisher" key; its secret is only in 1Password (Eve);
   the retired development key is no longer trusted. `build/public-readiness.sh` is the release gate.
 
+- Mobile browsers: the owner decided (2026-11-17) not to accept the Android SDK licence for emulator tests;
+  untested. Real Safari, macOS and the Windows desktop window need Apple/Windows hardware.
+
 ## Known limitations
 - AI answers can be wrong; the app checks citations and numbers but cannot guarantee correctness.
 - Browser AI is slow (20–40 s per answer on this machine) and needs a recent Chromium or Firefox; WebKit's quota here
