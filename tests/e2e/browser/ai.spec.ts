@@ -4,10 +4,12 @@ import { test, installFromAddress } from "./helpers";
 // Criterion 6: real in-browser inference (wllama, CPU, this Chromium), grounded with citations; measured, not mocked.
 test("browser local AI answers from the library with citations", async ({ page, browserName }) => {
   test.skip(browserName === "webkit", "WebKit's 1000 MB quota here is below the 1.5B model; see the low-space and small-model tests");
-  test.setTimeout(900_000);
+  // Installing the 1.1 GB model into browser storage (download + hashing in WebAssembly) takes ~7 s on the development
+  // machine but several minutes on a 4-core hosted CI runner.
+  test.setTimeout(1_500_000);
   for (const p of ["org.lastbook.sample.docs", "org.lastbook.model.qwen2.5-1.5b-instruct"]) {
     await installFromAddress(page, `http://127.0.0.1:18787/packs/${p}/pack.json`);
-    await expect(page.locator(`[data-testid="pack"][data-pack="${p}"]`)).toBeVisible({ timeout: 300_000 });
+    await expect(page.locator(`[data-testid="pack"][data-pack="${p}"]`)).toBeVisible({ timeout: 600_000 });
   }
   await page.goto("/#/ai");
   await expect(page.getByText(/Runtime available: wllama/)).toBeVisible({ timeout: 30_000 });
