@@ -10,7 +10,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; cd "$ROOT"
 DEB="$(ls dist/desktop/*.deb | head -1)"
 BASE=debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
-NODE="$HOME/.nvm/versions/node/v22.23.4"
+NODE="$(dirname "$(dirname "$(readlink -f "$(command -v node)")")")"   # the Node installation on PATH
 OUT="$ROOT/.dev-cache/e2e/clean"; rm -rf "$OUT"; mkdir -p "$OUT"
 NAME=lbn-clean-$$
 MOUNTS=(-v "$ROOT:/src:ro" -v "$OUT:/out" -v "$NODE:/opt/node:ro" -v "$ROOT/.dev-cache/container-cargo/bin/tauri-driver:/usr/local/bin/tauri-driver:ro")

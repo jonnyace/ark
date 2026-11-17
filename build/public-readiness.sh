@@ -3,7 +3,7 @@
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"
 fail=0; bad() { echo "NOT READY: $*"; fail=1; }; ok() { echo "ok: $*"; }
-if grep -qi "development" keys/trusted.json || grep -q "RWSTzXj3joIwkD19hylL8D8m5ZopADXT91Nyf6bNAX1QELa/wpYc51BH" keys/trusted.json; then
+if grep -qiE "development|CI test key" keys/trusted.json || grep -q "RWSTzXj3joIwkD19hylL8D8m5ZopADXT91Nyf6bNAX1QELa/wpYc51BH" keys/trusted.json; then
   bad "keys/trusted.json still trusts the retired development key; trust only the publisher's own key (docs/BUILDING.md)"
 else ok "only the publisher key is trusted ($(grep -o '"name": "[^"]*"' keys/trusted.json | tr '\n' ' '))"; fi
 [ -z "$(git status --porcelain)" ] && ok "worktree clean" || bad "uncommitted changes"
