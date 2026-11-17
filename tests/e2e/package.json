@@ -1,0 +1,12 @@
+{
+  "name": "@lastbook-ark/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:browser": "playwright test -c playwright.config.ts"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.65.1"
+  }
+}

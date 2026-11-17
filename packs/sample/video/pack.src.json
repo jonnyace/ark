@@ -1,0 +1,18 @@
+{
+ "id": "org.lastbook.sample.video",
+ "version": "2026.11.17",
+ "kind": "video",
+ "title": "Sample video: storing drinking water",
+ "description": "A 40-second captioned video with a WebVTT transcript, for testing playback, seeking and timestamp citations.",
+ "language": "en",
+ "created": "2026-11-17",
+ "publisher": {"name": "Lastbook Ark contributors"},
+ "license": {"spdx": "CC0-1.0", "attribution": "Made for Lastbook Ark with tools/make_video.py; dedicated to the public domain.", "file": "LICENSES/CC0-1.0.txt", "redistributable": true},
+ "compat": {"min_engine_api": 1},
+ "resources": [
+  {"id": "storing-water", "type": "video", "title": "Storing drinking water", "path": "res/storing-water.webm", "media_type": "video/webm",
+   "duration_s": 40.0, "transcript": "res/storing-water.en.vtt", "poster": "res/storing-water.poster.webp", "category": "water",
+   "summary": "How much water to store, for how long, in what containers, and when to replace it.",
+   "source": {"publisher": "Lastbook Ark contributors", "retrieved": "2026-11-17"}}
+ ]
+}

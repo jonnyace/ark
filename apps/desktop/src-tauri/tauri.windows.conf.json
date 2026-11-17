@@ -1,0 +1,3 @@
+{
+  "bundle": { "resources": { "../../../.dev-cache/bin-win/": "runner/" } }
+}

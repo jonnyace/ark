@@ -1,0 +1,20 @@
+[package]
+name = "lbn-cli"
+description = "lastbook: command-line tool to build, sign, inspect, verify, install and search Lastbook Ark packs."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[[bin]]
+name = "lastbook"
+path = "src/main.rs"
+
+[dependencies]
+lbn-core.workspace = true
+lbn-native.workspace = true
+serde_json.workspace = true
+clap = { version = "4", features = ["derive"] }
+dirs = "6"
+minisign = "0.10"
+zip = { version = "9", default-features = false, features = ["deflate"] }

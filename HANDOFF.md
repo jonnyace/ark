@@ -1,0 +1,45 @@
+# Handoff
+
+## Where things are
+- Repository `~/src/lastbook-ark`, public at https://github.com/jonnyace/lastbook-ark. Work is on branch `work/rc1`,
+  proposed to `main` in PR #1 (merge after review). No GitHub release has been published; artefacts are built locally.
+- Upstream references, read-only and unchanged: `~/src/lastbook`, `~/src/lastbook-omarchy`. The real old library
+  used for import tests (a local copy outside this repository) was only read.
+- Outside git (rebuildable): `.dev-cache/` (llama.cpp checkout, runner build, models, container caches, test data),
+  `dist/` (packs, desktop artefacts, release).
+- Publisher signing key: the secret is only in the maintainers' 1Password vault (item "Lastbook Ark publisher signing key
+  (minisign)", field "secret key"); public key in `keys/publisher.pub` and `keys/trusted.json`. Sign with
+  `build/with-signing-key.sh "op://<vault>/<item id>/secret key" <command>` (maintainers know the reference).
+- Build image: `lastbook-ark-build:dev` from `build/docker/Dockerfile`.
+- Test server port 18787 (and 18790–18792 in some specs). Port 8787 belongs to another service on this machine.
+
+## Install the release candidate (clean Linux machine, Debian 13 tested)
+```bash
+cd dist/release/0.9.0-rc.1
+tar xzf lastbook-cli-0.9.0-rc.1-linux-x86_64.tar.gz
+lastbook-cli-0.9.0-rc.1-linux-x86_64/lastbook verify-file SHA256SUMS   # or: minisign -Vm SHA256SUMS -p keys/publisher.pub
+sha256sum -c SHA256SUMS
+sudo apt install ./lastbook-ark_0.9.0-rc.1_amd64.deb
+lastbook-ark                              # Packs → open packs/*.lbpack, or a catalog address
+```
+Browser: serve `lastbook-ark-web-0.9.0-rc.1.tar.gz` (unpacked) and `packs/` from any static HTTPS host; open it once.
+
+## Rebuild and re-test from scratch
+```bash
+source ~/.nvm/nvm.sh && pnpm install --frozen-lockfile
+runner/build.sh && cargo build --release --locked -p lbn-cli
+K="op://<vault>/<item id>/secret key"     # the publisher key's secret-store reference (or set LBN_SIGNING_KEY=<file>)
+build/with-signing-key.sh "$K" build/make-sample-packs.sh
+build/with-signing-key.sh "$K" build/ci.sh --all   # everything: fast, browser (3 engines), desktop, clean install, AI
+build/with-signing-key.sh "$K" build/release.sh && build/public-readiness.sh
+build/repro-check.sh --desktop
+```
+Desktop by hand (needs a display): `dist/desktop/lastbook-ark` (runner is found in `dist/desktop/runner/`).
+Headless: `tests/e2e/desktop/run.sh <script.mjs> …` runs WebDriver scripts in the container under Xvfb.
+
+## Next steps (in priority order)
+1. Run `.github/workflows/desktop-other.yml` (or the scripts) on macOS and Windows; fix and record results.
+2. Manual screen-reader pass (Orca on Linux, NVDA, VoiceOver).
+3. Real Safari and mobile browser testing of the PWA.
+4. ZIM support (libzim is GPL — choose an approach that respects that) and conversion of 1.x maps.
+5. Sharded/mmap search index for very large packs; consider MSE video streaming to drop the loopback media port.

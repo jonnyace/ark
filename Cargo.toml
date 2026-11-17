@@ -1,0 +1,29 @@
+[workspace]
+resolver = "2"
+members = ["crates/lbn-core", "crates/lbn-native", "crates/lbn-cli", "crates/lbn-wasm"]
+# The desktop app is its own workspace (it needs platform SDKs; see build/desktop.sh).
+exclude = ["apps/desktop/src-tauri"]
+
+[workspace.package]
+version = "0.9.0-rc.1"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/jonnyace/lastbook-ark"
+rust-version = "1.95"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+sha2 = "0.10"
+hex = "0.4"
+thiserror = "2"
+postcard = { version = "1", default-features = false, features = ["alloc"] }
+minisign-verify = "0.3"
+rust-stemmers = "1"
+lbn-core = { path = "crates/lbn-core" }
+lbn-native = { path = "crates/lbn-native" }
+
+[profile.release]
+codegen-units = 1
+lto = true
+strip = true

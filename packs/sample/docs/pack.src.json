@@ -1,0 +1,20 @@
+{
+ "id": "org.lastbook.sample.docs",
+ "version": "2026.11.17",
+ "kind": "documents",
+ "title": "Sample documents: safe water and emergency supplies",
+ "description": "A short guide to making water safe to drink and a three-page emergency supplies checklist (PDF). Sample content for testing Lastbook Ark; check current official guidance.",
+ "language": "en",
+ "created": "2026-11-17",
+ "publisher": {"name": "Lastbook Ark contributors"},
+ "license": {"spdx": "CC0-1.0", "attribution": "Written for Lastbook Ark; dedicated to the public domain. Summarises public guidance from the US CDC and Ready.gov (US government works).", "file": "LICENSES/CC0-1.0.txt", "redistributable": true},
+ "compat": {"min_engine_api": 1},
+ "resources": [
+  {"id": "water-guide", "type": "html", "title": "Making water safe to drink", "path": "res/water-guide.html", "media_type": "text/html",
+   "category": "water", "summary": "When tap water may be unsafe; boiling; disinfecting with household bleach; storing safe water.",
+   "source": {"publisher": "Lastbook Ark contributors", "notes": "Based on public guidance from the US Centers for Disease Control and Prevention and Ready.gov.", "retrieved": "2026-11-17"}},
+  {"id": "supplies-checklist", "type": "pdf", "title": "Emergency Supplies Checklist", "path": "res/supplies-checklist.pdf", "media_type": "application/pdf",
+   "category": "preparedness", "text_pages": "res/supplies-checklist.pages.json",
+   "source": {"publisher": "Lastbook Ark contributors", "notes": "Based on public guidance from Ready.gov (FEMA).", "retrieved": "2026-11-17"}}
+ ]
+}

@@ -1,0 +1,17 @@
+# Orchestration only: every step is a repository script that also runs on a developer machine.
+name: ci
+on: [push, pull_request]
+permissions: { contents: read }
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22.23.4 }
+      - run: corepack enable && corepack prepare pnpm@11.20.0 --activate
+      - run: rustup show   # installs the toolchain pinned in rust-toolchain.toml
+      - run: pnpm install --frozen-lockfile
+      - run: npx --prefix tests/e2e playwright install --with-deps chromium firefox webkit
+      - run: build/ci.sh --e2e
+      - run: build/ci.sh --desktop --clean-install
