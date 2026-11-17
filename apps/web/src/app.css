@@ -23,7 +23,6 @@ h2 { font-size: 1.2rem; margin: 1.5rem 0 0.5rem; }
 .top { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 1rem; padding: 0.6rem 1rem; background: var(--accent); color: var(--accent-fg); }
 .top a { color: var(--accent-fg); }
 .brand { font-weight: 700; font-size: 1.15rem; text-decoration: none; }
-.brand span { font-weight: 400; opacity: 0.8; }
 .net { font-size: 0.85rem; padding: 0.1rem 0.6rem; border-radius: 99px; background: rgba(255, 255, 255, 0.15); }
 .net.off { background: rgba(255, 200, 0, 0.3); }
 .top nav { flex-basis: 100%; overflow-x: auto; }
