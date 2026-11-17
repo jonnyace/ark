@@ -12,9 +12,10 @@ LBN_IMAGE=lastbook-ark-wincross:dev LBN_ENV=CARGO_TARGET_DIR=/src/.dev-cache/win
   runner/build-windows-cross.sh | tail -1
   cargo build -q --release --locked -p lbn-cli --target x86_64-pc-windows-gnu
   cargo test -q --locked --target x86_64-pc-windows-gnu -p lbn-core -p lbn-native 2>&1 | grep -E "test result|FAILED|panicked"
+  rm -rf "$CARGO_TARGET_DIR/x86_64-pc-windows-gnu/release/bundle"   # no stale installers from earlier builds
   (cd apps/desktop && npx tauri build --target x86_64-pc-windows-gnu --bundles nsis 2>&1 | tail -2)
 '
-mkdir -p dist/windows; T=.dev-cache/win-target/x86_64-pc-windows-gnu/release
+rm -rf dist/windows; mkdir -p dist/windows; T=.dev-cache/win-target/x86_64-pc-windows-gnu/release
 cp $T/lastbook.exe $T/lastbook-ark.exe dist/windows/
 cp "$T"/bundle/nsis/*-setup.exe dist/windows/lastbook-ark_0.9.0-rc.1_x64-setup-unsigned.exe
 cp -r .dev-cache/bin-win dist/windows/runner

@@ -10,6 +10,7 @@ build/in-container.sh '
   build/gen-ts.sh >/dev/null
   build/build-wasm.sh
   (cd apps/web && npx vite build >/dev/null)
+  rm -rf "$CARGO_TARGET_DIR/release/bundle"   # no stale bundles from earlier builds or names
   cd apps/desktop
   APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=1 npx tauri build --bundles deb,appimage --config src-tauri/tauri.conf.json 2>&1 | tail -20
   # Re-pack the .deb deterministically: same files, fixed modification times, root ownership (the bundler stamps the
@@ -19,7 +20,7 @@ build/in-container.sh '
   find repack -exec touch -h -d "2026-01-01 00:00:00Z" {} +
   SOURCE_DATE_EPOCH=1767225600 dpkg-deb --root-owner-group -Zxz --build repack "$D" >/dev/null && rm -rf repack
 '
-mkdir -p dist/desktop
+rm -rf dist/desktop; mkdir -p dist/desktop
 B=.dev-cache/container-target/release
 cp "$B/lastbook-ark" "$B/lastbook" dist/desktop/
 rm -rf dist/desktop/runner && cp -r .dev-cache/runner-bin dist/desktop/runner   # found beside the binary when run unpacked

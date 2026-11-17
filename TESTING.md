@@ -114,6 +114,42 @@ Wine is not Windows; these results show the Windows build compiles and its non-G
 `build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
 `lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
 
+### Final full run after the rename to Lastbook Ark — 2026-11-17, commit a13640a + build-script fixes
+`build/with-signing-key.sh … build/ci.sh --all` then `build/windows-cross.sh`, everything re-signed with the
+"Lastbook Ark publisher" key: fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build;
+browser suite 36 passed on Chromium, Firefox and WebKit (offline cold start on all three) plus headed Firefox drawing
+the map online and offline; desktop journey 7/7 and 14/14 offline; AppImage 14/14 offline; clean-machine install
+7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7; Windows cross-build with 44 Rust tests
+passing under Wine. The first attempt stopped at copying build outputs because bundles from before the rename were
+still in the build folder; the build scripts now clear old bundles and output folders first.
+
+### AppImage, Firefox map, persistence granted, GPU (added after the first full run)
+- AppImage (with bundled GStreamer), `--network none`: offline journey 14/14. Before bundling GStreamer it crashed at
+  the video step.
+- Firefox headed under Xvfb (`LBN_HEADED=1 xvfb-run …`): WebGL available, the map draws; journey passes.
+- Firefox with persistent storage allowed by preference: the page shows "Persistent storage granted" and still warns
+  that clearing site data deletes the library.
+- Vulkan GPU (AMD Radeon Phoenix, RADV, GPU passed into the container): see docs/AI.md — 65 tok/s, grounded 6/7.
+
+### Windows build, cross-compiled from Linux and run under Wine (`build/windows-cross.sh`)
+Wine is not Windows; these results show the Windows build compiles and its non-GUI parts work.
+- `lastbook.exe`, `lastbook-ark.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
+- All 44 Rust tests compiled for `x86_64-pc-windows-gnu` pass under Wine, including the install-safety suite against a
+  real HTTP server (renames, paths, resume, tamper, rollback).
+- Windows CLI under Wine: installed the four signed sample packs, verify/search/resolve/export work.
+- Windows llama.cpp runner (MinGW, CPU, AVX2 baseline, static): real inference under Wine, grounded check **7/7**, but
+  slow under Wine (5.6 tok/s, 60–130 s per answer); native Windows speed unmeasured.
+- Not tested: the desktop window (needs Microsoft WebView2, not available under Wine), the installer on Windows,
+  anything on real Windows hardware.
+
+### Nix (in `nixos/nix` container, pinned digest)
+`nix develop`: Rust 1.95.0 (via rust-toolchain.toml), Node 22, WebKitGTK 2.54.2; core tests pass inside the shell.
+`nix build .#lastbook-cli`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
+
+### Release
+`build/release.sh` → `dist/release/0.9.0-rc.1/` with `SHA256SUMS` and `SHA256SUMS.minisig`; `sha256sum -c` passes;
+`lastbook verify-file SHA256SUMS` accepts the real file and rejects a modified one.
+
 ### Final full run — `build/with-signing-key.sh … build/ci.sh --all`, 2026-11-17, commit 27cadc8
 After switching to the publisher key (packs, catalog, CLI, web app and desktop rebuilt and re-signed), all steps
 passed (exit 0): fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build; browser suite
