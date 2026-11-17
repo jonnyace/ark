@@ -37,6 +37,8 @@ pub enum Command {
     ListPacks,
     ListResources { pack: Option<String> },
     GetResource { pack: String, resource: String },
+    /// Fetch and check a publisher's pack catalog (signed list of available packs).
+    ReadCatalog { url: String },
     /// Check a pack source (URL of a pack directory or catalog, or a local file the adapter can read) without installing.
     InspectSource { source: PackSource },
     Install { source: PackSource, allow_unsigned: bool, allow_downgrade: bool },
@@ -217,6 +219,29 @@ pub struct SourceInfo {
     pub model: Option<ModelInfo>,
     /// For legacy Lastbook libraries: items that will not be imported, and why.
     pub unsupported: Vec<Unsupported>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts", derive(TS), ts(export))]
+pub struct CatalogReply {
+    pub url: String,
+    pub title: String,
+    pub published: String,
+    pub expires: String,
+    /// Past its expiry date: shown, but new installs from it need confirmation. Installed packs are unaffected.
+    pub expired: bool,
+    /// Trusted key that signed the catalog; `None` = unsigned.
+    pub signed_by: Option<String>,
+    pub packs: Vec<CatalogPack>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[cfg_attr(feature = "ts", derive(TS), ts(export))]
+pub struct CatalogPack {
+    pub entry: crate::catalog::CatalogEntry,
+    /// Absolute URL of the pack's manifest.
+    pub manifest_url: String,
+    pub installed_version: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

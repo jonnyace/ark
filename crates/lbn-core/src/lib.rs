@@ -5,6 +5,7 @@
 //! so the desktop app, the browser app and the CLI share one implementation of the rules.
 
 pub mod api;
+pub mod catalog;
 pub mod citation;
 pub mod error;
 pub mod hash;

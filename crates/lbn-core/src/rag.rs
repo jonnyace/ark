@@ -262,6 +262,7 @@ mod tests {
         (
             Hit {
                 citation: Citation { pack: "p.a.b".into(), resource: format!("r{n}"), loc: Loc::Page { page: n as u32 } },
+                uri: format!("lbn:p.a.b/r{n}#page={n}"),
                 title: format!("Doc {n}"),
                 snippet: String::new(),
                 score: 1.0,

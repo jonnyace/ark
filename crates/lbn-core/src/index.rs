@@ -92,6 +92,8 @@ pub struct Index {
 #[cfg_attr(feature = "ts", derive(ts_rs::TS), ts(export))]
 pub struct Hit {
     pub citation: Citation,
+    /// The citation as an `lbn:` URI (what links and personal data use).
+    pub uri: String,
     pub title: String,
     pub snippet: String,
     pub score: f32,
@@ -238,8 +240,10 @@ impl Index {
 
     pub fn hit(&self, chunk: u32, score: f32, query: &str) -> Hit {
         let c = &self.chunks[chunk as usize];
+        let citation = Citation { pack: self.file.pack.clone(), resource: c.resource.clone(), loc: c.loc.clone() };
         Hit {
-            citation: Citation { pack: self.file.pack.clone(), resource: c.resource.clone(), loc: c.loc.clone() },
+            uri: citation.to_uri(),
+            citation,
             title: c.title.clone(),
             snippet: snippet(&c.text, query, 220),
             score,
