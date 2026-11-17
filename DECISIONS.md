@@ -121,10 +121,12 @@ checked after generation: repeated sentences are removed, generation stops once 
 any number in a cited sentence that does not occur in the sources it cites is shown to the person as "check these
 numbers yourself". A repetition penalty (1.1) is part of the model pack's generation settings.
 
-## D-018 No Nix flake in this release candidate
-The pinned build container (digest-pinned Debian 13 + pinned toolchains) already gives a reproducible Linux build
-environment and is exercised by every desktop test. Nix is not installed on the test machine, so a flake could not be
-tested here; adding an untested one would only be a claim. Revisit when a maintainer can test it.
+## D-018 Nix: a flake for the dev shell and a reproducible CLI build (tested in a Nix container)
+`flake.nix` (nixpkgs pinned to nixos-26.05 b349185, `flake.lock`) gives `nix develop` with every tool and the
+WebKitGTK/GStreamer SDK (rustup inside honours rust-toolchain.toml) and `nix build .#lastbook-cli`, which builds the
+CLI from the locked Cargo graph in the Nix sandbox and runs the core tests. Tested in `nixos/nix@sha256:e623d73a…`:
+dev shell gave Rust 1.95.0, Node 22, WebKitGTK 2.54.2 and passed the core tests; the CLI built and ran. Nix is not a
+runtime requirement. The desktop bundles are still built in the pinned Docker image, which the desktop tests exercise.
 
 ## D-019 Browser storage support declared from runs
 Chromium, Firefox and Playwright WebKit pass the browser suite (OPFS + IndexedDB). WebKit gives no OPFS to
