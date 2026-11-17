@@ -9,7 +9,14 @@
   "app": {
     "withGlobalTauri": false,
     "windows": [
-      { "label": "main", "title": "Lastbook Next", "width": 1200, "height": 850, "minWidth": 360, "minHeight": 480 }
+      {
+        "label": "main",
+        "title": "Lastbook Next",
+        "width": 1200,
+        "height": 850,
+        "minWidth": 360,
+        "minHeight": 480
+      }
     ],
     "security": {
       "csp": {
@@ -27,20 +34,45 @@
         "form-action": "'none'"
       },
       "freezePrototype": true,
-      "capabilities": ["main"]
+      "capabilities": [
+        "main"
+      ]
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["deb", "appimage"],
+    "targets": [
+      "deb",
+      "appimage"
+    ],
     "category": "Education",
     "shortDescription": "Offline knowledge library with optional local AI",
     "longDescription": "Lastbook Next keeps documents, maps, videos and encyclopedias on your computer and works with every network disconnected. An optional local AI answers questions from your library with citations.",
     "license": "MIT",
-    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.png"],
-    "resources": { "../../../.dev-cache/runner-bin/": "runner/" },
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.png"
+    ],
+    "resources": {
+      "../../../.dev-cache/runner-bin/": "runner/"
+    },
     "linux": {
-      "deb": { "depends": ["libwebkit2gtk-4.1-0", "libgtk-3-0", "gstreamer1.0-plugins-good", "gstreamer1.0-plugins-base", "libgomp1"] }
+      "deb": {
+        "depends": [
+          "libwebkit2gtk-4.1-0",
+          "libgtk-3-0",
+          "gstreamer1.0-plugins-good",
+          "gstreamer1.0-plugins-base",
+          "libgomp1"
+        ],
+        "files": {
+          "/usr/bin/lastbook": "../../../.dev-cache/container-target/release/lastbook",
+          "/usr/share/doc/lastbook-next/LICENSE": "../../../LICENSE",
+          "/usr/share/doc/lastbook-next/NOTICE.md": "../../../NOTICE.md"
+        }
+      }
     }
   }
 }
