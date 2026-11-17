@@ -494,6 +494,7 @@ version = "0.9.0-rc.1"
 dependencies = [
  "fs4",
  "lbn-core",
+ "minisign",
  "rusqlite",
  "serde",
  "serde_json",
