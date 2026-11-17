@@ -20,6 +20,10 @@
   <button type="submit">Search</button>
 </form>
 
+{#if app.hello?.capabilities.storage_unavailable_reason}
+  <div class="notice bad" role="alert" data-testid="no-storage">{app.hello.capabilities.storage_unavailable_reason}</div>
+{/if}
+
 {#if contentPacks.length === 0}
   <section class="card">
     <h2>Get started</h2>

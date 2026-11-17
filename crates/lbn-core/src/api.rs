@@ -151,6 +151,9 @@ pub struct Capabilities {
     pub evictable_storage: bool,
     pub can_download: bool,
     pub can_import_files: bool,
+    /// Set when this device/window cannot store packs at all (e.g. private browsing): a plain-language reason.
+    #[serde(default)]
+    pub storage_unavailable_reason: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -98,6 +98,10 @@
 <p>Packs are read-only bundles of documents, maps, videos, encyclopedias or AI models. Each file is checked against its
   published size and SHA-256 before a pack is used, and a working pack is never changed in place.</p>
 
+{#if app.hello?.capabilities.storage_unavailable_reason}
+  <div class="notice bad" role="alert">{app.hello.capabilities.storage_unavailable_reason}</div>
+{/if}
+
 {#if app.storage}
   <section class="card" aria-label="Storage">
     <h2>Storage on this {browser ? "browser" : "computer"}</h2>

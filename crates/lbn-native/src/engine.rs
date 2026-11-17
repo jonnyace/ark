@@ -127,6 +127,7 @@ impl NativeEngine {
                     evictable_storage: false,
                     can_download: true,
                     can_import_files: true,
+                    storage_unavailable_reason: None,
                 },
             }),
             Command::ListPacks => ok(self.list_packs()?),

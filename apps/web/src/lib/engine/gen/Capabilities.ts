@@ -12,4 +12,8 @@ ai_unavailable_reason: string | null,
 /**
  * Storage is managed by the browser and may be evicted.
  */
-evictable_storage: boolean, can_download: boolean, can_import_files: boolean, };
+evictable_storage: boolean, can_download: boolean, can_import_files: boolean, 
+/**
+ * Set when this device/window cannot store packs at all (e.g. private browsing): a plain-language reason.
+ */
+storage_unavailable_reason: string | null, };

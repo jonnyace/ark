@@ -54,6 +54,7 @@ function coreCall<T>(f: () => T): T {
 }
 
 let emit: (e: Event) => void = () => {};
+let storageProblem: string | null = null;
 const library = new Map<string, string>(); // pack id -> loaded manifest sha
 let lib: core.Library;
 const pickedFiles = new Map<string, File>();
@@ -66,6 +67,15 @@ export async function start(sink: (e: Event) => void) {
   emit = sink;
   await init({ module_or_path: wasmUrl });
   lib = new core.Library();
+  // Some windows cannot keep files at all (Safari/WebKit private browsing, storage disabled): find out now and say so.
+  try {
+    const h = await opfs.openWrite(".probe", true);
+    h.write(new Uint8Array([1]), { at: 0 });
+    h.close();
+    await opfs.remove(".probe");
+  } catch (e: any) {
+    storageProblem = `This browser window cannot store a library (${e?.name ?? "error"}). Private or incognito windows and disabled site storage do not allow it. Use a normal window, another browser, or the desktop app.`;
+  }
   // Jobs interrupted by closing the tab or a crash become "paused"; staging folders with no job are removed.
   const jobs = await db.all<JobRecord>("jobs");
   for (const j of jobs) {
@@ -176,7 +186,7 @@ async function dispatch(c: Command): Promise<unknown> {
       const cap = ai.capability();
       return {
         api_version: API_VERSION, engine_version: APP_VERSION, platform: "browser",
-        capabilities: { ai_runtime: cap.ok, ai_unavailable_reason: cap.ok ? null : cap.reason, evictable_storage: true, can_download: true, can_import_files: true },
+        capabilities: { ai_runtime: cap.ok, ai_unavailable_reason: cap.ok ? null : cap.reason, evictable_storage: true, can_download: !storageProblem, can_import_files: !storageProblem, storage_unavailable_reason: storageProblem },
       };
     }
     case "list_packs": {
@@ -204,7 +214,7 @@ async function dispatch(c: Command): Promise<unknown> {
     }
     case "read_catalog": return readCatalog(c.args.url);
     case "inspect_source": return inspect(c.args.source);
-    case "install": return startInstall(c.args.source, c.args.allow_unsigned, c.args.allow_downgrade, null);
+    case "install": if (storageProblem) fail("no_storage", storageProblem); return startInstall(c.args.source, c.args.allow_unsigned, c.args.allow_downgrade, null);
     case "pause_job": { const r = running.get(c.args.job); if (r) { r.pause = true; r.cancel = true; } return true; }
     case "resume_job": return resume(c.args.job);
     case "cancel_job": {
