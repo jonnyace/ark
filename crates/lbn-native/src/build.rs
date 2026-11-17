@@ -210,7 +210,8 @@ fn index_resource(
                     let html = String::from_utf8_lossy(&std::fs::read(join_rel(root, &r.path)?)?).into_owned();
                     let doc = html_text(&html);
                     if r.sections.is_empty() {
-                        r.sections = doc.sections.iter().map(|(id, title, _)| Section { id: id.clone(), title: title.clone() }).collect();
+                        r.sections =
+                            doc.sections.iter().map(|(id, title, _)| Section { id: id.clone(), title: title.clone() }).collect();
                     }
                     if !doc.intro.trim().is_empty() {
                         add(ix, Loc::Whole, r.title.clone(), &doc.intro);
@@ -232,7 +233,12 @@ fn index_resource(
                         let start = w.start.min(dur);
                         let end = w.end.min(dur);
                         let label = format!("{} — {}", r.title, lbn_core::citation::time_label(start));
-                        ix.add(Chunk { resource: r.id.clone(), loc: Loc::Time { start, end: Some(end) }, title: label, text: w.text });
+                        ix.add(Chunk {
+                            resource: r.id.clone(),
+                            loc: Loc::Time { start, end: Some(end) },
+                            title: label,
+                            text: w.text,
+                        });
                     }
                     done = true;
                 }
@@ -241,12 +247,22 @@ fn index_resource(
                 if let Some(TextOverride::Plain(t)) = ov {
                     add(ix, Loc::Whole, r.title.clone(), &t);
                 } else {
-                    ix.add(Chunk { resource: r.id.clone(), loc: Loc::Whole, title: r.title.clone(), text: r.summary.clone().unwrap_or_default() });
+                    ix.add(Chunk {
+                        resource: r.id.clone(),
+                        loc: Loc::Whole,
+                        title: r.title.clone(),
+                        text: r.summary.clone().unwrap_or_default(),
+                    });
                 }
             }
         }
         ResourceType::Map => {
-            ix.add(Chunk { resource: r.id.clone(), loc: Loc::Whole, title: r.title.clone(), text: r.summary.clone().unwrap_or_default() });
+            ix.add(Chunk {
+                resource: r.id.clone(),
+                loc: Loc::Whole,
+                title: r.title.clone(),
+                text: r.summary.clone().unwrap_or_default(),
+            });
         }
         ResourceType::Model => {}
     }
@@ -290,7 +306,15 @@ pub fn html_text(html: &str) -> HtmlDoc {
                 continue;
             }
             match (name.as_str(), closing) {
-                ("script" | "style" | "template" | "noscript" | "svg", false) => skip_until = Some(match name.as_str() { "script" => "script", "style" => "style", "template" => "template", "noscript" => "noscript", _ => "svg" }),
+                ("script" | "style" | "template" | "noscript" | "svg", false) => {
+                    skip_until = Some(match name.as_str() {
+                        "script" => "script",
+                        "style" => "style",
+                        "template" => "template",
+                        "noscript" => "noscript",
+                        _ => "svg",
+                    })
+                }
                 ("title", false) => in_title = true,
                 ("title", true) => in_title = false,
                 ("h2" | "h3", false) => {

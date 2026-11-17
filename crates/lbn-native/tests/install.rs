@@ -154,7 +154,12 @@ fn open(data: &Path, k: &Keys) -> Eng {
     let tx = Mutex::new(tx);
     let e = NativeEngine::open(
         data,
-        EngineOptions { platform: "test".into(), app_version: "test".into(), builtin_keys: k.trusted.clone(), runner_dirs: vec![] },
+        EngineOptions {
+            platform: "test".into(),
+            app_version: "test".into(),
+            builtin_keys: k.trusted.clone(),
+            runner_dirs: vec![],
+        },
         Arc::new(move |ev| {
             let _ = tx.lock().unwrap().send(ev);
         }),
@@ -179,7 +184,10 @@ impl Eng {
     fn wait(&self, job: &str) -> (JobState, Option<String>) {
         loop {
             match self.rx.recv_timeout(Duration::from_secs(60)).expect("job event") {
-                Event::Job(p) if p.job == job && matches!(p.state, JobState::Done | JobState::Failed | JobState::Cancelled | JobState::Paused) => {
+                Event::Job(p)
+                    if p.job == job
+                        && matches!(p.state, JobState::Done | JobState::Failed | JobState::Cancelled | JobState::Paused) =>
+                {
                     return (p.state, p.error.map(|e| e.code));
                 }
                 _ => {}
@@ -188,7 +196,11 @@ impl Eng {
     }
     fn active_version(&self) -> Option<String> {
         let v = self.call(Command::ListPacks).unwrap();
-        v.as_array().unwrap().iter().find(|p| p["installed"]["id"] == "org.test.docs").map(|p| p["installed"]["version"].as_str().unwrap().to_string())
+        v.as_array()
+            .unwrap()
+            .iter()
+            .find(|p| p["installed"]["id"] == "org.test.docs")
+            .map(|p| p["installed"]["version"].as_str().unwrap().to_string())
     }
     fn search_hits(&self, q: &str) -> usize {
         self.call(Command::Search { query: q.into(), limit: 10, packs: None }).unwrap()["hits"].as_array().unwrap().len()
@@ -313,7 +325,13 @@ fn download_paused_survives_restart_and_resumes() {
     let job;
     {
         let e = open(&data, &k);
-        let j = e.call(Command::Install { source: PackSource::Url { url: url.clone() }, allow_unsigned: false, allow_downgrade: false }).unwrap();
+        let j = e
+            .call(Command::Install {
+                source: PackSource::Url { url: url.clone() },
+                allow_unsigned: false,
+                allow_downgrade: false,
+            })
+            .unwrap();
         job = j["job"].as_str().unwrap().to_string();
         // Pause as soon as the download is under way, then "quit the app".
         loop {

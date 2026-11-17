@@ -29,7 +29,9 @@ fn start_media_server() -> std::io::Result<String> {
     let mut t = [0u8; 32];
     std::fs::File::open("/dev/urandom").and_then(|mut f| f.read_exact(&mut t)).or_else(|_| {
         let n = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap_or_default().as_nanos();
-        t.iter_mut().enumerate().for_each(|(i, b)| *b = (n >> (i % 16 * 8)) as u8 ^ (std::process::id() as u8).wrapping_mul(i as u8));
+        t.iter_mut()
+            .enumerate()
+            .for_each(|(i, b)| *b = (n >> (i % 16 * 8)) as u8 ^ (std::process::id() as u8).wrapping_mul(i as u8));
         Ok::<(), std::io::Error>(())
     })?;
     let token: String = t.iter().map(|b| format!("{b:02x}")).collect();
@@ -39,29 +41,46 @@ fn start_media_server() -> std::io::Result<String> {
             let tk = tk.clone();
             std::thread::spawn(move || {
                 let _ = conn.set_read_timeout(Some(std::time::Duration::from_secs(30)));
-                let mut r = BufReader::new(match conn.try_clone() { Ok(c) => c, Err(_) => return });
+                let mut r = BufReader::new(match conn.try_clone() {
+                    Ok(c) => c,
+                    Err(_) => return,
+                });
                 let mut w = conn;
                 loop {
                     let mut line = String::new();
-                    if r.read_line(&mut line).unwrap_or(0) == 0 { return; }
+                    if r.read_line(&mut line).unwrap_or(0) == 0 {
+                        return;
+                    }
                     let mut range = None;
                     let mut total = line.len();
                     loop {
                         let mut h = String::new();
-                        if r.read_line(&mut h).unwrap_or(0) == 0 { return; }
+                        if r.read_line(&mut h).unwrap_or(0) == 0 {
+                            return;
+                        }
                         total += h.len();
-                        if total > 16 * 1024 { return; }
-                        if h == "\r\n" || h == "\n" { break; }
+                        if total > 16 * 1024 {
+                            return;
+                        }
+                        if h == "\r\n" || h == "\n" {
+                            break;
+                        }
                         if let Some((k, v)) = h.split_once(':') {
-                            if k.eq_ignore_ascii_case("range") { range = Some(v.trim().to_string()); }
+                            if k.eq_ignore_ascii_case("range") {
+                                range = Some(v.trim().to_string());
+                            }
                         }
                     }
                     let parts: Vec<&str> = line.split_whitespace().collect();
-                    let (method, target) = match parts.as_slice() { [m, t, ..] => (*m, *t), _ => return };
+                    let (method, target) = match parts.as_slice() {
+                        [m, t, ..] => (*m, *t),
+                        _ => return,
+                    };
                     let path = percent_encoding::percent_decode_str(target).decode_utf8_lossy().to_string();
                     let rest = path.strip_prefix(&format!("/{tk}/"));
                     let file = (method == "GET" || method == "HEAD")
-                        .then_some(rest).flatten()
+                        .then_some(rest)
+                        .flatten()
                         .and_then(|p| p.split_once('/'))
                         .and_then(|(pack, rel)| engine().ok()?.store.file_path(pack, rel).ok().map(|f| (f, rel.to_string())));
                     let Some((file, rel)) = file else {
@@ -87,12 +106,20 @@ fn start_media_server() -> std::io::Result<String> {
                     }
                     let len = if size == 0 { 0 } else { end - start + 1 };
                     let mut head = format!("HTTP/1.1 {status}\r\nContent-Type: {}\r\nContent-Length: {len}\r\nAccept-Ranges: bytes\r\nAccess-Control-Allow-Origin: *\r\nX-Content-Type-Options: nosniff\r\nCache-Control: no-store\r\n", content_type(&rel));
-                    if status.starts_with("206") { head.push_str(&format!("Content-Range: bytes {start}-{end}/{size}\r\n")); }
+                    if status.starts_with("206") {
+                        head.push_str(&format!("Content-Range: bytes {start}-{end}/{size}\r\n"));
+                    }
                     head.push_str("\r\n");
-                    if w.write_all(head.as_bytes()).is_err() { return; }
+                    if w.write_all(head.as_bytes()).is_err() {
+                        return;
+                    }
                     if method == "GET" && len > 0 {
-                        if f.seek(SeekFrom::Start(start)).is_err() { return; }
-                        if std::io::copy(&mut (&mut f).take(len), &mut w).is_err() { return; }
+                        if f.seek(SeekFrom::Start(start)).is_err() {
+                            return;
+                        }
+                        if std::io::copy(&mut (&mut f).take(len), &mut w).is_err() {
+                            return;
+                        }
                     }
                 }
             });
@@ -254,7 +281,9 @@ fn main() {
             .map_err(|e| format!("could not open the library at {}: {e}", data.display()))?;
             let _ = ENGINE.set(e);
             match start_media_server() {
-                Ok(b) => { let _ = MEDIA_BASE.set(b); }
+                Ok(b) => {
+                    let _ = MEDIA_BASE.set(b);
+                }
                 Err(e) => eprintln!("media streaming unavailable: {e}"),
             }
             Ok(())

@@ -32,7 +32,12 @@ fn read_info(lib: &Path) -> Result<LegacyInfo> {
         if ok {
             keep.push(r);
         } else {
-            plan.unsupported.push(Unsupported { id: r.id.clone(), kind: format!("{:?}", r.rtype).to_lowercase(), title: r.title.clone(), reason: "the file is missing from this library".into() });
+            plan.unsupported.push(Unsupported {
+                id: r.id.clone(),
+                kind: format!("{:?}", r.rtype).to_lowercase(),
+                title: r.title.clone(),
+                reason: "the file is missing from this library".into(),
+            });
         }
     }
     plan.resources = keep;
@@ -45,12 +50,19 @@ fn read_info(lib: &Path) -> Result<LegacyInfo> {
             reason: "this map format is not supported; install a map pack instead. The original files are left in place".into(),
         });
     }
-    let pj: serde_json::Value = std::fs::read(lib.join("pack.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
+    let pj: serde_json::Value =
+        std::fs::read(lib.join("pack.json")).ok().and_then(|b| serde_json::from_slice(&b).ok()).unwrap_or_default();
     let name = pj["name"].as_str().unwrap_or("library");
     let name: String = name.chars().filter(|c| c.is_ascii_alphanumeric()).collect::<String>().to_lowercase();
     let built = pj["built"].as_str().unwrap_or("2026-01-01").replace('-', ".");
     let version = if lbn_core::version::Version::parse(&built).is_ok() { built } else { "1.0.0".into() };
-    let bytes = plan.resources.iter().filter_map(|r| join_rel(&data, &r.path).ok()).filter_map(|p| std::fs::metadata(p).ok()).map(|m| m.len()).sum();
+    let bytes = plan
+        .resources
+        .iter()
+        .filter_map(|r| join_rel(&data, &r.path).ok())
+        .filter_map(|p| std::fs::metadata(p).ok())
+        .map(|m| m.len())
+        .sum();
     Ok(LegacyInfo {
         id: format!("org.lastbook.legacy.{}", if name.is_empty() { "library".into() } else { name.clone() }),
         version,
@@ -123,7 +135,9 @@ pub fn stage(lib: &Path, staged: &Path, link: bool) -> Result<(ParsedManifest, L
         publisher: Publisher { name: "Imported from Lastbook".into(), url: None },
         license: License {
             spdx: "LicenseRef-Lastbook-Mixed".into(),
-            attribution: Some("Each item keeps its publisher's terms; see the item's source. Not checked for redistribution.".into()),
+            attribution: Some(
+                "Each item keeps its publisher's terms; see the item's source. Not checked for redistribution.".into(),
+            ),
             file: None,
             redistributable: false,
         },
@@ -143,7 +157,10 @@ pub fn stage(lib: &Path, staged: &Path, link: bool) -> Result<(ParsedManifest, L
         }
     }
     if !damaged.is_empty() {
-        return Err(NativeError::coded("checksum", format!("these files in the old library do not match its own checksums: {}", damaged.join(", "))));
+        return Err(NativeError::coded(
+            "checksum",
+            format!("these files in the old library do not match its own checksums: {}", damaged.join(", ")),
+        ));
     }
     let _ = manifest::MANIFEST_NAME;
     Ok((parsed, info))

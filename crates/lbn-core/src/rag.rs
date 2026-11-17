@@ -192,7 +192,8 @@ pub fn check_answer(raw: &str, sources: &[Source]) -> CheckedAnswer {
         match after.find(']') {
             Some(j) if j <= 40 => {
                 let inner = &after[..j];
-                let keys: Vec<&str> = inner.split(|c: char| c == ',' || c == ';' || c.is_whitespace()).filter(|k| !k.is_empty()).collect();
+                let keys: Vec<&str> =
+                    inner.split(|c: char| c == ',' || c == ';' || c.is_whitespace()).filter(|k| !k.is_empty()).collect();
                 if !keys.is_empty() && keys.iter().all(|k| is_key(k)) {
                     for k in keys {
                         text.push_str(&format!("[{}]", k.to_uppercase()));
@@ -306,7 +307,8 @@ fn sentences(text: &str) -> Vec<String> {
 pub fn is_looping(text: &str) -> bool {
     let all = sentences(text);
     // Only complete sentences count; the last element may still be growing.
-    let complete: Vec<String> = all.iter().filter(|s| s.trim_end().ends_with(['.', '!', '?', ']'])).map(|s| norm_sentence(s)).collect();
+    let complete: Vec<String> =
+        all.iter().filter(|s| s.trim_end().ends_with(['.', '!', '?', ']'])).map(|s| norm_sentence(s)).collect();
     let Some(last) = complete.last() else { return false };
     last.len() > 8 && complete.iter().filter(|s| *s == last).count() >= 3
 }
@@ -449,7 +451,10 @@ mod tests {
     fn flags_numbers_not_in_cited_sources_and_drops_loops() {
         let s = select_sources(
             "bleach water",
-            &[src(1, "Add 8 drops of bleach per gallon of water; use 5 teaspoons for a 200-liter barrel."), src(2, "Boil water for 1 minute.")],
+            &[
+                src(1, "Add 8 drops of bleach per gallon of water; use 5 teaspoons for a 200-liter barrel."),
+                src(2, "Boil water for 1 minute."),
+            ],
             &RetrievalConfig::default(),
         )
         .unwrap();

@@ -122,7 +122,12 @@ impl Ai {
                 }
                 Ok(v) if v["ev"] == "error" => {
                     let _ = child.kill();
-                    return Ok(Fit { ok: false, reason: v["msg"].as_str().unwrap_or("the model cannot be read").into(), ram_total_bytes: None, ram_available_bytes: None });
+                    return Ok(Fit {
+                        ok: false,
+                        reason: v["msg"].as_str().unwrap_or("the model cannot be read").into(),
+                        ram_total_bytes: None,
+                        ram_available_bytes: None,
+                    });
                 }
                 Ok(_) => {}
                 Err(RecvTimeoutError::Timeout) => {}
@@ -135,7 +140,16 @@ impl Ai {
         let ok = v["status"] == "fits";
         let total = v["ram_total"].as_u64();
         let free = v["ram_free"].as_u64();
-        let need: u64 = v["memory"].as_array().map(|a| a.iter().map(|m| m["model"].as_u64().unwrap_or(0) + m["context"].as_u64().unwrap_or(0) + m["compute"].as_u64().unwrap_or(0)).sum()).unwrap_or(0);
+        let need: u64 = v["memory"]
+            .as_array()
+            .map(|a| {
+                a.iter()
+                    .map(|m| {
+                        m["model"].as_u64().unwrap_or(0) + m["context"].as_u64().unwrap_or(0) + m["compute"].as_u64().unwrap_or(0)
+                    })
+                    .sum()
+            })
+            .unwrap_or(0);
         let reason = if ok {
             format!("Fits: needs about {} MB; {} MB of memory is available now.", need >> 20, free.unwrap_or(0) >> 20)
         } else {
@@ -174,7 +188,10 @@ impl Ai {
                         Some("model_file") => "model_file",
                         _ => "runner",
                     };
-                    return Err(NativeError::coded(code, v["msg"].as_str().unwrap_or("the model could not be loaded").to_string()));
+                    return Err(NativeError::coded(
+                        code,
+                        v["msg"].as_str().unwrap_or("the model could not be loaded").to_string(),
+                    ));
                 }
                 Ok(_) => {}
                 Err(RecvTimeoutError::Timeout) if Instant::now() < deadline => {}

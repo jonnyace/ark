@@ -73,7 +73,11 @@ impl PersonalDb {
 
     pub fn backup(&self, label: &str) -> Result<PathBuf> {
         let dest = self.backups.join(format!("personal-{}-{label}.sqlite", now_compact()));
-        let dest = if dest.exists() { self.backups.join(format!("personal-{}-{label}-{}.sqlite", now_compact(), random_id())) } else { dest };
+        let dest = if dest.exists() {
+            self.backups.join(format!("personal-{}-{label}-{}.sqlite", now_compact(), random_id()))
+        } else {
+            dest
+        };
         self.db.lock().unwrap().execute("VACUUM INTO ?1", [dest.to_string_lossy()])?;
         Ok(dest)
     }
@@ -96,7 +100,8 @@ impl PersonalDb {
                     }
                 }
                 let history = read_history(&db)?;
-                let settings: Option<String> = db.query_row("SELECT v FROM settings WHERE k='settings'", [], |r| r.get(0)).optional()?;
+                let settings: Option<String> =
+                    db.query_row("SELECT v FROM settings WHERE k='settings'", [], |r| r.get(0)).optional()?;
                 serde_json::json!({"bookmarks": bms, "history": history,
                     "settings": settings.and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok()).unwrap_or(serde_json::json!({}))})
             }
@@ -122,7 +127,9 @@ impl PersonalDb {
                 .collect::<std::result::Result<_, _>>()?;
             let mut st = db.prepare("SELECT id,target,text,created,updated FROM notes ORDER BY updated DESC")?;
             d.notes = st
-                .query_map([], |r| Ok(Note { id: r.get(0)?, target: r.get(1)?, text: r.get(2)?, created: r.get(3)?, updated: r.get(4)? }))?
+                .query_map([], |r| {
+                    Ok(Note { id: r.get(0)?, target: r.get(1)?, text: r.get(2)?, created: r.get(3)?, updated: r.get(4)? })
+                })?
                 .collect::<std::result::Result<_, _>>()?;
             let mut st = db.prepare("SELECT id,question,answer,citations,model,at FROM answers ORDER BY at DESC")?;
             d.answers = st
@@ -159,7 +166,10 @@ impl PersonalDb {
             return Ok(b);
         }
         let b = Bookmark { id: random_id(), target: target.into(), title: title.into(), created: now_rfc3339() };
-        db.execute("INSERT INTO bookmarks(id,target,title,created) VALUES(?1,?2,?3,?4)", params![b.id, b.target, b.title, b.created])?;
+        db.execute(
+            "INSERT INTO bookmarks(id,target,title,created) VALUES(?1,?2,?3,?4)",
+            params![b.id, b.target, b.title, b.created],
+        )?;
         Ok(b)
     }
 
@@ -208,10 +218,10 @@ impl PersonalDb {
     }
 
     pub fn save_settings(&self, s: &Settings) -> Result<()> {
-        self.db.lock().unwrap().execute(
-            "INSERT OR REPLACE INTO settings(k,v) VALUES('settings',?1)",
-            [serde_json::to_string(s).unwrap()],
-        )?;
+        self.db
+            .lock()
+            .unwrap()
+            .execute("INSERT OR REPLACE INTO settings(k,v) VALUES('settings',?1)", [serde_json::to_string(s).unwrap()])?;
         Ok(())
     }
 
@@ -247,7 +257,10 @@ fn read_history(db: &Connection) -> Result<Vec<serde_json::Value>> {
 
 fn write_all(tx: &rusqlite::Transaction<'_>, d: &PersonalData) -> Result<()> {
     for b in &d.bookmarks {
-        tx.execute("INSERT OR REPLACE INTO bookmarks(id,target,title,created) VALUES(?1,?2,?3,?4)", params![b.id, b.target, b.title, b.created])?;
+        tx.execute(
+            "INSERT OR REPLACE INTO bookmarks(id,target,title,created) VALUES(?1,?2,?3,?4)",
+            params![b.id, b.target, b.title, b.created],
+        )?;
     }
     for n in &d.notes {
         tx.execute(

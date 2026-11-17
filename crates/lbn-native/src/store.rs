@@ -204,7 +204,8 @@ impl Store {
 
     /// Absolute path of a file of the active build of `pack` (path validated, file must be in the manifest).
     pub fn file_path(&self, pack: &str, rel: &str) -> Result<PathBuf> {
-        let b = self.active_build(pack)?.ok_or_else(|| NativeError::coded("not_found", format!("pack {pack} is not installed")))?;
+        let b =
+            self.active_build(pack)?.ok_or_else(|| NativeError::coded("not_found", format!("pack {pack} is not installed")))?;
         let m = self.manifest_of(&b)?;
         if m.file(rel).is_none() {
             return Err(NativeError::coded("not_found", format!("{rel} is not part of {pack}")));
@@ -229,7 +230,14 @@ impl Store {
     pub fn verify_build(&self, b: &InstalledPack, mut progress: impl FnMut(u64)) -> Result<VerifyReport> {
         let m = self.manifest_of(b)?;
         let dir = self.build_dir(b);
-        let mut rep = VerifyReport { pack: b.id.clone(), version: b.version.clone(), ok: true, checked: 0, damaged: vec![], missing: vec![] };
+        let mut rep = VerifyReport {
+            pack: b.id.clone(),
+            version: b.version.clone(),
+            ok: true,
+            checked: 0,
+            damaged: vec![],
+            missing: vec![],
+        };
         for f in &m.files {
             let p = join_rel(&dir, &f.path)?;
             if !p.is_file() {
@@ -255,7 +263,8 @@ impl Store {
         let signed_by = self.check_signature(dir, &mbytes, allow_unsigned)?;
         for f in &parsed.manifest.files {
             let p = join_rel(dir, &f.path)?;
-            let md = std::fs::symlink_metadata(&p).map_err(|_| NativeError::coded("missing", format!("{} is missing", f.path)))?;
+            let md =
+                std::fs::symlink_metadata(&p).map_err(|_| NativeError::coded("missing", format!("{} is missing", f.path)))?;
             if !md.file_type().is_file() {
                 return Err(NativeError::coded("unsafe_path", format!("{} is not a regular file", f.path)));
             }
@@ -266,7 +275,12 @@ impl Store {
         list_files(dir, dir, &mut extra)?;
         let listed: std::collections::HashSet<&str> = parsed.manifest.files.iter().map(|f| f.path.as_str()).collect();
         for e in extra {
-            if e != MANIFEST_NAME && e != SIGNATURE_NAME && !listed.contains(e.as_str()) && !e.ends_with(".part") && e != "job.json" {
+            if e != MANIFEST_NAME
+                && e != SIGNATURE_NAME
+                && !listed.contains(e.as_str())
+                && !e.ends_with(".part")
+                && e != "job.json"
+            {
                 return Err(NativeError::coded("manifest", format!("{e} is in the pack but not in its manifest")));
             }
         }
@@ -318,9 +332,7 @@ impl Store {
                 // Left over from an interrupted activation: replace it with the freshly verified copy.
                 std::fs::rename(&dest, self.root.join("trash").join(format!("stale-{}", crate::util::random_id())))?;
             }
-            for leftover in ["job.json"] {
-                let _ = std::fs::remove_file(staged.join(leftover));
-            }
+            let _ = std::fs::remove_file(staged.join("job.json"));
             std::fs::rename(staged, &dest)?;
             sync_dir(dest.parent().unwrap());
         } else {
@@ -402,7 +414,8 @@ impl Store {
             tx.commit()?;
         }
         for b in &targets {
-            let _ = std::fs::rename(self.build_dir(b), self.root.join("trash").join(format!("removed-{}", crate::util::random_id())));
+            let _ =
+                std::fs::rename(self.build_dir(b), self.root.join("trash").join(format!("removed-{}", crate::util::random_id())));
             self.indexes.lock().unwrap().remove(&b.manifest_sha256);
             self.manifests.lock().unwrap().remove(&b.manifest_sha256);
         }

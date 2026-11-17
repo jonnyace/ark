@@ -244,8 +244,7 @@ pub fn is_valid_pack_id(id: &str) -> bool {
 }
 
 pub fn is_valid_resource_id(id: &str) -> bool {
-    (1..=128).contains(&id.len())
-        && id.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-' | b':'))
+    (1..=128).contains(&id.len()) && id.bytes().all(|b| b.is_ascii_alphanumeric() || matches!(b, b'.' | b'_' | b'-' | b':'))
 }
 
 /// A parsed manifest plus its identity (SHA-256 of the exact bytes).
@@ -365,8 +364,11 @@ pub fn validate(m: &Manifest) -> Result<()> {
                 let Some(mi) = &r.map else { return err(format!("map {} has no map info", r.id)) };
                 need(&mi.style, "map style")?;
                 let [w, s, e, n] = mi.bounds;
-                if !(-180.0..=180.0).contains(&w) || !(-180.0..=180.0).contains(&e) || !(-90.0..=90.0).contains(&s)
-                    || !(-90.0..=90.0).contains(&n) || s >= n
+                if !(-180.0..=180.0).contains(&w)
+                    || !(-180.0..=180.0).contains(&e)
+                    || !(-90.0..=90.0).contains(&s)
+                    || !(-90.0..=90.0).contains(&n)
+                    || s >= n
                 {
                     return err(format!("map {} has bad bounds", r.id));
                 }
@@ -480,7 +482,10 @@ pub(crate) mod tests {
             ("missing file", Box::new(|m| m.resources[0].path = "res/none.html".into())),
             ("hash", Box::new(|m| m.files[0].sha256 = "ABC".into())),
             ("dup res", Box::new(|m| m.resources.push(m.resources[0].clone()))),
-            ("manifest listed", Box::new(|m| m.files.push(FileEntry { path: "pack.json".into(), size: 1, sha256: sha256_hex(b"x") }))),
+            (
+                "manifest listed",
+                Box::new(|m| m.files.push(FileEntry { path: "pack.json".into(), size: 1, sha256: sha256_hex(b"x") })),
+            ),
             ("engine", Box::new(|m| m.compat.min_engine_api = 99)),
             ("pdf pages", Box::new(|m| m.resources[0].rtype = ResourceType::Pdf)),
             ("model info", Box::new(|m| m.kind = PackKind::Model)),

@@ -233,8 +233,19 @@ mod tests {
     #[test]
     fn export_round_trip_and_merge() {
         let mut d = PersonalData::default();
-        d.bookmarks.push(Bookmark { id: "1".into(), target: "lbn:org.a.b/x#page=2".into(), title: "X".into(), created: "t".into() });
-        d.notes.push(Note { id: "n".into(), target: "lbn:org.a.b/x".into(), text: "hi".into(), created: "1".into(), updated: "1".into() });
+        d.bookmarks.push(Bookmark {
+            id: "1".into(),
+            target: "lbn:org.a.b/x#page=2".into(),
+            title: "X".into(),
+            created: "t".into(),
+        });
+        d.notes.push(Note {
+            id: "n".into(),
+            target: "lbn:org.a.b/x".into(),
+            text: "hi".into(),
+            created: "1".into(),
+            updated: "1".into(),
+        });
         let bytes = serde_json::to_vec(&export(&d, "now", "0.9.0")).unwrap();
         let back = parse_export(&bytes).unwrap();
         assert_eq!(back.data, d);

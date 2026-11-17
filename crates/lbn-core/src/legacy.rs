@@ -106,7 +106,8 @@ pub fn plan(catalog_json: &[u8]) -> Result<Plan> {
     let thumbs: Vec<&Record> = records.iter().filter(|r| r.kind == "metadata").collect();
     for r in &records {
         let title = r.title.clone().unwrap_or_else(|| r.id.clone());
-        let unsupported = |reason: &str| Unsupported { id: r.id.clone(), kind: r.kind.clone(), title: title.clone(), reason: reason.into() };
+        let unsupported =
+            |reason: &str| Unsupported { id: r.id.clone(), kind: r.kind.clone(), title: title.clone(), reason: reason.into() };
         let rtype = match r.kind.as_str() {
             "pdf" => ResourceType::Pdf,
             "html" => ResourceType::Html,
@@ -114,7 +115,8 @@ pub fn plan(catalog_json: &[u8]) -> Result<Plan> {
             // Folded into their video below.
             "transcript" | "metadata" => continue,
             "zim" => {
-                plan.unsupported.push(unsupported("Kiwix ZIM collections are not supported yet; the original file is left in place"));
+                plan.unsupported
+                    .push(unsupported("Kiwix ZIM collections are not supported yet; the original file is left in place"));
                 continue;
             }
             _ => {

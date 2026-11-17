@@ -122,7 +122,11 @@ enum PackCmd {
 #[derive(Subcommand)]
 enum KeyCmd {
     /// Generate an unencrypted minisign key pair: <prefix>.key (secret, keep private) and <prefix>.pub.
-    Gen { prefix: PathBuf, #[arg(long, default_value = "Lastbook Next publisher")] name: String },
+    Gen {
+        prefix: PathBuf,
+        #[arg(long, default_value = "Lastbook Next publisher")]
+        name: String,
+    },
 }
 
 fn default_data() -> PathBuf {
@@ -154,7 +158,12 @@ fn engine(data: &Path) -> R<(Arc<NativeEngine>, mpsc::Receiver<Event>)> {
     let tx = std::sync::Mutex::new(tx);
     let e = NativeEngine::open(
         data,
-        EngineOptions { platform: "cli".into(), app_version: env!("CARGO_PKG_VERSION").into(), builtin_keys: builtin_keys(), runner_dirs: vec![] },
+        EngineOptions {
+            platform: "cli".into(),
+            app_version: env!("CARGO_PKG_VERSION").into(),
+            builtin_keys: builtin_keys(),
+            runner_dirs: vec![],
+        },
         Arc::new(move |ev| {
             let _ = tx.lock().unwrap().send(ev);
         }),
@@ -233,13 +242,15 @@ fn read_source_manifest(source: &str) -> R<(Vec<u8>, Option<String>)> {
 }
 
 fn sign_dir(dir: &Path, key: &Path) -> R<()> {
-    let sk_box = minisign::SecretKeyBox::from_string(&std::fs::read_to_string(key).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+    let sk_box = minisign::SecretKeyBox::from_string(&std::fs::read_to_string(key).map_err(|e| e.to_string())?)
+        .map_err(|e| e.to_string())?;
     let sk = sk_box.into_unencrypted_secret_key().map_err(|e| e.to_string())?;
     let data = std::fs::read(dir.join(MANIFEST_NAME)).map_err(|e| e.to_string())?;
     let p = manifest::parse(&data).map_err(|e| e.to_string())?;
     // Fixed trusted comment (no timestamp) so the same pack and key give the same signature file.
     let tc = format!("lastbook-next pack {} {} sha256:{}", p.manifest.id, p.manifest.version, p.sha256);
-    let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-next")).map_err(|e| e.to_string())?;
+    let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-next"))
+        .map_err(|e| e.to_string())?;
     std::fs::write(dir.join(SIGNATURE_NAME), sig.to_string()).map_err(|e| e.to_string())?;
     Ok(())
 }
@@ -259,7 +270,8 @@ fn run(cli: Cli) -> R<()> {
                 use std::os::unix::fs::PermissionsExt;
                 let _ = std::fs::set_permissions(&skp, std::fs::Permissions::from_mode(0o600));
             }
-            std::fs::write(prefix.with_extension("pub"), format!("untrusted comment: {name}\n{pk}\n")).map_err(|e| e.to_string())?;
+            std::fs::write(prefix.with_extension("pub"), format!("untrusted comment: {name}\n{pk}\n"))
+                .map_err(|e| e.to_string())?;
             print(j, &json!({"name": name, "public_key": pk}), |_| println!("secret key: {}\npublic key: {pk}", skp.display()));
         }
         Cmd::Pack(PackCmd::Build { src, out, sign }) => {
@@ -268,9 +280,20 @@ fn run(cli: Cli) -> R<()> {
                 sign_dir(&out, &k)?;
             }
             let m = &p.manifest;
-            print(j, &json!({"id": m.id, "version": m.version, "sha256": p.sha256, "files": m.files.len(), "bytes": m.total_bytes()}), |_| {
-                println!("built {} {} ({} files, {} bytes)\nmanifest sha256 {}", m.id, m.version, m.files.len(), m.total_bytes(), p.sha256)
-            });
+            print(
+                j,
+                &json!({"id": m.id, "version": m.version, "sha256": p.sha256, "files": m.files.len(), "bytes": m.total_bytes()}),
+                |_| {
+                    println!(
+                        "built {} {} ({} files, {} bytes)\nmanifest sha256 {}",
+                        m.id,
+                        m.version,
+                        m.files.len(),
+                        m.total_bytes(),
+                        p.sha256
+                    )
+                },
+            );
         }
         Cmd::Pack(PackCmd::Sign { dir, key }) => sign_dir(&dir, &key)?,
         Cmd::Pack(PackCmd::SignCatalog { file, key }) => {
@@ -279,8 +302,14 @@ fn run(cli: Cli) -> R<()> {
             let sk = minisign::SecretKeyBox::from_string(&std::fs::read_to_string(&key).map_err(|e| e.to_string())?)
                 .and_then(|b| b.into_unencrypted_secret_key())
                 .map_err(|e| e.to_string())?;
-            let tc = format!("lastbook-next catalog {} published {} sha256:{}", c.title, c.published, lbn_core::hash::sha256_hex(&data));
-            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-next")).map_err(|e| e.to_string())?;
+            let tc = format!(
+                "lastbook-next catalog {} published {} sha256:{}",
+                c.title,
+                c.published,
+                lbn_core::hash::sha256_hex(&data)
+            );
+            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-next"))
+                .map_err(|e| e.to_string())?;
             let mut out = file.clone().into_os_string();
             out.push(".minisig");
             std::fs::write(out, sig.to_string()).map_err(|e| e.to_string())?;
@@ -308,7 +337,8 @@ fn run(cli: Cli) -> R<()> {
                 let ext = n.rsplit('.').next().unwrap_or("");
                 let stored = matches!(ext, "webm" | "mp4" | "pdf" | "pmtiles" | "gguf" | "webp" | "png" | "jpg" | "pbf" | "lbi");
                 z.start_file(n.as_str(), opt(stored)).map_err(|e| e.to_string())?;
-                let mut src = std::fs::File::open(lbn_native::util::join_rel(&dir, &n).map_err(|e| e.to_string())?).map_err(|e| e.to_string())?;
+                let mut src = std::fs::File::open(lbn_native::util::join_rel(&dir, &n).map_err(|e| e.to_string())?)
+                    .map_err(|e| e.to_string())?;
                 std::io::copy(&mut src, &mut z).map_err(|e| e.to_string())?;
             }
             z.finish().map_err(|e| e.to_string())?;
@@ -317,7 +347,9 @@ fn run(cli: Cli) -> R<()> {
         Cmd::Pack(PackCmd::Inspect { source }) => {
             let (m, sig) = read_source_manifest(&source)?;
             let p = manifest::parse(&m).map_err(|e| e.to_string())?;
-            let signer = sig.as_deref().map(|s| lbn_core::signature::verify(&m, s, &builtin_keys()).map(|k| k.name.clone()).map_err(|e| e.to_string()));
+            let signer = sig
+                .as_deref()
+                .map(|s| lbn_core::signature::verify(&m, s, &builtin_keys()).map(|k| k.name.clone()).map_err(|e| e.to_string()));
             let mm = &p.manifest;
             let v = json!({"id": mm.id, "version": mm.version, "kind": mm.kind, "title": mm.title, "license": mm.license, "files": mm.files.len(),
                            "bytes": mm.total_bytes(), "resources": mm.resources.iter().map(|r| json!({"id": r.id, "type": r.rtype, "title": r.title})).collect::<Vec<_>>(),
@@ -348,11 +380,17 @@ fn run(cli: Cli) -> R<()> {
             }
             let v = r.map_err(|e| format!("REJECTED: {e}"))?;
             print(j, &json!({"ok": true, "id": v.parsed.manifest.id, "signed_by": v.signed_by}), |_| {
-                println!("OK: {} {} — every file matches; signature: {}", v.parsed.manifest.id, v.parsed.manifest.version, v.signed_by.clone().unwrap_or("none (unsigned)".into()))
+                println!(
+                    "OK: {} {} — every file matches; signature: {}",
+                    v.parsed.manifest.id,
+                    v.parsed.manifest.version,
+                    v.signed_by.clone().unwrap_or("none (unsigned)".into())
+                )
             });
         }
         Cmd::LegacyInspect { path } => {
-            let lib = lbn_native::legacy_import::find_library(&path).ok_or("no Lastbook library (library-data/catalog.json) found there")?;
+            let lib = lbn_native::legacy_import::find_library(&path)
+                .ok_or("no Lastbook library (library-data/catalog.json) found there")?;
             let info = lbn_native::legacy_import::inspect(&lib).map_err(|e| e.to_string())?;
             let v = json!({"id": info.id, "version": info.version, "importable": info.plan.resources.len(), "bytes": info.bytes, "unsupported": info.plan.unsupported});
             print(j, &v, |v| println!("{}", serde_json::to_string_pretty(v).unwrap()));
@@ -365,8 +403,15 @@ fn run(cli: Cli) -> R<()> {
                     print(j, &v, |v| {
                         for p in v.as_array().unwrap() {
                             let i = &p["installed"];
-                            println!("{:<40} {:<14} {:<12} {:>8} MB  {}  {}", i["id"].as_str().unwrap(), i["version"].as_str().unwrap(), i["kind"].as_str().unwrap(),
-                                i["bytes"].as_u64().unwrap() >> 20, p["health"].as_str().unwrap(), i["signed_by"].as_str().unwrap_or("unsigned"));
+                            println!(
+                                "{:<40} {:<14} {:<12} {:>8} MB  {}  {}",
+                                i["id"].as_str().unwrap(),
+                                i["version"].as_str().unwrap(),
+                                i["kind"].as_str().unwrap(),
+                                i["bytes"].as_u64().unwrap() >> 20,
+                                p["health"].as_str().unwrap(),
+                                i["signed_by"].as_str().unwrap_or("unsigned")
+                            );
                         }
                     });
                 }
@@ -374,7 +419,9 @@ fn run(cli: Cli) -> R<()> {
                     let src = if source.starts_with("http://") || source.starts_with("https://") {
                         PackSource::Url { url: source }
                     } else {
-                        PackSource::Local { path: std::fs::canonicalize(&source).map_err(|e| format!("{source}: {e}"))?.display().to_string() }
+                        PackSource::Local {
+                            path: std::fs::canonicalize(&source).map_err(|e| format!("{source}: {e}"))?.display().to_string(),
+                        }
                     };
                     let p = call(&e, Command::Install { source: src, allow_unsigned, allow_downgrade })?;
                     let job = p["job"].as_str().unwrap().to_string();
@@ -385,8 +432,15 @@ fn run(cli: Cli) -> R<()> {
                     let v = call(&e, Command::ListJobs)?;
                     print(j, &v, |v| {
                         for p in v.as_array().unwrap() {
-                            println!("{}  {}  {}  {}/{} bytes  {}", p["job"].as_str().unwrap(), p["state"].as_str().unwrap(), p["title"].as_str().unwrap(),
-                                p["bytes_done"], p["bytes_total"], p["error"]["message"].as_str().unwrap_or(""));
+                            println!(
+                                "{}  {}  {}  {}/{} bytes  {}",
+                                p["job"].as_str().unwrap(),
+                                p["state"].as_str().unwrap(),
+                                p["title"].as_str().unwrap(),
+                                p["bytes_done"],
+                                p["bytes_total"],
+                                p["error"]["message"].as_str().unwrap_or("")
+                            );
                         }
                     });
                 }
@@ -427,7 +481,13 @@ fn run(cli: Cli) -> R<()> {
                     print(j, &v, |v| {
                         for h in v["hits"].as_array().unwrap() {
                             let c: lbn_core::citation::Citation = serde_json::from_value(h["citation"].clone()).unwrap();
-                            println!("{:6.2}  {}\n        {}\n        {}", h["score"].as_f64().unwrap(), h["title"].as_str().unwrap(), c.to_uri(), h["snippet"].as_str().unwrap());
+                            println!(
+                                "{:6.2}  {}\n        {}\n        {}",
+                                h["score"].as_f64().unwrap(),
+                                h["title"].as_str().unwrap(),
+                                c.to_uri(),
+                                h["snippet"].as_str().unwrap()
+                            );
                         }
                     });
                 }
@@ -437,7 +497,8 @@ fn run(cli: Cli) -> R<()> {
                 }
                 Cmd::Ai { enable, disable } => {
                     if enable || disable {
-                        let mut s: lbn_core::personal::Settings = serde_json::from_value(call(&e, Command::GetPersonal)?["data"]["settings"].clone()).unwrap();
+                        let mut s: lbn_core::personal::Settings =
+                            serde_json::from_value(call(&e, Command::GetPersonal)?["data"]["settings"].clone()).unwrap();
                         s.ai_enabled = enable;
                         call(&e, Command::SaveSettings { settings: s })?;
                     }
@@ -462,16 +523,24 @@ fn run(cli: Cli) -> R<()> {
                                         Some(a) => {
                                             println!("\n{}\n", a.text);
                                             if a.uncited {
-                                                println!("(warning: the model did not cite its sources; check the sources below)");
+                                                println!(
+                                                    "(warning: the model did not cite its sources; check the sources below)"
+                                                );
                                             }
                                             if !a.unverified_numbers.is_empty() {
-                                                println!("(warning: these numbers are not in the cited sources; check them: {})", a.unverified_numbers.join(", "));
+                                                println!(
+                                                    "(warning: these numbers are not in the cited sources; check them: {})",
+                                                    a.unverified_numbers.join(", ")
+                                                );
                                             }
                                             if a.repeats_removed > 0 {
                                                 println!("(removed {} repeated sentences)", a.repeats_removed);
                                             }
                                             if !a.unknown_keys.is_empty() {
-                                                println!("(removed citations to sources it was not given: {})", a.unknown_keys.join(", "));
+                                                println!(
+                                                    "(removed citations to sources it was not given: {})",
+                                                    a.unknown_keys.join(", ")
+                                                );
                                             }
                                         }
                                     }
@@ -479,7 +548,14 @@ fn run(cli: Cli) -> R<()> {
                                         println!("[{}] {}  {}", s.key, s.title, s.citation);
                                     }
                                     if let Some(st) = &r.stats {
-                                        println!("({} prompt tokens in {} ms, {} generated in {} ms, model {})", st.prompt_tokens, st.prompt_ms, st.generated_tokens, st.gen_ms, r.model.clone().unwrap_or_default());
+                                        println!(
+                                            "({} prompt tokens in {} ms, {} generated in {} ms, model {})",
+                                            st.prompt_tokens,
+                                            st.prompt_ms,
+                                            st.generated_tokens,
+                                            st.gen_ms,
+                                            r.model.clone().unwrap_or_default()
+                                        );
                                     }
                                 });
                                 break;
@@ -497,7 +573,13 @@ fn run(cli: Cli) -> R<()> {
                 Cmd::Import { file } => {
                     let data = std::fs::read_to_string(&file).map_err(|e| e.to_string())?;
                     let v = call(&e, Command::ImportPersonal { data })?;
-                    print(j, &v, |v| println!("imported; {} bookmarks, {} notes", v["data"]["bookmarks"].as_array().unwrap().len(), v["data"]["notes"].as_array().unwrap().len()));
+                    print(j, &v, |v| {
+                        println!(
+                            "imported; {} bookmarks, {} notes",
+                            v["data"]["bookmarks"].as_array().unwrap().len(),
+                            v["data"]["notes"].as_array().unwrap().len()
+                        )
+                    });
                 }
                 _ => unreachable!(),
             }

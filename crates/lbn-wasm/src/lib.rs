@@ -157,12 +157,8 @@ impl Library {
     /// `packs_json`: null or ["pack-id", ...]. Returns Hit[].
     pub fn search(&self, query: &str, limit: u32, packs_json: &str) -> Result<String, JsValue> {
         let only: Option<Vec<String>> = from_json(packs_json)?;
-        let refs: Vec<&Index> = self
-            .indexes
-            .iter()
-            .filter(|(id, _)| only.as_ref().is_none_or(|o| o.contains(id)))
-            .map(|(_, ix)| ix)
-            .collect();
+        let refs: Vec<&Index> =
+            self.indexes.iter().filter(|(id, _)| only.as_ref().is_none_or(|o| o.contains(id))).map(|(_, ix)| ix).collect();
         Ok(to_json(&search_many(&refs, query, limit.clamp(1, 100) as usize, 3)))
     }
     pub fn chunk(&self, pack: &str, chunk: u32) -> Result<String, JsValue> {

@@ -241,14 +241,7 @@ impl Index {
     pub fn hit(&self, chunk: u32, score: f32, query: &str) -> Hit {
         let c = &self.chunks[chunk as usize];
         let citation = Citation { pack: self.file.pack.clone(), resource: c.resource.clone(), loc: c.loc.clone() };
-        Hit {
-            uri: citation.to_uri(),
-            citation,
-            title: c.title.clone(),
-            snippet: snippet(&c.text, query, 220),
-            score,
-            chunk,
-        }
+        Hit { uri: citation.to_uri(), citation, title: c.title.clone(), snippet: snippet(&c.text, query, 220), score, chunk }
     }
 
     pub fn search(&self, query: &str, limit: usize) -> Vec<Hit> {
@@ -283,9 +276,24 @@ mod tests {
 
     fn build() -> Index {
         let mut b = Builder::new("org.example.test");
-        b.add(Chunk { resource: "water".into(), loc: Loc::Page { page: 2 }, title: "Safe water".into(), text: "Boil water for one minute to kill germs. Store in clean containers.".into() });
-        b.add(Chunk { resource: "fire".into(), loc: Loc::Section { id: "start".into() }, title: "Fire".into(), text: "Gather dry tinder and kindling before you light a fire.".into() });
-        b.add(Chunk { resource: "vid".into(), loc: Loc::Time { start: 30.0, end: Some(60.0) }, title: "Video".into(), text: "Now we boil the water on the stove.".into() });
+        b.add(Chunk {
+            resource: "water".into(),
+            loc: Loc::Page { page: 2 },
+            title: "Safe water".into(),
+            text: "Boil water for one minute to kill germs. Store in clean containers.".into(),
+        });
+        b.add(Chunk {
+            resource: "fire".into(),
+            loc: Loc::Section { id: "start".into() },
+            title: "Fire".into(),
+            text: "Gather dry tinder and kindling before you light a fire.".into(),
+        });
+        b.add(Chunk {
+            resource: "vid".into(),
+            loc: Loc::Time { start: 30.0, end: Some(60.0) },
+            title: "Video".into(),
+            text: "Now we boil the water on the stove.".into(),
+        });
         Index::from_bytes(&b.build()).unwrap()
     }
 
@@ -325,7 +333,12 @@ mod tests {
     fn merges_packs() {
         let a = build();
         let mut b = Builder::new("org.other.pack");
-        b.add(Chunk { resource: "w2".into(), loc: Loc::Whole, title: "Water storage".into(), text: "Boil water. Boil water again. Water water.".into() });
+        b.add(Chunk {
+            resource: "w2".into(),
+            loc: Loc::Whole,
+            title: "Water storage".into(),
+            text: "Boil water. Boil water again. Water water.".into(),
+        });
         let b = Index::from_bytes(&b.build()).unwrap();
         let hits = search_many(&[&a, &b], "boil water", 10, 1);
         let packs: Vec<_> = hits.iter().map(|h| h.citation.pack.as_str()).collect();

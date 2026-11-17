@@ -27,7 +27,8 @@ pub fn stage_from_dir(src: &Path, staged: &Path, mut progress: impl FnMut(u64)) 
             progress(f.size);
             continue; // resumed import: hashes are checked before activation anyway
         }
-        let md = std::fs::symlink_metadata(&from).map_err(|_| NativeError::coded("missing", format!("{} is missing from the pack", f.path)))?;
+        let md = std::fs::symlink_metadata(&from)
+            .map_err(|_| NativeError::coded("missing", format!("{} is missing from the pack", f.path)))?;
         if !md.file_type().is_file() {
             return Err(NativeError::coded("unsafe_path", format!("{} is not a regular file", f.path)));
         }
@@ -40,9 +41,12 @@ pub fn stage_from_dir(src: &Path, staged: &Path, mut progress: impl FnMut(u64)) 
 /// Extract a `.lbpack` into staging, strictly.
 pub fn stage_from_zip(zip_path: &Path, staged: &Path, mut progress: impl FnMut(u64)) -> Result<ParsedManifest> {
     let file = File::open(zip_path)?;
-    let mut zip = zip::ZipArchive::new(file).map_err(|e| NativeError::coded("unpack", format!("not a readable pack file: {e}")))?;
+    let mut zip =
+        zip::ZipArchive::new(file).map_err(|e| NativeError::coded("unpack", format!("not a readable pack file: {e}")))?;
     let mbytes = {
-        let mut e = zip.by_name(MANIFEST_NAME).map_err(|_| NativeError::coded("manifest", "the pack file has no pack.json at its top"))?;
+        let mut e = zip
+            .by_name(MANIFEST_NAME)
+            .map_err(|_| NativeError::coded("manifest", "the pack file has no pack.json at its top"))?;
         check_entry(&e)?;
         read_limited(&mut e, 32 << 20)?
     };
@@ -62,7 +66,9 @@ pub fn stage_from_zip(zip_path: &Path, staged: &Path, mut progress: impl FnMut(u
         }
         match listed.get(name.as_str()) {
             Some(&size) if size == e.size() => {}
-            Some(_) => return Err(NativeError::coded("size", format!("{name}: size in the pack file differs from the manifest"))),
+            Some(_) => {
+                return Err(NativeError::coded("size", format!("{name}: size in the pack file differs from the manifest")))
+            }
             None => return Err(NativeError::coded("manifest", format!("{name} is in the pack file but not in its manifest"))),
         }
     }
@@ -88,7 +94,9 @@ pub fn stage_from_zip(zip_path: &Path, staged: &Path, mut progress: impl FnMut(u
 }
 
 fn entry_name(e: &zip::read::ZipFile<'_, File>) -> Result<String> {
-    e.name().map(|n| n.into_owned()).map_err(|err| NativeError::coded("unsafe_path", format!("entry name is not valid UTF-8: {err}")))
+    e.name()
+        .map(|n| n.into_owned())
+        .map_err(|err| NativeError::coded("unsafe_path", format!("entry name is not valid UTF-8: {err}")))
 }
 
 fn check_entry(e: &zip::read::ZipFile<'_, File>) -> Result<()> {
@@ -124,7 +132,8 @@ fn read_limited(r: &mut impl Read, max: u64) -> Result<Vec<u8>> {
 
 /// Copy at most `size` bytes; more (a lying size header, a zip bomb) is an error. Writes `<to>.part`, then renames.
 fn copy_limited(r: &mut impl Read, to: &Path, size: u64, progress: &mut impl FnMut(u64)) -> Result<()> {
-    let part = to.with_extension(format!("{}part", to.extension().map(|e| format!("{}.", e.to_string_lossy())).unwrap_or_default()));
+    let part =
+        to.with_extension(format!("{}part", to.extension().map(|e| format!("{}.", e.to_string_lossy())).unwrap_or_default()));
     let mut out = File::create(&part)?;
     let mut buf = vec![0u8; 1 << 20];
     let mut done = 0u64;

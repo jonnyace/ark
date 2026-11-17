@@ -49,7 +49,13 @@ pub fn file_url(base: &str, rel: &str) -> String {
         .split('/')
         .map(|c| {
             c.bytes()
-                .map(|b| if b.is_ascii_alphanumeric() || b"-._~".contains(&b) { (b as char).to_string() } else { format!("%{b:02X}") })
+                .map(|b| {
+                    if b.is_ascii_alphanumeric() || b"-._~".contains(&b) {
+                        (b as char).to_string()
+                    } else {
+                        format!("%{b:02X}")
+                    }
+                })
                 .collect()
         })
         .collect();
@@ -75,7 +81,11 @@ impl Fetcher {
         match resp.status().as_u16() {
             200 => {
                 let mut v = Vec::new();
-                resp.into_body().into_reader().take(max + 1).read_to_end(&mut v).map_err(|e| NativeError::Network(e.to_string()))?;
+                resp.into_body()
+                    .into_reader()
+                    .take(max + 1)
+                    .read_to_end(&mut v)
+                    .map_err(|e| NativeError::Network(e.to_string()))?;
                 if v.len() as u64 > max {
                     return Err(NativeError::coded("network", format!("{url} is larger than expected")));
                 }

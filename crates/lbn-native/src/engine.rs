@@ -81,7 +81,10 @@ impl NativeEngine {
         // Jobs interrupted by a restart become paused: the person resumes them (or they can be cancelled).
         for (id, v) in e.store.jobs()? {
             if let Ok(mut j) = serde_json::from_value::<JobRecord>(v) {
-                if matches!(j.progress.state, JobState::Downloading | JobState::Verifying | JobState::Activating | JobState::Queued) {
+                if matches!(
+                    j.progress.state,
+                    JobState::Downloading | JobState::Verifying | JobState::Activating | JobState::Queued
+                ) {
                     j.progress.state = JobState::Paused;
                     e.save_job(&j)?;
                 }
@@ -99,7 +102,11 @@ impl NativeEngine {
     /// Handle one request. Never panics on bad input; errors become `Reply::err`.
     pub fn handle(self: &Arc<Self>, req: Request) -> Reply {
         if req.v != lbn_core::ENGINE_API_VERSION {
-            return Reply::err(req.id, "incompatible", format!("engine API {} is not supported (this engine speaks {})", req.v, lbn_core::ENGINE_API_VERSION));
+            return Reply::err(
+                req.id,
+                "incompatible",
+                format!("engine API {} is not supported (this engine speaks {})", req.v, lbn_core::ENGINE_API_VERSION),
+            );
         }
         match self.dispatch(req.command) {
             Ok(v) => Reply { v: lbn_core::ENGINE_API_VERSION, id: req.id, ok: Some(v), err: None },
@@ -135,7 +142,9 @@ impl NativeEngine {
             Command::GetResource { pack, resource } => ok(self.resource_info(&pack, &resource)?),
             Command::ReadCatalog { url } => ok(self.read_catalog(&url)?),
             Command::InspectSource { source } => ok(self.inspect(&source)?),
-            Command::Install { source, allow_unsigned, allow_downgrade } => ok(self.start_install(source, allow_unsigned, allow_downgrade, None)?),
+            Command::Install { source, allow_unsigned, allow_downgrade } => {
+                ok(self.start_install(source, allow_unsigned, allow_downgrade, None)?)
+            }
             Command::PauseJob { job } => {
                 if let Some(r) = self.running.lock().unwrap().get(&job) {
                     r.pause.store(true, Ordering::Relaxed);
@@ -257,7 +266,12 @@ impl NativeEngine {
                 installed: b.clone(),
                 description: m.as_ref().map(|m| m.description.clone()).unwrap_or_default(),
                 publisher: m.as_ref().map(|m| m.publisher.name.clone()).unwrap_or_default(),
-                license: m.as_ref().map(|m| m.license.clone()).unwrap_or(manifest::License { spdx: "unknown".into(), attribution: None, file: None, redistributable: false }),
+                license: m.as_ref().map(|m| m.license.clone()).unwrap_or(manifest::License {
+                    spdx: "unknown".into(),
+                    attribution: None,
+                    file: None,
+                    redistributable: false,
+                }),
                 resource_count: m.as_ref().map(|m| m.resources.len() as u32).unwrap_or(0),
                 other_versions: builds.iter().filter(|o| o.id == b.id && !o.active).map(|o| o.version.clone()).collect(),
                 health,
@@ -325,7 +339,13 @@ impl NativeEngine {
     }
 
     pub fn resolve(&self, uri: &str) -> ResolvedCitation {
-        let fail = |e: String, c: Option<Citation>| ResolvedCitation { uri: uri.into(), valid: false, error: Some(e), citation: c, resource: None };
+        let fail = |e: String, c: Option<Citation>| ResolvedCitation {
+            uri: uri.into(),
+            valid: false,
+            error: Some(e),
+            citation: c,
+            resource: None,
+        };
         let c = match Citation::parse(uri) {
             Ok(c) => c,
             Err(e) => return fail(e.to_string(), None),
@@ -342,7 +362,13 @@ impl NativeEngine {
             return fail(e.to_string(), Some(c));
         }
         let r = m.resource(&c.resource).unwrap();
-        ResolvedCitation { uri: uri.into(), valid: true, error: None, resource: Some(self.resource_info_from(&m, r)), citation: Some(c) }
+        ResolvedCitation {
+            uri: uri.into(),
+            valid: true,
+            error: None,
+            resource: Some(self.resource_info_from(&m, r)),
+            citation: Some(c),
+        }
     }
 
     // --------------------------------------------------------------------------------------------- installing --
@@ -352,7 +378,8 @@ impl NativeEngine {
             PackSource::Url { url } => {
                 let f = Fetcher::new();
                 let murl = manifest_url(url);
-                let m = f.get_small(&murl, 32 << 20)?.ok_or_else(|| NativeError::coded("not_found", format!("no pack at {url}")))?;
+                let m =
+                    f.get_small(&murl, 32 << 20)?.ok_or_else(|| NativeError::coded("not_found", format!("no pack at {url}")))?;
                 let sig = f.get_small(&format!("{murl}.minisig"), 1 << 16)?;
                 (m, sig, vec![])
             }
@@ -365,9 +392,15 @@ impl NativeEngine {
                         version: info.version.clone(),
                         kind: PackKind::Mixed,
                         title: info.title.clone(),
-                        description: "An existing Lastbook library. It will be copied into a new pack; the original is not changed.".into(),
+                        description:
+                            "An existing Lastbook library. It will be copied into a new pack; the original is not changed.".into(),
                         publisher: "Imported from Lastbook".into(),
-                        license: manifest::License { spdx: "LicenseRef-Lastbook-Mixed".into(), attribution: None, file: None, redistributable: false },
+                        license: manifest::License {
+                            spdx: "LicenseRef-Lastbook-Mixed".into(),
+                            attribution: None,
+                            file: None,
+                            redistributable: false,
+                        },
                         bytes: info.bytes,
                         files: info.plan.resources.len() as u32,
                         resources: info.plan.resources.len() as u32,
@@ -381,7 +414,8 @@ impl NativeEngine {
                     let sig = std::fs::read(p.join(SIGNATURE_NAME)).ok();
                     (std::fs::read(p.join(MANIFEST_NAME))?, sig, vec![])
                 } else {
-                    let mut z = zip::ZipArchive::new(std::fs::File::open(&p)?).map_err(|e| NativeError::coded("unpack", format!("not a pack file: {e}")))?;
+                    let mut z = zip::ZipArchive::new(std::fs::File::open(&p)?)
+                        .map_err(|e| NativeError::coded("unpack", format!("not a pack file: {e}")))?;
                     let mut read = |n: &str| -> Option<Vec<u8>> {
                         let mut e = z.by_name(n).ok()?;
                         let mut v = Vec::new();
@@ -395,7 +429,9 @@ impl NativeEngine {
         };
         let parsed = manifest::parse(&mbytes)?;
         let signed_by = match sig {
-            Some(s) => Some(lbn_core::signature::verify(&mbytes, &String::from_utf8_lossy(&s), &self.store.trusted_keys())?.name.clone()),
+            Some(s) => {
+                Some(lbn_core::signature::verify(&mbytes, &String::from_utf8_lossy(&s), &self.store.trusted_keys())?.name.clone())
+            }
             None => None,
         };
         let m = parsed.manifest;
@@ -422,7 +458,9 @@ impl NativeEngine {
         let bytes = f.get_small(url, 8 << 20)?.ok_or_else(|| NativeError::coded("not_found", format!("no catalog at {url}")))?;
         let c = lbn_core::catalog::parse(&bytes)?;
         let signed_by = match f.get_small(&format!("{url}.minisig"), 1 << 16)? {
-            Some(s) => Some(lbn_core::signature::verify(&bytes, &String::from_utf8_lossy(&s), &self.store.trusted_keys())?.name.clone()),
+            Some(s) => {
+                Some(lbn_core::signature::verify(&bytes, &String::from_utf8_lossy(&s), &self.store.trusted_keys())?.name.clone())
+            }
             None => None,
         };
         let base = url.rsplit_once('/').map(|(b, _)| format!("{b}/")).unwrap_or_default();
@@ -450,17 +488,31 @@ impl NativeEngine {
     }
 
     fn jobs(&self) -> Result<Vec<JobProgress>> {
-        Ok(self.store.jobs()?.into_iter().filter_map(|(_, v)| serde_json::from_value::<JobRecord>(v).ok()).map(|j| j.progress).collect())
+        Ok(self
+            .store
+            .jobs()?
+            .into_iter()
+            .filter_map(|(_, v)| serde_json::from_value::<JobRecord>(v).ok())
+            .map(|j| j.progress)
+            .collect())
     }
 
-    fn start_install(self: &Arc<Self>, source: PackSource, allow_unsigned: bool, allow_downgrade: bool, repair_of: Option<String>) -> Result<JobProgress> {
+    fn start_install(
+        self: &Arc<Self>,
+        source: PackSource,
+        allow_unsigned: bool,
+        allow_downgrade: bool,
+        repair_of: Option<String>,
+    ) -> Result<JobProgress> {
         if let PackSource::Url { url } = &source {
             crate::fetch::check_url(&manifest_url(url))?;
         }
         let id = format!("job-{}", random_id());
         let title = match &source {
             PackSource::Url { url } => url.clone(),
-            PackSource::Local { path } => Path::new(path).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default(),
+            PackSource::Local { path } => {
+                Path::new(path).file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default()
+            }
         };
         let j = JobRecord {
             id: id.clone(),
@@ -491,7 +543,13 @@ impl NativeEngine {
         if self.running.lock().unwrap().contains_key(job) {
             return Err(NativeError::coded("busy", "already running"));
         }
-        let v = self.store.jobs()?.into_iter().find(|(id, _)| id == job).map(|(_, v)| v).ok_or_else(|| NativeError::coded("not_found", "no such job"))?;
+        let v = self
+            .store
+            .jobs()?
+            .into_iter()
+            .find(|(id, _)| id == job)
+            .map(|(_, v)| v)
+            .ok_or_else(|| NativeError::coded("not_found", "no such job"))?;
         let mut j: JobRecord = serde_json::from_value(v).map_err(|e| NativeError::coded("io", e.to_string()))?;
         j.progress.error = None;
         j.progress.state = JobState::Queued;
@@ -571,7 +629,8 @@ impl NativeEngine {
                 let f = Fetcher::new();
                 let murl = manifest_url(&url);
                 source_label = Some(murl.clone());
-                let mbytes = f.get_small(&murl, 32 << 20)?.ok_or_else(|| NativeError::coded("not_found", format!("no pack at {url}")))?;
+                let mbytes =
+                    f.get_small(&murl, 32 << 20)?.ok_or_else(|| NativeError::coded("not_found", format!("no pack at {url}")))?;
                 let parsed = manifest::parse(&mbytes)?;
                 // A different manifest than last time (the publisher updated the pack): start this staging over.
                 if std::fs::read(staged.join(MANIFEST_NAME)).ok().is_some_and(|old| old != mbytes) {
@@ -632,7 +691,11 @@ impl NativeEngine {
                 if !space.ok {
                     return Err(NativeError::coded(
                         "no_space",
-                        format!("not enough free space: {} MB needed, {} MB free", space.need_bytes >> 20, space.free_bytes >> 20),
+                        format!(
+                            "not enough free space: {} MB needed, {} MB free",
+                            space.need_bytes >> 20,
+                            space.free_bytes >> 20
+                        ),
                     ));
                 }
                 let base = base_url(&murl).to_string();
@@ -740,14 +803,27 @@ impl NativeEngine {
         let src = self.store.source_of(&b)?;
         match src.as_deref() {
             Some(s) if s.starts_with("http") => {
-                let job = self.start_install(PackSource::Url { url: s.to_string() }, b.signed_by.is_none(), false, Some(pack.to_string()))?;
+                let job = self.start_install(
+                    PackSource::Url { url: s.to_string() },
+                    b.signed_by.is_none(),
+                    false,
+                    Some(pack.to_string()),
+                )?;
                 ok(serde_json::json!({"report": rep, "job": job}))
             }
             Some(s) if s.starts_with("file:") && Path::new(&s[5..]).exists() => {
-                let job = self.start_install(PackSource::Local { path: s[5..].to_string() }, b.signed_by.is_none(), false, Some(pack.to_string()))?;
+                let job = self.start_install(
+                    PackSource::Local { path: s[5..].to_string() },
+                    b.signed_by.is_none(),
+                    false,
+                    Some(pack.to_string()),
+                )?;
                 ok(serde_json::json!({"report": rep, "job": job}))
             }
-            _ => Err(NativeError::coded("repair_source", "this pack's source is not available; install it again from its file or address")),
+            _ => Err(NativeError::coded(
+                "repair_source",
+                "this pack's source is not available; install it again from its file or address",
+            )),
         }
     }
 
@@ -764,7 +840,11 @@ impl NativeEngine {
     }
 
     fn model_path(&self, m: &Manifest) -> Result<PathBuf> {
-        let r = m.resources.iter().find(|r| r.rtype == ResourceType::Model).ok_or_else(|| NativeError::coded("incompatible", "no model file"))?;
+        let r = m
+            .resources
+            .iter()
+            .find(|r| r.rtype == ResourceType::Model)
+            .ok_or_else(|| NativeError::coded("incompatible", "no model file"))?;
         self.store.file_path(&m.id, &r.path)
     }
 
@@ -778,16 +858,18 @@ impl NativeEngine {
                 match cached {
                     Some(f) => f,
                     None if self.ai.runner().is_some() => {
-                        let f = self.model_path(&m).and_then(|p| self.ai.measure(&p, info.context_length)).unwrap_or_else(|e| Fit {
-                            ok: false,
-                            reason: e.to_string(),
-                            ram_total_bytes: None,
-                            ram_available_bytes: None,
+                        let f = self.model_path(&m).and_then(|p| self.ai.measure(&p, info.context_length)).unwrap_or_else(|e| {
+                            Fit { ok: false, reason: e.to_string(), ram_total_bytes: None, ram_available_bytes: None }
                         });
                         self.fits.lock().unwrap().insert(b.manifest_sha256.clone(), f.clone());
                         f
                     }
-                    None => Fit { ok: false, reason: self.ai.unavailable_reason().unwrap_or_default(), ram_total_bytes: None, ram_available_bytes: None },
+                    None => Fit {
+                        ok: false,
+                        reason: self.ai.unavailable_reason().unwrap_or_default(),
+                        ram_total_bytes: None,
+                        ram_available_bytes: None,
+                    },
                 }
             };
             models.push(ModelStatus { pack: b.id.clone(), title: m.title.clone(), info, fits: fit });
@@ -855,22 +937,56 @@ impl NativeEngine {
             }
         }
         let to_sources = |v: &[rag::Source]| -> Vec<AskSource> {
-            v.iter().map(|s| AskSource { key: s.key.clone(), citation: s.citation.to_uri(), title: s.title.clone(), excerpt: s.text.chars().take(400).collect() }).collect()
+            v.iter()
+                .map(|s| AskSource {
+                    key: s.key.clone(),
+                    citation: s.citation.to_uri(),
+                    title: s.title.clone(),
+                    excerpt: s.text.chars().take(400).collect(),
+                })
+                .collect()
         };
         let Some(sources) = rag::select_sources(q, &with_text, &RetrievalConfig::default()) else {
-            let near: Vec<AskSource> = hits.iter().take(5).enumerate().map(|(i, h)| AskSource { key: format!("N{}", i + 1), citation: h.citation.to_uri(), title: h.title.clone(), excerpt: h.snippet.clone() }).collect();
-            return Ok(AskResult { ask: ask.into(), question: q.into(), outcome: "no_evidence".into(), answer: None, sources: near, model: None, stats: None });
+            let near: Vec<AskSource> = hits
+                .iter()
+                .take(5)
+                .enumerate()
+                .map(|(i, h)| AskSource {
+                    key: format!("N{}", i + 1),
+                    citation: h.citation.to_uri(),
+                    title: h.title.clone(),
+                    excerpt: h.snippet.clone(),
+                })
+                .collect();
+            return Ok(AskResult {
+                ask: ask.into(),
+                question: q.into(),
+                outcome: "no_evidence".into(),
+                answer: None,
+                sources: near,
+                model: None,
+                stats: None,
+            });
         };
         let b = self.active_or_err(model)?;
         let m = self.store.manifest_of(&b)?;
         let info = m.model.clone().ok_or_else(|| NativeError::coded("incompatible", "not a model pack"))?;
-        let tpl = Template::from_id(&info.template).ok_or_else(|| NativeError::coded("incompatible", "unknown prompt template"))?;
+        let tpl =
+            Template::from_id(&info.template).ok_or_else(|| NativeError::coded("incompatible", "unknown prompt template"))?;
         if self.ai.loaded().as_deref() != Some(model) {
             status("loading_model");
             self.load_model(model)?;
         }
         if cancel.load(Ordering::Relaxed) {
-            return Ok(AskResult { ask: ask.into(), question: q.into(), outcome: "cancelled".into(), answer: None, sources: to_sources(&sources), model: Some(model.into()), stats: None });
+            return Ok(AskResult {
+                ask: ask.into(),
+                question: q.into(),
+                outcome: "cancelled".into(),
+                answer: None,
+                sources: to_sources(&sources),
+                model: Some(model.into()),
+                stats: None,
+            });
         }
         status("generating");
         let prompt = rag::build_prompt(tpl, q, &sources);
@@ -911,7 +1027,12 @@ impl NativeEngine {
             answer: Some(checked),
             sources: to_sources(&sources),
             model: Some(m.title.clone()),
-            stats: Some(AskStats { prompt_tokens: g.n_prompt, generated_tokens: g.n_gen, prompt_ms: g.prompt_ms, gen_ms: g.gen_ms }),
+            stats: Some(AskStats {
+                prompt_tokens: g.n_prompt,
+                generated_tokens: g.n_gen,
+                prompt_ms: g.prompt_ms,
+                gen_ms: g.gen_ms,
+            }),
         })
     }
 }

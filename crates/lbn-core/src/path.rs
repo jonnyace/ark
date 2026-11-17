@@ -9,8 +9,8 @@ use std::collections::HashSet;
 const MAX_PATH: usize = 512;
 const MAX_COMPONENT: usize = 200;
 const WINDOWS_RESERVED: [&str; 22] = [
-    "con", "prn", "aux", "nul", "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2",
-    "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
+    "con", "prn", "aux", "nul", "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8", "com9", "lpt1", "lpt2", "lpt3",
+    "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
 ];
 
 fn bad(path: &str, why: &'static str) -> Error {
@@ -103,8 +103,25 @@ mod tests {
     #[test]
     fn rejects_unsafe_paths() {
         for p in [
-            "", "/etc/passwd", "../x", "a/../../x", "a//b", "C:/x", "c:x", "a\\b", "./a", "a/./b", "con.txt", "x/NUL",
-            "a\u{0}b", "a\nb", "a:b", "dir/", "x.", " x", "a/b*",
+            "",
+            "/etc/passwd",
+            "../x",
+            "a/../../x",
+            "a//b",
+            "C:/x",
+            "c:x",
+            "a\\b",
+            "./a",
+            "a/./b",
+            "con.txt",
+            "x/NUL",
+            "a\u{0}b",
+            "a\nb",
+            "a:b",
+            "dir/",
+            "x.",
+            " x",
+            "a/b*",
         ] {
             assert!(check_rel_path(p).is_err(), "{p:?} should be rejected");
         }

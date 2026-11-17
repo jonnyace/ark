@@ -2,19 +2,16 @@
 use rust_stemmers::{Algorithm, Stemmer};
 
 const STOP: &[&str] = &[
-    "a", "an", "and", "are", "as", "at", "be", "but", "by", "can", "do", "does", "for", "from", "has", "have", "how",
-    "i", "if", "in", "into", "is", "it", "its", "me", "my", "of", "on", "or", "should", "so", "than", "that", "the",
-    "their", "them", "then", "there", "these", "they", "this", "to", "was", "we", "were", "what", "when", "where",
-    "which", "who", "why", "will", "with", "you", "your",
+    "a", "an", "and", "are", "as", "at", "be", "but", "by", "can", "do", "does", "for", "from", "has", "have", "how", "i", "if",
+    "in", "into", "is", "it", "its", "me", "my", "of", "on", "or", "should", "so", "than", "that", "the", "their", "them",
+    "then", "there", "these", "they", "this", "to", "was", "we", "were", "what", "when", "where", "which", "who", "why", "will",
+    "with", "you", "your",
 ];
 
 /// Lower-cased alphanumeric words, stop words removed, stemmed (English Snowball).
 pub fn tokenize(text: &str) -> Vec<String> {
     let stemmer = Stemmer::create(Algorithm::English);
-    words(text)
-        .filter(|w| !STOP.contains(&w.as_str()))
-        .map(|w| stemmer.stem(&w).into_owned())
-        .collect()
+    words(text).filter(|w| !STOP.contains(&w.as_str())).map(|w| stemmer.stem(&w).into_owned()).collect()
 }
 
 /// Lower-cased words of 1..=40 alphanumeric characters (apostrophes inside words are dropped).
