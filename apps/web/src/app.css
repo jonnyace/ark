@@ -60,3 +60,5 @@ progress { width: 100%; height: 0.8rem; }
 .notice.ok { border-left-color: var(--ok); }
 mark { background: #ffe08a; color: #000; }
 .cite { font-size: 0.8rem; vertical-align: super; text-decoration: none; padding: 0 0.15rem; }
+code { overflow-wrap: anywhere; word-break: break-word; }
+main { overflow-wrap: break-word; }
