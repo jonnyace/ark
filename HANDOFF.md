@@ -1,7 +1,8 @@
 # Handoff
 
 ## Where things are
-- Repository `~/src/lastbook-ark`, branch `work/rc1` (local only — nothing pushed, no PR, no release published).
+- Repository `~/src/lastbook-ark`, public at https://github.com/jonnyace/lastbook-ark. Work is on branch `work/rc1`,
+  proposed to `main` in PR #1 (merge after review). No GitHub release has been published; artefacts are built locally.
 - Upstream references, read-only and unchanged: `~/src/lastbook`, `~/src/lastbook-omarchy`. The real old library
   used for import tests (a local copy outside this repository) was only read.
 - Outside git (rebuildable): `.dev-cache/` (llama.cpp checkout, runner build, models, container caches, test data),

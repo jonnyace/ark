@@ -1,6 +1,6 @@
 # Status — release candidate 0.9.0-rc.1
 
-Last updated 2026-11-17. Branch `work/rc1` (not pushed). Evidence for every "tested" line is in TESTING.md;
+Last updated 2026-11-17. Public repository github.com/jonnyace/lastbook-ark; branch `work/rc1`, PR #1 to `main`. Evidence for every "tested" line is in TESTING.md;
 the acceptance matrix is in PLAN.md.
 
 ## Implemented and tested (on this Linux machine)
