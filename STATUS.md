@@ -40,14 +40,11 @@ the acceptance matrix is in PLAN.md.
 - **Apple and Windows testing, code signing and notarization**: need Apple hardware + Developer ID, Windows machine +
   Authenticode certificate. Action: run `.github/workflows/desktop-other.yml` (or the scripts) on those platforms,
   then add signing with the publisher's certificates.
-- **Publisher key**: the trusted key in `keys/trusted.json` is a development key whose secret is only on the test
-  machine (`~/.config/lastbook-next/keys`). Action: the publisher generates their own (`lastbook key gen`) and replaces
-  it before any public release (docs/BUILDING.md).
 - Kiwix ZIM and Lastbook 1.x map import (reported as unsupported; originals kept).
 - Native mobile apps (engine API and `lbn-core` are ready for them).
 - Very large libraries: the search index is held in memory per pack (fine for the 2.8 GB imported library).
-- **Public release readiness**: `build/public-readiness.sh` passes everything except the trusted key (a decision
-  for the publisher, see above).
+- **Publisher key**: decided 2026-11-17: a new "Lastbook Next publisher" key; its secret is only in 1Password (Eve);
+  the retired development key is no longer trusted. `build/public-readiness.sh` is the release gate.
 
 ## Known limitations
 - AI answers can be wrong; the app checks citations and numbers but cannot guarantee correctness.

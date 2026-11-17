@@ -17,7 +17,7 @@ try {
     await s.fill("#cat-url", "http://127.0.0.1:18787/packs/catalog.json");
     await s.clickText("button", "Show packs");
     await s.waitFor("return document.querySelectorAll('[data-testid=catalog-pack]').length >= 6", 30000, "catalog");
-    check("catalog signed", await s.exec("return /signed by Lastbook Next sample publisher/.test(document.querySelector('main').textContent)"));
+    check("catalog signed", await s.exec("return /signed by Lastbook Next publisher/.test(document.querySelector('main').textContent)"));
     for (const id of ["docs", "video", "map", "encyclopedia"]) {
       await s.exec(`document.querySelector('[data-testid=catalog-pack][data-pack="org.lastbook.sample.${id}"] button').click()`);
       await s.waitFor("return !!document.querySelector('[data-testid=confirm]')", 20000, "confirm " + id);

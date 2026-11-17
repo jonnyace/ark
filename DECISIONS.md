@@ -137,3 +137,10 @@ Vulkan on the test machine's integrated Radeon is faster (65 vs 53 tok/s) and us
 the grounded check where CPU scores 7/7, so the packaged app keeps the CPU path and GPU is an opt-in build
 (`LBN_VULKAN=1`) and switch (`LBN_GPU=1`). The AppImage crashed on video until `bundleMediaFramework` was enabled
 (it ships its own WebKit without GStreamer otherwise); that needed `patchelf` in the build image.
+
+## D-021 Publisher key held in 1Password; development key retired
+Decided with the project owner on 2026-11-17: a new minisign key, "Lastbook Next publisher", signs packs, catalogs and
+release checksums. Its secret exists only in 1Password (vault Eve); `build/with-signing-key.sh` fetches it into a
+private temporary file for the duration of a signing command. `keys/trusted.json` trusts only this key; the
+development key used during development was removed from the trust list and its secret deleted, so packs signed with
+it now show as untrusted. A future maintainer without this secret publishes under their own key (docs/BUILDING.md).

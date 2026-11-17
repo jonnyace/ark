@@ -7,6 +7,7 @@
 #   build/ci.sh --ai            + real-model grounded answer check (needs model packs: build/make-sample-packs.sh)
 #   build/ci.sh --gpu           + Vulkan runner build and a GPU inference probe (needs /dev/dri; report only)
 #   build/ci.sh --all           everything
+# --e2e re-signs test fixtures: set LBN_SIGNING_KEY or run through build/with-signing-key.sh.
 # Requirements: Rust (rust-toolchain.toml), Node 22 + pnpm, Docker for --desktop/--clean-install.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"; cd "$ROOT"

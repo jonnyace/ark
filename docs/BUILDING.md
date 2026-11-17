@@ -46,13 +46,16 @@ build/repro-check.sh [--desktop]   # build twice, compare bytes
 
 ## Becoming the publisher (new maintainer)
 
-The repository trusts one development key (`keys/trusted.json`). Its secret is not in the repository. To publish:
+The apps trust the keys in `keys/trusted.json`, embedded at build time. Today that is the "Lastbook Next publisher" key,
+whose secret is kept in the current maintainers' secret store (never in the repository). A maintainer who takes over
+without access to it publishes under their own key:
 
 1. `lastbook key gen ~/.config/lastbook-next/keys/publisher --name "Your project"` (keep the `.key` secret; offline
    backup recommended).
 2. Put the public key in `keys/trusted.json` (and remove keys you do not control). The apps embed this list at build
    time; people can add more keys at run time (`trusted-keys.json` in the data folder).
-3. Sign packs (`lastbook pack build … --sign key`), catalogs (`lastbook pack sign-catalog`) and release checksums
+3. Sign (`LBN_SIGNING_KEY=<key file>`, or `build/with-signing-key.sh <secret-store reference> <command>` so the key is
+   only on disk while signing) packs (`lastbook pack build … --sign key`), catalogs (`lastbook pack sign-catalog`) and release checksums
    (`build/release.sh` with `LBN_SIGNING_KEY`).
 4. Host `dist/packs/` on any static HTTPS server (catalog + pack folders + `.lbpack` files). Range requests make
    downloads resumable. The PWA can be hosted on the same server (`lastbook-next-web-<version>.tar.gz`); for
@@ -60,7 +63,8 @@ The repository trusts one development key (`keys/trusted.json`). Its secret is n
    `Cross-Origin-Embedder-Policy: require-corp` (the service worker adds them to cached responses after the first
    visit).
 
-Before a public release run `build/public-readiness.sh`: it refuses while the development key is trusted, the tree
+Before a public release run `build/public-readiness.sh`: it refuses while the retired development key is trusted, the
+release or catalog is not signed by a trusted key, the tree
 is dirty, or the release is unsigned or built from uncommitted sources.
 
 Nix (optional): `nix develop` gives all tools and SDKs; `nix build .#lastbook-cli` builds the CLI reproducibly.

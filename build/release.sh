@@ -35,12 +35,12 @@ cat > "$OUT/BUILD-INFO.json" <<JSON
   "node": "$(node --version 2>/dev/null)",
   "build_image": "debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 + build/docker/Dockerfile",
   "llama_cpp": "b12032 (dde879bc4f954b809892fd0d660515f42536394a)",
-  "signing": "minisign key named in keys/trusted.json (development sample publisher)"
+  "signing": "minisign, Lastbook Next publisher key (keys/publisher.pub), signature applied after the build"
 }
 JSON
 (cd "$OUT" && find . -type f ! -name SHA256SUMS ! -name '*.minisig' -printf '%P\n' | sort | xargs sha256sum > SHA256SUMS)
 if [ -n "${LBN_SIGNING_KEY:-}" ]; then
-  # minisign signature over SHA256SUMS: verify with `minisign -Vm SHA256SUMS -p keys/sample-publisher.pub`
+  # minisign signature over SHA256SUMS: verify with `minisign -Vm SHA256SUMS -p keys/publisher.pub` or `lastbook verify-file SHA256SUMS`
   target/release/lastbook pack sign-file "$OUT/SHA256SUMS" "$LBN_SIGNING_KEY"
 fi
 du -sh "$OUT"; cat "$OUT/SHA256SUMS"

@@ -4,7 +4,7 @@
 #   docs-v2-tampered/ the same update with one file changed after signing (must be rejected)
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; cd "$ROOT"
-CLI="$ROOT/target/release/lastbook"; KEY="${LBN_SIGNING_KEY:-$HOME/.config/lastbook-next/keys/sample-publisher.key}"
+CLI="$ROOT/target/release/lastbook"; KEY="${LBN_SIGNING_KEY:?set LBN_SIGNING_KEY (or run through build/with-signing-key.sh)}"
 OUT=dist/test-packs; rm -rf "$OUT"; mkdir -p "$OUT"
 cp -al dist/packs/. "$OUT/"
 SRC=$(mktemp -d); cp -r packs/sample/docs/. "$SRC/"
