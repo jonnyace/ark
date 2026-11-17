@@ -1,5 +1,5 @@
 import { expect, test as base, webkit, type Page } from "@playwright/test";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -8,9 +8,11 @@ import { join } from "node:path";
 export const test = base.extend({
   context: async ({ browserName, context, baseURL, viewport }, use) => {
     if (browserName !== "webkit") return use(context);
-    const ctx = await webkit.launchPersistentContext(mkdtempSync(join(tmpdir(), "lbn-wk-")), { baseURL, viewport: viewport ?? undefined, acceptDownloads: true });
+    const dir = mkdtempSync(join(tmpdir(), "lbn-wk-"));
+    const ctx = await webkit.launchPersistentContext(dir, { baseURL, viewport: viewport ?? undefined, acceptDownloads: true });
     await use(ctx);
     await ctx.close();
+    rmSync(dir, { recursive: true, force: true });
   },
 });
 

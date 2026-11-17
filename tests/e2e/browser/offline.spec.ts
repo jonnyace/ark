@@ -1,6 +1,6 @@
 import { test, expect, chromium } from "@playwright/test";
 import { spawn } from "node:child_process";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { uri } from "./helpers";
@@ -52,5 +52,6 @@ test("cold start offline after installation, server stopped", async () => {
     await ctx.close();
   } finally {
     srv.kill();
+    rmSync(profile, { recursive: true, force: true });
   }
 });

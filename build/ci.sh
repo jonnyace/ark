@@ -28,7 +28,9 @@ step "Web build";               (cd apps/web && npx vite build | tail -1)
 step "Sample packs (without models)"
 [ -d dist/packs/org.lastbook.sample.docs ] || build/make-sample-packs.sh --no-models
 if [ "$E2E" = 1 ]; then
-  step "Browser end-to-end";    tests/e2e/make-test-packs.sh; (cd tests/e2e && npx playwright test)
+  # Browser profiles hold whole model packs (1.1 GB): keep them on disk, not in a RAM-backed /tmp.
+  mkdir -p .dev-cache/tmp
+  step "Browser end-to-end";    tests/e2e/make-test-packs.sh; (cd tests/e2e && TMPDIR="$ROOT/.dev-cache/tmp" npx playwright test)
 fi
 if [ "$DESKTOP" = 1 ]; then
   step "Desktop build (container)"; build/desktop.sh
