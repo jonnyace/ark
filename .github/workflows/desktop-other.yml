@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { os: macos-14, bundles: "app,dmg", runner_dir: ".dev-cache/runner-bin-macos", exe: "" }
+          - { os: macos-15, bundles: "app,dmg", runner_dir: ".dev-cache/runner-bin-macos", exe: "" }
           - { os: windows-2022, bundles: nsis, runner_dir: ".dev-cache/bin-win", exe: ".exe" }
     runs-on: ${{ matrix.os }}
     defaults: { run: { shell: bash } }

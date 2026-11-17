@@ -26,3 +26,7 @@ target_link_libraries(lastbook-llm PRIVATE llama ggml)
 if(MSVC)
   target_compile_options(lastbook-llm PRIVATE /utf-8)
 endif()
+if(WIN32)
+  # windows.h defines min/max macros that break std::max; keep the header lean as the upstream build does.
+  target_compile_definitions(lastbook-llm PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+endif()
