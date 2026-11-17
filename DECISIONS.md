@@ -4,7 +4,7 @@ Each entry: the decision, why, and what would change it. Newest entries at the b
 "Experiment" means something was run on the test machine; results are in TESTING.md.
 
 ## D-001 New repository; reuse upstream by copying with attribution
-lastbook-ark is a new repository (`~/src/lastbook-ark`), not a fork. Upstream Lastbook
+ark-library is a new repository (`~/src/ark-library`), not a fork. Upstream Lastbook
 (Immortal-Protocols/lastbook, MIT) and lastbook-omarchy (MIT, same code base plus Arch packaging, upstream PR #60)
 are read-only references. Reused, with attribution in NOTICE.md and file headers:
 - `runner/lastbook_llm.cpp`, `runner/fit_unused_win.cpp` (pipe-only llama.cpp runner) and the build script logic.
@@ -23,7 +23,7 @@ renderers, so code beyond the above is not reused.
   and migrations, the versioned engine command/event types.
 - `crates/lbn-native`: native platform adapter: filesystem store (staging, atomic activation, GC), HTTP downloader
   with resume, zip import with guards, SQLite personal data + registry, llama.cpp runner adapter.
-- `crates/lbn-cli`: `lastbook` command-line tool (inspect, build, import, verify, search, ask, export).
+- `crates/lbn-cli`: `ark-pack` command-line tool (inspect, build, import, verify, search, ask, export).
 - `crates/lbn-wasm`: wasm-bindgen wrapper of `lbn-core` for the browser.
 - `apps/web`: Svelte 5 + TypeScript UI built to static assets, shared by desktop and PWA. Talks to one `Engine`
   interface; two implementations: Tauri IPC (desktop) and a Web Worker running `lbn-wasm` with OPFS/IndexedDB (PWA).
@@ -40,7 +40,7 @@ then are garbage-collected on request. This gives "never overwrite a working lib
 browser (OPFS) has no atomic directory rename. Spec: `docs/PACK-FORMAT.md`.
 
 ## D-004 Content search: portable prebuilt BM25 index inside each pack
-Each content pack carries `index/search.lbi`, built by `lastbook pack build` and covered by the manifest hashes.
+Each content pack carries `index/search.lbi`, built by `ark-pack pack build` and covered by the manifest hashes.
 The same Rust code reads it natively and in WASM, so results are identical on desktop and browser, the index is
 verified like any other file, and nothing is rebuilt on import. SQLite FTS5 was considered for native search but
 would give different ranking from the browser and would need sqlite-wasm/OPFS in the browser too.
@@ -123,7 +123,7 @@ numbers yourself". A repetition penalty (1.1) is part of the model pack's genera
 
 ## D-018 Nix: a flake for the dev shell and a reproducible CLI build (tested in a Nix container)
 `flake.nix` (nixpkgs pinned to nixos-26.05 b349185, `flake.lock`) gives `nix develop` with every tool and the
-WebKitGTK/GStreamer SDK (rustup inside honours rust-toolchain.toml) and `nix build .#lastbook-cli`, which builds the
+WebKitGTK/GStreamer SDK (rustup inside honours rust-toolchain.toml) and `nix build .#ark-pack`, which builds the
 CLI from the locked Cargo graph in the Nix sandbox and runs the core tests. Tested in `nixos/nix@sha256:e623d73a…`:
 dev shell gave Rust 1.95.0, Node 22, WebKitGTK 2.54.2 and passed the core tests; the CLI built and ran. Nix is not a
 runtime requirement. The desktop bundles are still built in the pinned Docker image, which the desktop tests exercise.
@@ -139,7 +139,7 @@ the grounded check where CPU scores 7/7, so the packaged app keeps the CPU path 
 (it ships its own WebKit without GStreamer otherwise); that needed `patchelf` in the build image.
 
 ## D-021 Publisher key held in 1Password; development key retired
-Decided with the project owner on 2026-11-17: a new minisign key, "Lastbook Ark publisher", signs packs, catalogs and
+Decided with the project owner on 2026-11-17: a new minisign key, "Ark publisher", signs packs, catalogs and
 release checksums. Its secret exists only in the maintainers' 1Password vault; `build/with-signing-key.sh` fetches it into a
 private temporary file for the duration of a signing command. `keys/trusted.json` trusts only this key; the
 development key used during development was removed from the trust list and its secret deleted, so packs signed with

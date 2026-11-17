@@ -1,4 +1,4 @@
-//! `lastbook` — command-line tool for Lastbook Ark packs and libraries.
+//! `ark-pack` — command-line tool for Ark packs and libraries.
 //!
 //! Pack authoring:   pack build | pack zip | pack sign | pack inspect | pack verify | key gen
 //! Library (uses the same data folder as the desktop app unless --data is given):
@@ -15,7 +15,7 @@ use std::sync::mpsc;
 use std::sync::Arc;
 
 #[derive(Parser)]
-#[command(name = "lastbook", version, about = "Build, inspect, verify, install and search Lastbook Ark packs")]
+#[command(name = "ark-pack", version, about = "Build, inspect, verify, install and search Ark packs")]
 struct Cli {
     /// Library data folder (default: the desktop app's, or $LBN_DATA).
     #[arg(long, global = true)]
@@ -133,7 +133,7 @@ enum KeyCmd {
     /// Generate an unencrypted minisign key pair: <prefix>.key (secret, keep private) and <prefix>.pub.
     Gen {
         prefix: PathBuf,
-        #[arg(long, default_value = "Lastbook Ark publisher")]
+        #[arg(long, default_value = "Ark publisher")]
         name: String,
     },
 }
@@ -142,7 +142,7 @@ fn default_data() -> PathBuf {
     if let Ok(d) = std::env::var("LBN_DATA") {
         return PathBuf::from(d);
     }
-    dirs::data_dir().unwrap_or_else(|| PathBuf::from(".")).join("org.lastbook.ark")
+    dirs::data_dir().unwrap_or_else(|| PathBuf::from(".")).join("ark-library")
 }
 
 fn builtin_keys() -> Vec<lbn_core::signature::TrustedKey> {
@@ -216,7 +216,7 @@ fn wait_job(rx: &mpsc::Receiver<Event>, job: &str, quiet: bool) -> R<()> {
                         return Err(format!("{} ({})", e.message, e.code));
                     }
                     lbn_core::install::JobState::Cancelled => return Err("cancelled".into()),
-                    lbn_core::install::JobState::Paused => return Err(format!("paused; resume with: lastbook resume {job}")),
+                    lbn_core::install::JobState::Paused => return Err(format!("paused; resume with: ark-pack resume {job}")),
                     _ => {}
                 }
             }
@@ -257,8 +257,8 @@ fn sign_dir(dir: &Path, key: &Path) -> R<()> {
     let data = std::fs::read(dir.join(MANIFEST_NAME)).map_err(|e| e.to_string())?;
     let p = manifest::parse(&data).map_err(|e| e.to_string())?;
     // Fixed trusted comment (no timestamp) so the same pack and key give the same signature file.
-    let tc = format!("lastbook-ark pack {} {} sha256:{}", p.manifest.id, p.manifest.version, p.sha256);
-    let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-ark"))
+    let tc = format!("ark-library pack {} {} sha256:{}", p.manifest.id, p.manifest.version, p.sha256);
+    let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from ark-library"))
         .map_err(|e| e.to_string())?;
     std::fs::write(dir.join(SIGNATURE_NAME), sig.to_string()).map_err(|e| e.to_string())?;
     Ok(())
@@ -311,8 +311,8 @@ fn run(cli: Cli) -> R<()> {
                 .and_then(|b| b.into_unencrypted_secret_key())
                 .map_err(|e| e.to_string())?;
             let name = file.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
-            let tc = format!("lastbook-ark file {name} sha256:{}", lbn_core::hash::sha256_hex(&data));
-            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-ark"))
+            let tc = format!("ark-library file {name} sha256:{}", lbn_core::hash::sha256_hex(&data));
+            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from ark-library"))
                 .map_err(|e| e.to_string())?;
             let mut out = file.clone().into_os_string();
             out.push(".minisig");
@@ -324,13 +324,9 @@ fn run(cli: Cli) -> R<()> {
             let sk = minisign::SecretKeyBox::from_string(&std::fs::read_to_string(&key).map_err(|e| e.to_string())?)
                 .and_then(|b| b.into_unencrypted_secret_key())
                 .map_err(|e| e.to_string())?;
-            let tc = format!(
-                "lastbook-ark catalog {} published {} sha256:{}",
-                c.title,
-                c.published,
-                lbn_core::hash::sha256_hex(&data)
-            );
-            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-ark"))
+            let tc =
+                format!("ark-library catalog {} published {} sha256:{}", c.title, c.published, lbn_core::hash::sha256_hex(&data));
+            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from ark-library"))
                 .map_err(|e| e.to_string())?;
             let mut out = file.clone().into_os_string();
             out.push(".minisig");
@@ -492,7 +488,7 @@ fn run(cli: Cli) -> R<()> {
                     let v = call(&e, Command::VerifyPack { pack })?;
                     print(j, &v, |v| println!("{}", serde_json::to_string_pretty(v).unwrap()));
                     if !v["ok"].as_bool().unwrap_or(false) {
-                        return Err("pack is damaged; run: lastbook repair <pack>".into());
+                        return Err("pack is damaged; run: ark-pack repair <pack>".into());
                     }
                 }
                 Cmd::Repair { pack } => {

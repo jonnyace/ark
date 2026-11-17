@@ -26,7 +26,7 @@
 
 <a class="skip" href="#main" onclick={(e) => { e.preventDefault(); main.focus(); }}>Skip to content</a>
 <header class="top">
-  <a class="brand" href="#/">Lastbook <span>Next</span></a>
+  <a class="brand" href="#/">Ark</a>
   <span class="net" class:off={!app.online} role="status">
     {app.online ? "Online" : "Offline"} · works offline
   </span>

@@ -1,0 +1,64 @@
+# Maintainer: Ark contributors
+# Native Arch Linux (and Omarchy) package, built from source with Arch's toolchain and run on Arch's own WebKitGTK and
+# GStreamer. No Python at run time. Test: packaging/arch/test.sh (builds in a clean Arch container, installs with
+# pacman, runs the offline journey and AV1/H.264 playback).
+pkgname=ark-library
+_ver=0.9.0-rc.1
+pkgver=${_ver//-/}
+pkgrel=1
+pkgdesc="Offline knowledge library (documents, PDFs, video, maps) with optional local AI"
+arch=('x86_64')
+url="https://github.com/jonnyace/ark"
+license=('MIT')
+depends=(
+  'webkit2gtk-4.1' 'gtk3' 'libsoup3' 'glib2' 'cairo' 'pango' 'gdk-pixbuf2' 'openssl' 'gcc-libs' 'glibc' 'hicolor-icon-theme'
+  # Video: WebM (VP9/Opus) needs base+good. Real Lastbook libraries also hold AV1 and H.264 MP4: Arch's gst-plugins-bad
+  # has no AV1 decoder, so dav1d is required (without it the player runs over a black picture), and H.264 comes from libav.
+  'gst-plugins-base' 'gst-plugins-good' 'gst-plugin-dav1d' 'gst-plugins-bad-libs' 'gst-libav'
+)
+makedepends=('rust' 'rust-wasm' 'cargo' 'nodejs' 'pnpm' 'cmake' 'ninja' 'git' 'pkgconf')
+optdepends=('xdg-desktop-portal-gtk: native file dialogs on Wayland compositors such as Hyprland')
+options=('!lto' '!debug')
+source=("$pkgname-$_ver.tar.gz::https://github.com/jonnyace/ark/archive/refs/tags/v$_ver.tar.gz")
+sha256sums=('SKIP')   # set to the tag tarball's SHA-256 when the tag is published
+
+prepare() {
+  cd "$pkgname-$_ver"
+  export CARGO_HOME="$srcdir/cargo-home"
+  cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
+  (cd apps/desktop/src-tauri && cargo fetch --locked)
+  pnpm install --frozen-lockfile
+}
+
+build() {
+  cd "$pkgname-$_ver"
+  export CARGO_HOME="$srcdir/cargo-home" CARGO_TARGET_DIR="$srcdir/target"
+  W="$PWD/.dev-cache" runner/build.sh                   # llama.cpp b12032 (pinned), CPU, all x86-64 variants;
+                                                         # output in .dev-cache/runner-bin, where tauri.conf expects it
+  build/build-wasm.sh                                    # browser engine (shipped inside the UI; used by the PWA)
+  (cd apps/web && pnpm exec vite build)
+  cargo build --release --locked -p lbn-cli
+  (cd apps/desktop/src-tauri && cargo build --release --locked --features tauri/custom-protocol)
+}
+
+check() {
+  cd "$pkgname-$_ver"
+  export CARGO_HOME="$srcdir/cargo-home" CARGO_TARGET_DIR="$srcdir/target"
+  cargo test --release --locked -p lbn-core -p lbn-native
+}
+
+package() {
+  cd "$pkgname-$_ver"
+  install -Dm755 "$srcdir/target/release/ark-library" "$pkgdir/usr/bin/ark-library"
+  install -Dm755 "$srcdir/target/release/ark-pack" "$pkgdir/usr/bin/ark-pack"
+  install -d "$pkgdir/usr/lib/ark-library/runner"
+  cp -a .dev-cache/runner-bin/. "$pkgdir/usr/lib/ark-library/runner/"
+  install -Dm644 packaging/arch/ark-library.desktop "$pkgdir/usr/share/applications/ark-library.desktop"
+  install -Dm644 apps/web/public/icons/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/ark-library.svg"
+  for s in 32 128 256 512; do
+    install -Dm644 "apps/web/public/icons/icon-$s.png" "$pkgdir/usr/share/icons/hicolor/${s}x${s}/apps/ark-library.png"
+  done
+  install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+  install -Dm644 NOTICE.md "$pkgdir/usr/share/licenses/$pkgname/NOTICE.md"
+  install -Dm644 docs/LICENSES.md "$pkgdir/usr/share/licenses/$pkgname/THIRD-PARTY-LICENSES.md"
+}

@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Grounded-answer check with a real model: each question must be answered with the expected fact, cite at least one
 source, and every citation must resolve; out-of-library questions must be refused without asking the model.
-Usage: LBN_DATA=... LBN_RUNNER=... tools/ai_eval.py [lastbook-cli] [--model PACK]
+Usage: LBN_DATA=... LBN_RUNNER=... tools/ai_eval.py [ark-pack] [--model PACK]
 Prints one line per case and a summary; exit 1 if any case fails. Results depend on the model; record them in TESTING.md."""
 import json, subprocess, sys, time
-cli = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "target/release/lastbook"
+cli = sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("--") else "target/release/ark-pack"
 model = sys.argv[sys.argv.index("--model") + 1] if "--model" in sys.argv else None
 CASES = [
     ("How long should I boil water to make it safe at high elevation?", ["three minutes", "3 minutes"]),

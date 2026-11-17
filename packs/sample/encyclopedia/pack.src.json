@@ -6,8 +6,8 @@
  "description": "Three short articles (boiling point, magnetic compass, water cycle) for testing encyclopedia packs and cross-pack search.",
  "language": "en",
  "created": "2026-11-17",
- "publisher": {"name": "Lastbook Ark contributors"},
- "license": {"spdx": "CC0-1.0", "attribution": "Written for Lastbook Ark; dedicated to the public domain.", "file": "LICENSES/CC0-1.0.txt", "redistributable": true},
+ "publisher": {"name": "Ark contributors"},
+ "license": {"spdx": "CC0-1.0", "attribution": "Written for Ark; dedicated to the public domain.", "file": "LICENSES/CC0-1.0.txt", "redistributable": true},
  "compat": {"min_engine_api": 1},
  "resources": [
   {"id": "boiling-point", "type": "article", "title": "Boiling point", "path": "articles/boiling-point.html", "media_type": "text/html", "category": "science"},

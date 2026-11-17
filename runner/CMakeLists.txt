@@ -1,0 +1,32 @@
+# Portable build of lastbook-llm with the platform's own compiler (MSVC on Windows, AppleClang on macOS, GCC on Linux).
+# llama.cpp must be checked out at the pinned tag in LLAMA_DIR (runner/fetch-llama.sh does that). CPU everywhere;
+# Metal on Apple silicon (llama.cpp default). Used by the GitHub Actions Windows/macOS jobs.
+#   cmake -S runner -B build-runner -DLLAMA_DIR=<llama.cpp> -DCMAKE_BUILD_TYPE=Release && cmake --build build-runner --config Release
+cmake_minimum_required(VERSION 3.21)
+project(lastbook_llm CXX C)
+set(CMAKE_CXX_STANDARD 17)
+set(LLAMA_DIR "" CACHE PATH "llama.cpp checkout (tag b12032)")
+if(NOT LLAMA_DIR)
+  message(FATAL_ERROR "set -DLLAMA_DIR")
+endif()
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_COMMON OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_TOOLS OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(LLAMA_BUILD_SERVER OFF CACHE BOOL "" FORCE)
+set(LLAMA_CURL OFF CACHE BOOL "" FORCE)
+set(LLAMA_OPENSSL OFF CACHE BOOL "" FORCE)
+set(GGML_RPC OFF CACHE BOOL "" FORCE)
+set(GGML_NATIVE OFF CACHE BOOL "" FORCE)
+add_subdirectory(${LLAMA_DIR} llama EXCLUDE_FROM_ALL)
+add_executable(lastbook-llm lastbook_llm.cpp ${LLAMA_DIR}/common/fit.cpp ${LLAMA_DIR}/common/log.cpp ${LLAMA_DIR}/common/json.cpp fit_unused_win.cpp)
+target_include_directories(lastbook-llm PRIVATE ${LLAMA_DIR}/include ${LLAMA_DIR}/ggml/include ${LLAMA_DIR}/common ${LLAMA_DIR}/vendor ${LLAMA_DIR}/src)
+target_link_libraries(lastbook-llm PRIVATE llama ggml)
+if(MSVC)
+  target_compile_options(lastbook-llm PRIVATE /utf-8)
+endif()
+if(WIN32)
+  # windows.h defines min/max macros that break std::max; keep the header lean as the upstream build does.
+  target_compile_definitions(lastbook-llm PRIVATE NOMINMAX WIN32_LEAN_AND_MEAN)
+endif()

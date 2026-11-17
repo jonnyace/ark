@@ -1,4 +1,8 @@
-# Lastbook Ark
+# Ark
+
+Ark is a rewrite of [Lastbook](https://github.com/Immortal-Protocols/lastbook), the offline survival library: a new
+Rust engine, Svelte interface, Tauri desktop app and offline browser app, using Lastbook's ideas, safety rules, pack
+layout knowledge and AI runner (MIT, credited in [NOTICE.md](NOTICE.md)). It can import existing Lastbook libraries.
 
 An open-source, offline knowledge library with optional local AI. Install packs of documents, PDFs, videos,
 encyclopedias and maps once, then disconnect every network: browse, search, read, follow citations, watch and seek
@@ -18,13 +22,13 @@ No account, server, subscription, activation, CDN or remote font is ever needed 
 ## Install (Linux desktop)
 
 ```bash
-sha256sum -c SHA256SUMS --ignore-missing          # after `lastbook verify-file SHA256SUMS` or minisign
-sudo apt install ./lastbook-ark_0.9.0-rc.1_amd64.deb
-lastbook-ark                                      # or "Lastbook Ark" in the application menu
+sha256sum -c SHA256SUMS --ignore-missing          # after `ark-pack verify-file SHA256SUMS` or minisign
+sudo apt install ./ark-library_0.9.0-rc.1_amd64.deb
+ark-library                                      # or "Ark" in the application menu
 ```
 
-Tested on Debian 13 (clean container, offline). It installs `/usr/bin/lastbook-ark`, the `lastbook` command-line
-tool and the local AI runner. Your library and notes live in `~/.local/share/org.lastbook.ark`. Then open **Packs**:
+Tested on Debian 13 (clean container, offline). It installs `/usr/bin/ark-library`, the `ark-pack` command-line
+tool and the local AI runner. Your library and notes live in `~/.local/share/ark-library`. Then open **Packs**:
 pick packs from a catalog address, or open `.lbpack` files you copied from a USB drive.
 
 ## Install (browser)

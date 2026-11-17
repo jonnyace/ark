@@ -3,7 +3,7 @@
 # Cargo's download cache and pnpm's store are shared with the host so repeated builds do not download again.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-IMAGE="${LBN_IMAGE:-lastbook-ark-build:dev}"
+IMAGE="${LBN_IMAGE:-ark-library-build:dev}"
 docker image inspect "$IMAGE" >/dev/null 2>&1 || docker build -t "$IMAGE" "$ROOT/build/docker"
 mkdir -p "$HOME/.cargo/registry" "$HOME/.cargo/git" "$ROOT/.dev-cache/container-home" "$ROOT/.dev-cache/container-cargo"
 NET=(); [ -n "${LBN_NETWORK:-}" ] && NET=(--network "$LBN_NETWORK")

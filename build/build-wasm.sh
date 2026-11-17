@@ -11,5 +11,5 @@ if ! "$WBG" --version 2>/dev/null | grep -q "$WBG_VERSION"; then
 fi
 cargo build -q --release -p lbn-wasm --target wasm32-unknown-unknown
 rm -rf apps/web/src/lib/wasm
-"$WBG" --target web --out-dir apps/web/src/lib/wasm --out-name lbn target/wasm32-unknown-unknown/release/lbn_wasm.wasm
+"$WBG" --target web --out-dir apps/web/src/lib/wasm --out-name lbn "${CARGO_TARGET_DIR:-target}/wasm32-unknown-unknown/release/lbn_wasm.wasm"
 echo "wasm: $(du -h apps/web/src/lib/wasm/lbn_bg.wasm | cut -f1)"

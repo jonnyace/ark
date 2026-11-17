@@ -1,6 +1,6 @@
 # Notices and attribution
 
-lastbook-ark is MIT-licensed (LICENSE). It reuses and builds on the work below. Library content and model weights
+ark-library is MIT-licensed (LICENSE). It reuses and builds on the work below. Library content and model weights
 are not part of the source tree; their licences travel inside each pack (`pack.json` → `license`, `LICENSES/`).
 The full dependency licence inventory is generated at release time (docs/LICENSES.md).
 
@@ -11,7 +11,7 @@ https://github.com/jonnyace/lastbook-omarchy (upstream PR #60).
 
 | What | Where here | How |
 |---|---|---|
-| `packaging/llm/lastbook_llm.cpp`, `fit_unused_win.cpp` — pipe-only llama.cpp runner | `runner/` | Copied; lastbook-ark adds an optional repetition penalty to `gen` |
+| `packaging/llm/lastbook_llm.cpp`, `fit_unused_win.cpp` — pipe-only llama.cpp runner | `runner/` | Copied; ark-library adds an optional repetition penalty to `gen` |
 | `packaging/llm/build_llm_linux.sh` | `runner/build.sh` | Adapted (CPU default, optional Vulkan, Ninja optional) |
 | Library safety rules: stage beside, verify every SHA-256, switch atomically, unpack guards | `crates/lbn-core/src/{path,install}.rs`, `crates/lbn-native` | Re-implemented in Rust |
 | Assistant rules: cite every claim, never invent keys, "Not found in the library", retrieved text is untrusted | `crates/lbn-core/src/rag.rs` | Rewritten for a small model |

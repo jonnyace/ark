@@ -39,7 +39,7 @@ for i, p in enumerate(pages, 1):
     n += 2
 objs[2] = b"<< /Type /Pages /Kids [%s] /Count %d >>" % (" ".join(f"{k} 0 R" for k in kids).encode(), len(kids))
 info = n
-objs[info] = b"<< /Title (Emergency Supplies Checklist - Lastbook Ark sample) /Producer (lastbook-ark tools/make_pdf.py) >>"
+objs[info] = b"<< /Title (Emergency Supplies Checklist - Ark sample) /Producer (ark-library tools/make_pdf.py) >>"
 out = bytearray(b"%PDF-1.4\n%\xe2\xe3\xcf\xd3\n")
 offsets = {}
 for k in sorted(objs):

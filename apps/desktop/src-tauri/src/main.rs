@@ -1,4 +1,4 @@
-// Lastbook Ark desktop: the shared web UI (apps/web) in a Tauri window over the native engine (lbn-native).
+// Ark desktop: the shared web UI (apps/web) in a Tauri window over the native engine (lbn-native).
 //
 // - `engine` IPC command: one JSON request in, one JSON reply out (lbn-core API). Engine events go to the window as
 //   "engine-event". The window's capabilities allow only these commands and events (capabilities/main.json).
@@ -259,7 +259,8 @@ fn main() {
         .setup(|app| {
             let data = match std::env::var("LBN_DATA") {
                 Ok(d) => std::path::PathBuf::from(d),
-                Err(_) => app.path().app_data_dir()?,
+                // Same folder as the ark-pack CLI: <XDG data dir>/ark-library (e.g. ~/.local/share/ark-library).
+                Err(_) => app.path().data_dir()?.join("ark-library"),
             };
             let mut runner_dirs = vec![];
             if let Ok(r) = app.path().resource_dir() {
@@ -290,5 +291,5 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![engine_call, pick_path, pick_text_file, save_text_file, media_base])
         .run(tauri::generate_context!())
-        .expect("error while running Lastbook Ark");
+        .expect("error while running Ark");
 }

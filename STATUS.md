@@ -1,6 +1,6 @@
 # Status — release candidate 0.9.0-rc.1
 
-Last updated 2026-11-17. Public repository github.com/jonnyace/lastbook-ark; branch `work/rc1`, PR #1 to `main`. Evidence for every "tested" line is in TESTING.md;
+Last updated 2026-11-17. Public repository github.com/jonnyace/ark; branch `work/rc1`, PR #1 to `main`. Evidence for every "tested" line is in TESTING.md;
 the acceptance matrix is in PLAN.md.
 
 ## Implemented and tested (on this Linux machine)
@@ -11,7 +11,9 @@ the acceptance matrix is in PLAN.md.
   crash cleanup; low-space refusal (native space check; browser quota, observed in WebKit).
 - **Desktop app (Linux, Tauri)**: full journey online and with `--network none`: search, HTML sections, PDF pages,
   video seek/play/transcript, offline map, real local AI answer with citations that open, refusal when the library
-  does not cover a question. `.deb` installed and exercised on a clean Debian 13 image.
+  does not cover a question. `.deb` installed and exercised on a clean Debian 13 image. Native Arch package
+  (`packaging/arch/PKGBUILD`) built, installed with pacman and exercised on clean Arch, including AV1/H.264 playback;
+  AppImage also passes as a pure Wayland client under sway (Hyprland itself untested).
 - **Browser app (PWA)**: same journey in Chromium, Firefox and WebKit (Playwright builds); offline cold start in a new
   browser process with the server stopped (Chromium, Firefox, WebKit); OPFS + IndexedDB storage with eviction detection and repair;
   persistence request; private-window detection; personal data export.
@@ -21,7 +23,7 @@ the acceptance matrix is in PLAN.md.
   schema refused untouched; export/import.
 - **Legacy Lastbook import**: the real 7.2 GB library imported (234 items), unsupported ZIM/map reported, original
   unchanged.
-- **CLI** `lastbook`: build, sign, zip, inspect, verify packs; install, search, resolve, ask, repair, rollback, export.
+- **CLI** `ark-pack`: build, sign, zip, inspect, verify packs; install, search, resolve, ask, repair, rollback, export.
 - **Accessibility**: automated WCAG 2 A/AA (axe) clean on 11 views; 360 px layout; skip link.
 - **Release engineering**: `build/ci.sh`, signed SHA256SUMS, licence inventory, reproducible web app, packs, CLI,
   wasm, desktop binary and `.deb`; Nix flake (dev shell + CLI build) tested in a Nix container.
@@ -45,7 +47,7 @@ the acceptance matrix is in PLAN.md.
 - Kiwix ZIM and Lastbook 1.x map import (reported as unsupported; originals kept).
 - Native mobile apps (engine API and `lbn-core` are ready for them).
 - Very large libraries: the search index is held in memory per pack (fine for the 2.8 GB imported library).
-- **Publisher key**: decided 2026-11-17: a new "Lastbook Ark publisher" key; its secret is only in the maintainers' 1Password vault;
+- **Publisher key**: decided 2026-11-17: a new "Ark publisher" key; its secret is only in the maintainers' 1Password vault;
   the retired development key is no longer trusted. `build/public-readiness.sh` is the release gate.
 
 - Mobile browsers: the owner decided (2026-11-17) not to accept the Android SDK licence for emulator tests;

@@ -44,12 +44,12 @@ if [ "$DESKTOP" = 1 ]; then
   rm -rf .dev-cache/e2e/desktop-data
   LBN_ENV=LBN_DATA=/src/.dev-cache/e2e/desktop-data tests/e2e/desktop/run.sh \
     "tests/e2e/server.mjs 18787 /src/apps/web/dist /src/dist/packs > /tmp/srv.log 2>&1 & sleep 1; node tests/e2e/desktop/journey.mjs" \
-    /src/dist/desktop/lastbook-ark install /src/.dev-cache/e2e
+    /src/dist/desktop/ark-library install /src/.dev-cache/e2e
   LBN_NETWORK=none LBN_ENV=LBN_DATA=/src/.dev-cache/e2e/desktop-data tests/e2e/desktop/run.sh tests/e2e/desktop/journey.mjs \
-    /src/dist/desktop/lastbook-ark offline /src/.dev-cache/e2e
+    /src/dist/desktop/ark-library offline /src/.dev-cache/e2e
   step "AppImage, offline"
   LBN_NETWORK=none LBN_ENV=LBN_DATA=/src/.dev-cache/e2e/desktop-data tests/e2e/desktop/run.sh tests/e2e/desktop/journey.mjs \
-    "/src/dist/desktop/lastbook-ark_$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)_x86_64.AppImage" offline /src/.dev-cache/e2e
+    "/src/dist/desktop/ark-library_$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)_x86_64.AppImage" offline /src/.dev-cache/e2e
 fi
 if [ "$CLEAN" = 1 ]; then
   step "Clean-machine install";  tests/clean-install/run.sh
@@ -57,10 +57,10 @@ fi
 if [ "$AI" = 1 ]; then
   step "Grounded AI answers (real model)"
   D=$(mktemp -d); export LBN_DATA="$D" LBN_RUNNER="$ROOT/.dev-cache/runner-bin/lastbook-llm"
-  for p in docs video encyclopedia; do target/release/lastbook install "dist/packs/org.lastbook.sample.$p.lbpack" >/dev/null; done
-  target/release/lastbook install dist/packs/org.lastbook.model.qwen2.5-1.5b-instruct.lbpack >/dev/null
-  target/release/lastbook ai --enable >/dev/null
-  python3 tools/ai_eval.py target/release/lastbook
+  for p in docs video encyclopedia; do target/release/ark-pack install "dist/packs/org.lastbook.sample.$p.lbpack" >/dev/null; done
+  target/release/ark-pack install dist/packs/org.lastbook.model.qwen2.5-1.5b-instruct.lbpack >/dev/null
+  target/release/ark-pack ai --enable >/dev/null
+  python3 tools/ai_eval.py target/release/ark-pack
   rm -rf "$D"
 fi
 if [ "$GPU" = 1 ]; then

@@ -9,7 +9,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 OUT="${OUT:-$ROOT/dist/packs}"
-CLI="${LBN_CLI:-$ROOT/target/release/lastbook}"
+CLI="${LBN_CLI:-$ROOT/target/release/ark-pack}"
 [ -x "$CLI" ] || cargo build -q --release -p lbn-cli
 MODELS=1; [ "${1:-}" = "--no-models" ] && MODELS=0
 
@@ -65,7 +65,7 @@ for d in sorted(os.listdir(out)):
                   "manifest": f"{d}/pack.json", "manifest_sha256": hashlib.sha256(raw).hexdigest(),
                   "lbpack": f"{d}.lbpack", "lbpack_bytes": os.path.getsize(lb),
                   "lbpack_sha256": hashlib.sha256(open(lb, "rb").read()).hexdigest()})
-cat = {"format": "lastbook-catalog", "format_version": 1, "title": "Lastbook Ark sample packs",
+cat = {"format": "lastbook-catalog", "format_version": 1, "title": "Ark sample packs",
        "published": "2026-11-17", "expires": "2027-11-17", "packs": packs}
 open(os.path.join(out, "catalog.json"), "w").write(json.dumps(cat, indent=1) + "\n")
 with open(os.path.join(out, "SHA256SUMS"), "w") as f:

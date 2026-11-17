@@ -5,6 +5,8 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../../.." && pwd)"; cd "$ROOT"
 SCRIPT="$1"; shift
+# tauri-driver lives in the container's cargo home (.dev-cache/container-cargo); install it once if missing.
+[ -x .dev-cache/container-cargo/bin/tauri-driver ] || build/in-container.sh "cargo install -q --locked tauri-driver --version 2.0.6"
 exec build/in-container.sh "
   set -e
   export XDG_RUNTIME_DIR=/tmp/xdg; mkdir -p \$XDG_RUNTIME_DIR; chmod 700 \$XDG_RUNTIME_DIR

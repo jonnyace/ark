@@ -1,4 +1,6 @@
 # Orchestration only: every step is a repository script that also runs on a developer machine.
+# Test fixtures are signed with a throwaway CI key (build/ci-test-key.sh); the publisher's key never reaches CI,
+# and build/public-readiness.sh refuses any build that trusts a CI key.
 name: ci
 on: [push, pull_request]
 permissions: { contents: read }
@@ -6,6 +8,8 @@ jobs:
   linux:
     runs-on: ubuntu-24.04
     steps:
+      - name: Free disk space (model packs and their test copies need several GB)
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache/CodeQL && df -h /
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22.23.4 }
@@ -13,5 +17,13 @@ jobs:
       - run: rustup show   # installs the toolchain pinned in rust-toolchain.toml
       - run: pnpm install --frozen-lockfile
       - run: npx --prefix tests/e2e playwright install --with-deps chromium firefox webkit
-      - run: build/ci.sh --e2e
+      - run: sudo apt-get install -y --no-install-recommends ninja-build
+      - name: Throwaway signing key for test fixtures
+        run: echo "LBN_SIGNING_KEY=$(build/ci-test-key.sh)" >> "$GITHUB_ENV"
+      - run: runner/build.sh
+      - run: build/make-sample-packs.sh   # fetches the model weights once (pinned revision + SHA-256)
+      - run: build/ci.sh --e2e --ai
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with: { name: browser-test-output, path: .dev-cache/e2e/browser-output, if-no-files-found: ignore }
       - run: build/ci.sh --desktop --clean-install

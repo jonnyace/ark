@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Ark
+GenericName=Offline library
+Comment=Offline documents, maps and videos with optional local AI
+Exec=ark-library
+Icon=ark-library
+Terminal=false
+Categories=Education;Reference;
+Keywords=offline;library;survival;maps;
+StartupWMClass=ark-library
