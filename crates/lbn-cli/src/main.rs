@@ -88,6 +88,13 @@ enum Cmd {
     Export { file: PathBuf },
     /// Import personal data from an export file (merged; a backup is taken first).
     Import { file: PathBuf },
+    /// Check a file's minisign signature (<file>.minisig) against the trusted keys, e.g. a release's SHA256SUMS.
+    VerifyFile {
+        file: PathBuf,
+        /// Extra trusted public key (minisign .pub file).
+        #[arg(long)]
+        key: Vec<PathBuf>,
+    },
     /// Show what importing an existing Lastbook library would do (nothing is changed).
     LegacyInspect { path: PathBuf },
 }
@@ -106,6 +113,8 @@ enum PackCmd {
     Sign { dir: PathBuf, key: PathBuf },
     /// Sign a catalog.json (writes catalog.json.minisig).
     SignCatalog { file: PathBuf, key: PathBuf },
+    /// Sign any file, e.g. a release's SHA256SUMS (writes <file>.minisig; verify with `minisign -Vm`).
+    SignFile { file: PathBuf, key: PathBuf },
     /// Write a pack folder as a single .lbpack file (media stored, text compressed).
     Zip { dir: PathBuf, out: PathBuf },
     /// Show a pack's manifest summary (folder, .lbpack or URL).
@@ -296,6 +305,19 @@ fn run(cli: Cli) -> R<()> {
             );
         }
         Cmd::Pack(PackCmd::Sign { dir, key }) => sign_dir(&dir, &key)?,
+        Cmd::Pack(PackCmd::SignFile { file, key }) => {
+            let data = std::fs::read(&file).map_err(|e| e.to_string())?;
+            let sk = minisign::SecretKeyBox::from_string(&std::fs::read_to_string(&key).map_err(|e| e.to_string())?)
+                .and_then(|b| b.into_unencrypted_secret_key())
+                .map_err(|e| e.to_string())?;
+            let name = file.file_name().map(|n| n.to_string_lossy().into_owned()).unwrap_or_default();
+            let tc = format!("lastbook-next file {name} sha256:{}", lbn_core::hash::sha256_hex(&data));
+            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-next"))
+                .map_err(|e| e.to_string())?;
+            let mut out = file.clone().into_os_string();
+            out.push(".minisig");
+            std::fs::write(out, sig.to_string()).map_err(|e| e.to_string())?;
+        }
         Cmd::Pack(PackCmd::SignCatalog { file, key }) => {
             let data = std::fs::read(&file).map_err(|e| e.to_string())?;
             let c = lbn_core::catalog::parse(&data).map_err(|e| e.to_string())?;
@@ -387,6 +409,20 @@ fn run(cli: Cli) -> R<()> {
                     v.signed_by.clone().unwrap_or("none (unsigned)".into())
                 )
             });
+        }
+        Cmd::VerifyFile { file, key } => {
+            let mut keys = builtin_keys();
+            for k in key {
+                let t = std::fs::read_to_string(&k).map_err(|e| e.to_string())?;
+                let b64 = t.lines().find(|l| !l.starts_with("untrusted comment")).unwrap_or("").to_string();
+                keys.push(lbn_core::signature::TrustedKey { name: k.display().to_string(), public_key: b64 });
+            }
+            let data = std::fs::read(&file).map_err(|e| e.to_string())?;
+            let mut sigp = file.clone().into_os_string();
+            sigp.push(".minisig");
+            let sig = std::fs::read_to_string(&sigp).map_err(|e| format!("{}: {e}", PathBuf::from(&sigp).display()))?;
+            let k = lbn_core::signature::verify(&data, &sig, &keys).map_err(|e| format!("REJECTED: {e}"))?;
+            println!("OK: {} is signed by {}", file.display(), k.name);
         }
         Cmd::LegacyInspect { path } => {
             let lib = lbn_native::legacy_import::find_library(&path)

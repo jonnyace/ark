@@ -12,6 +12,12 @@ build/in-container.sh '
   (cd apps/web && npx vite build >/dev/null)
   cd apps/desktop
   APPIMAGE_EXTRACT_AND_RUN=1 NO_STRIP=1 npx tauri build --config src-tauri/tauri.conf.json 2>&1 | tail -20
+  # Re-pack the .deb deterministically: same files, fixed modification times, root ownership (the bundler stamps the
+  # build time into every entry, so two identical builds gave different packages).
+  cd "$CARGO_TARGET_DIR/release/bundle/deb"
+  D=$(ls *.deb | head -1); rm -rf repack && dpkg-deb -R "$D" repack
+  find repack -exec touch -h -d "2026-01-01 00:00:00Z" {} +
+  SOURCE_DATE_EPOCH=1767225600 dpkg-deb --root-owner-group -Zxz --build repack "$D" >/dev/null && rm -rf repack
 '
 mkdir -p dist/desktop
 B=.dev-cache/container-target/release
