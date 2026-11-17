@@ -62,18 +62,17 @@ export async function createWorkerTransport(): Promise<Transport> {
       i.oncancel = () => res(null);
       i.click();
     });
+  const fileUrl = async (pack: string, path: string) => {
+    const key = `${pack}/${path}`;
+    if (!urls.has(key)) urls.set(key, URL.createObjectURL(await opfsFile(pack, path)));
+    return urls.get(key)!;
+  };
   return {
     platform: "browser",
     send: (json) => new Promise((res) => { pending.set(JSON.parse(json).id, res); w.postMessage({ t: "req", json }); }),
     onEvent: (f) => { cb = f; },
-    async fileUrl(pack, path) {
-      const key = `${pack}/${path}`;
-      if (!urls.has(key)) urls.set(key, URL.createObjectURL(await opfsFile(pack, path)));
-      return urls.get(key)!;
-    },
-    mediaUrl(pack, path) {
-      return this.fileUrl(pack, path);
-    },
+    fileUrl,
+    mediaUrl: fileUrl,
     readFile: async (pack, path) => (await opfsFile(pack, path)).arrayBuffer(),
     readRange: async (pack, path, offset, length) => (await opfsFile(pack, path)).slice(offset, offset + length).arrayBuffer(),
     async pickPackSource(kind) {

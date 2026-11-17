@@ -2,4 +2,4 @@
 import type { ApiError } from "./ApiError";
 import type { JsonValue } from "./serde_json/JsonValue";
 
-export type Reply = { v: number, id: number, ok: JsonValue | null, err: ApiError | null, };
+export type Reply = { v: number, id: number, ok?: JsonValue, err?: ApiError, };

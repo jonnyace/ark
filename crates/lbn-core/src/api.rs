@@ -33,44 +33,108 @@ pub struct Request {
 #[cfg_attr(feature = "ts", derive(TS), ts(export))]
 #[serde(tag = "cmd", content = "args", rename_all = "snake_case")]
 pub enum Command {
-    Hello { client: String },
+    Hello {
+        client: String,
+    },
     ListPacks,
-    ListResources { pack: Option<String> },
-    GetResource { pack: String, resource: String },
+    ListResources {
+        pack: Option<String>,
+    },
+    GetResource {
+        pack: String,
+        resource: String,
+    },
     /// Fetch and check a publisher's pack catalog (signed list of available packs).
-    ReadCatalog { url: String },
+    ReadCatalog {
+        url: String,
+    },
     /// Check a pack source (URL of a pack directory or catalog, or a local file the adapter can read) without installing.
-    InspectSource { source: PackSource },
-    Install { source: PackSource, allow_unsigned: bool, allow_downgrade: bool },
-    PauseJob { job: String },
-    ResumeJob { job: String },
-    CancelJob { job: String },
+    InspectSource {
+        source: PackSource,
+    },
+    Install {
+        source: PackSource,
+        allow_unsigned: bool,
+        allow_downgrade: bool,
+    },
+    PauseJob {
+        job: String,
+    },
+    ResumeJob {
+        job: String,
+    },
+    CancelJob {
+        job: String,
+    },
     ListJobs,
     /// Re-hash every file of the active build; report what is damaged.
-    VerifyPack { pack: String },
+    VerifyPack {
+        pack: String,
+    },
     /// Re-fetch damaged files into a new staging build and activate it once verified.
-    RepairPack { pack: String },
+    RepairPack {
+        pack: String,
+    },
     /// Remove a pack (all builds) or one inactive build.
-    RemovePack { pack: String, version: Option<String> },
+    RemovePack {
+        pack: String,
+        version: Option<String>,
+    },
     /// Make the previous installed build active again.
-    RollbackPack { pack: String },
-    Search { query: String, limit: u32, packs: Option<Vec<String>> },
-    GetChunk { pack: String, chunk: u32 },
-    ResolveCitation { uri: String },
+    RollbackPack {
+        pack: String,
+    },
+    Search {
+        query: String,
+        limit: u32,
+        packs: Option<Vec<String>>,
+    },
+    GetChunk {
+        pack: String,
+        chunk: u32,
+    },
+    ResolveCitation {
+        uri: String,
+    },
     AiStatus,
-    LoadModel { pack: String },
+    LoadModel {
+        pack: String,
+    },
     UnloadModel,
-    Ask { question: String, model: Option<String> },
-    CancelAsk { ask: String },
+    Ask {
+        question: String,
+        model: Option<String>,
+    },
+    CancelAsk {
+        ask: String,
+    },
     GetPersonal,
-    SaveBookmark { target: String, title: String },
-    DeleteBookmark { id: String },
-    SaveNote { id: Option<String>, target: String, text: String },
-    DeleteNote { id: String },
-    AddHistory { target: String, title: String },
-    SaveSettings { settings: crate::personal::Settings },
+    SaveBookmark {
+        target: String,
+        title: String,
+    },
+    DeleteBookmark {
+        id: String,
+    },
+    SaveNote {
+        id: Option<String>,
+        target: String,
+        text: String,
+    },
+    DeleteNote {
+        id: String,
+    },
+    AddHistory {
+        target: String,
+        title: String,
+    },
+    SaveSettings {
+        settings: crate::personal::Settings,
+    },
     ExportPersonal,
-    ImportPersonal { data: String },
+    ImportPersonal {
+        data: String,
+    },
     StorageStatus,
     RequestPersistence,
 }
@@ -91,8 +155,10 @@ pub struct Reply {
     pub v: u32,
     pub id: u64,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "ts", ts(optional))]
     pub ok: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[cfg_attr(feature = "ts", ts(optional))]
     pub err: Option<ApiError>,
 }
 
@@ -369,7 +435,8 @@ mod tests {
     use super::*;
     #[test]
     fn wire_format() {
-        let r: Request = serde_json::from_str(r#"{"v":1,"id":7,"cmd":"search","args":{"query":"boil","limit":5,"packs":null}}"#).unwrap();
+        let r: Request =
+            serde_json::from_str(r#"{"v":1,"id":7,"cmd":"search","args":{"query":"boil","limit":5,"packs":null}}"#).unwrap();
         assert_eq!(r.command, Command::Search { query: "boil".into(), limit: 5, packs: None });
         let r: Request = serde_json::from_str(r#"{"v":1,"id":1,"cmd":"list_packs"}"#).unwrap();
         assert_eq!(r.command, Command::ListPacks);

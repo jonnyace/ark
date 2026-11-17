@@ -100,10 +100,10 @@ export async function handle(json: string): Promise<string> {
     id = req.id ?? 0;
     if (req.v !== API_VERSION) fail("incompatible", `engine API ${req.v} is not supported`);
     const ok = await dispatch(req as Command);
-    return JSON.stringify({ v: API_VERSION, id, ok: ok ?? null } satisfies Reply);
+    return JSON.stringify({ v: API_VERSION, id, ok: (ok ?? null) as Reply["ok"] } satisfies Partial<Reply>);
   } catch (e: any) {
     const code = e instanceof EngineError ? e.code : e?.name === "QuotaExceededError" ? "no_space" : "io";
-    return JSON.stringify({ v: API_VERSION, id, err: { code, message: String(e?.message ?? e) } } satisfies Reply);
+    return JSON.stringify({ v: API_VERSION, id, err: { code, message: String(e?.message ?? e) } } satisfies Partial<Reply>);
   }
 }
 
