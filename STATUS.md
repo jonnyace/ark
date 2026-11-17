@@ -11,7 +11,9 @@ the acceptance matrix is in PLAN.md.
   crash cleanup; low-space refusal (native space check; browser quota, observed in WebKit).
 - **Desktop app (Linux, Tauri)**: full journey online and with `--network none`: search, HTML sections, PDF pages,
   video seek/play/transcript, offline map, real local AI answer with citations that open, refusal when the library
-  does not cover a question. `.deb` installed and exercised on a clean Debian 13 image.
+  does not cover a question. `.deb` installed and exercised on a clean Debian 13 image. Native Arch package
+  (`packaging/arch/PKGBUILD`) built, installed with pacman and exercised on clean Arch, including AV1/H.264 playback;
+  AppImage also passes as a pure Wayland client under sway (Hyprland itself untested).
 - **Browser app (PWA)**: same journey in Chromium, Firefox and WebKit (Playwright builds); offline cold start in a new
   browser process with the server stopped (Chromium, Firefox, WebKit); OPFS + IndexedDB storage with eviction detection and repair;
   persistence request; private-window detection; personal data export.

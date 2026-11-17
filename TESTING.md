@@ -95,6 +95,18 @@ only). Not checked: AppImage, model packs.
   that clearing site data deletes the library.
 - Vulkan GPU (AMD Radeon Phoenix, RADV, GPU passed into the container): see docs/AI.md — 65 tok/s, grounded 6/7.
 
+### Arch Linux (Omarchy's base) — `packaging/arch/test.sh`, `tests/arch/run.sh`, `tests/arch/wayland.sh`
+- Native package `ark-library` built from source by `makepkg` in a clean `archlinux:latest` container (Arch's Rust,
+  WebKitGTK, GStreamer; no Python), `check()` runs the core and native tests, installed with `pacman -U` (which pulls in
+  `gst-plugin-dav1d` and `gst-libav`).
+- Installed package: install journey 7/7 (signed catalog, 4 packs over HTTP, model from a file, AI fit check), then
+  offline journey 14/14 with `--network none` (including a real local AI answer with citations), then real imported
+  library videos: H.264 1280×648 and AV1 1280×720 decode and play.
+- AppImage on Arch: offline journey 14/14 and the same AV1/H.264 playback (it bundles its own decoders).
+- Pure Wayland (no X server, `GDK_BACKEND=wayland`, headless sway): AppImage offline journey 14/14.
+- Not tested: Hyprland itself. Hyprland 0.57 cannot run nested in a container (it needs `wl_compositor` and
+  `xdg_wm_base` version 6, which headless sway and Weston do not offer), so Omarchy needs a hardware check.
+
 ### Windows build, cross-compiled from Linux and run under Wine (`build/windows-cross.sh`)
 Wine is not Windows; these results show the Windows build compiles and its non-GUI parts work.
 - `ark-pack.exe`, `ark-library.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
