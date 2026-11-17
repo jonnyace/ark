@@ -144,3 +144,10 @@ release checksums. Its secret exists only in 1Password (vault Eve); `build/with-
 private temporary file for the duration of a signing command. `keys/trusted.json` trusts only this key; the
 development key used during development was removed from the trust list and its secret deleted, so packs signed with
 it now show as untrusted. A future maintainer without this secret publishes under their own key (docs/BUILDING.md).
+
+## D-022 Windows cross-build from Linux, tested under Wine
+With no Windows machine, the Windows release is cross-compiled with MinGW-w64 (`x86_64-pc-windows-gnu`) in
+`build/docker/windows-cross.Dockerfile`: CLI, Tauri desktop + NSIS installer, and a static CPU runner (AVX2 baseline;
+the upstream-style llvm-mingw script with all CPU variants and Vulkan remains `runner/build-windows.sh`). Wine runs the
+Rust tests, the CLI and the runner; it cannot run the WebView2 window. Accepting Google's Android SDK licence to test
+in an Android emulator was not done on the owner's behalf; mobile browsers stay untested.

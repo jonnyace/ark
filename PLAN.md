@@ -31,7 +31,7 @@ Status values: `todo`, `pass` (evidence in TESTING.md), `blocked` (reason in STA
 | 11 | Automated checks pass | `build/ci.sh --all` | pass (see TESTING.md) |
 | 12 | Release artifacts, checksums, build instructions | `build/release.sh`, signed SHA256SUMS, docs/BUILDING.md, repro check | pass |
 | 13 | Known limitations and untested platforms stated | STATUS.md, TESTING.md coverage limits, docs/AI.md | pass |
-| 14 | Windows/macOS build configurations where feasible | Tauri platform configs, runner scripts, CI matrix | configured, **untested** (no machines) |
+| 14 | Windows/macOS build configurations where feasible | Tauri platform configs, runner scripts, CI matrix; Windows cross-built and tested under Wine | Windows: built + Wine-tested (no GUI); macOS: configured, **untested** |
 
 ## Highest risks (tackled first)
 

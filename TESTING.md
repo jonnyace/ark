@@ -95,6 +95,17 @@ only). Not checked: AppImage, model packs.
   that clearing site data deletes the library.
 - Vulkan GPU (AMD Radeon Phoenix, RADV, GPU passed into the container): see docs/AI.md — 65 tok/s, grounded 6/7.
 
+### Windows build, cross-compiled from Linux and run under Wine (`build/windows-cross.sh`)
+Wine is not Windows; these results show the Windows build compiles and its non-GUI parts work.
+- `lastbook.exe`, `lastbook-next.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
+- All 44 Rust tests compiled for `x86_64-pc-windows-gnu` pass under Wine, including the install-safety suite against a
+  real HTTP server (renames, paths, resume, tamper, rollback).
+- Windows CLI under Wine: installed the four signed sample packs, verify/search/resolve/export work.
+- Windows llama.cpp runner (MinGW, CPU, AVX2 baseline, static): real inference under Wine, grounded check **7/7**, but
+  slow under Wine (5.6 tok/s, 60–130 s per answer); native Windows speed unmeasured.
+- Not tested: the desktop window (needs Microsoft WebView2, not available under Wine), the installer on Windows,
+  anything on real Windows hardware.
+
 ### Nix (in `nixos/nix` container, pinned digest)
 `nix develop`: Rust 1.95.0 (via rust-toolchain.toml), Node 22, WebKitGTK 2.54.2; core tests pass inside the shell.
 `nix build .#lastbook-cli`: builds in the sandbox from Cargo.lock, runs core tests, binary runs.
@@ -113,7 +124,7 @@ The GPU probe ran in the previous full run (commit 12926c0). An earlier run fail
 were in a RAM-backed /tmp; they now go to `.dev-cache/tmp`.
 
 ## Coverage limits (not tested)
-- Windows and macOS builds and runtime (configurations exist; no machines).
+- Windows on real hardware (desktop window/WebView2, installer, native speed); everything on macOS (no Apple SDK or machine).
 - Real Safari (macOS/iOS) and mobile browsers (Playwright's WebKit build on Linux is not Safari).
 - GPU inference on other GPUs (NVIDIA, Intel, Apple Metal); machines with little RAM (fit check measured only here).
 - Manual screen-reader use (only automated axe checks).

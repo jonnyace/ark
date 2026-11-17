@@ -31,7 +31,9 @@ the acceptance matrix is in PLAN.md.
   answer in all three engines; model licence verification recorded (docs/AI.md).
 
 ## Implemented but untested
-- Windows and macOS desktop builds (Tauri platform configs, runner build scripts adapted from Lastbook, CI matrix).
+- Windows desktop app and installer on real Windows: cross-built here; engine, CLI and AI runner tested under Wine
+  (44 tests, 7/7 grounded answers), the WebView2 window not testable under Wine.
+- macOS desktop build (Tauri config, runner script adapted from Lastbook, CI matrix): never built (needs Apple SDK).
 - GPU acceleration on hardware other than the AMD integrated GPU tested here (see "tested" below).
 - Manual screen-reader use (only automated checks).
 - Real HTTPS hosting of packs and the PWA (tests use a loopback HTTP server).
