@@ -76,6 +76,6 @@ print(f"catalog: {len(packs)} packs")
 PY
 if [ -n "${LBN_SIGNING_KEY:-}" ]; then
   # The catalog is signed with the same publisher key (minisign over the exact bytes).
-  "$CLI" pack sign-catalog "$OUT/catalog.json" "$LBN_SIGNING_KEY" 2>/dev/null || true
+  "$CLI" pack sign-catalog "$OUT/catalog.json" "$LBN_SIGNING_KEY"
 fi
 du -sh "$OUT"

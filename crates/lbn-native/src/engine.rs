@@ -132,6 +132,7 @@ impl NativeEngine {
             Command::ListPacks => ok(self.list_packs()?),
             Command::ListResources { pack } => ok(self.list_resources(pack.as_deref())?),
             Command::GetResource { pack, resource } => ok(self.resource_info(&pack, &resource)?),
+            Command::ReadCatalog { url } => ok(self.read_catalog(&url)?),
             Command::InspectSource { source } => ok(self.inspect(&source)?),
             Command::Install { source, allow_unsigned, allow_downgrade } => ok(self.start_install(source, allow_unsigned, allow_downgrade, None)?),
             Command::PauseJob { job } => {
@@ -412,6 +413,34 @@ impl NativeEngine {
             signed_by,
             model: m.model.clone(),
             unsupported,
+        })
+    }
+
+    fn read_catalog(&self, url: &str) -> Result<CatalogReply> {
+        let f = Fetcher::new();
+        let bytes = f.get_small(url, 8 << 20)?.ok_or_else(|| NativeError::coded("not_found", format!("no catalog at {url}")))?;
+        let c = lbn_core::catalog::parse(&bytes)?;
+        let signed_by = match f.get_small(&format!("{url}.minisig"), 1 << 16)? {
+            Some(s) => Some(lbn_core::signature::verify(&bytes, &String::from_utf8_lossy(&s), &self.store.trusted_keys())?.name.clone()),
+            None => None,
+        };
+        let base = url.rsplit_once('/').map(|(b, _)| format!("{b}/")).unwrap_or_default();
+        let mut packs = Vec::new();
+        for e in c.packs.iter() {
+            packs.push(CatalogPack {
+                manifest_url: file_url(&base, &e.manifest),
+                installed_version: self.store.active_build(&e.id)?.map(|b| b.version),
+                entry: e.clone(),
+            });
+        }
+        Ok(CatalogReply {
+            url: url.into(),
+            expired: lbn_core::catalog::is_expired(&c, &now_rfc3339()),
+            title: c.title,
+            published: c.published,
+            expires: c.expires,
+            signed_by,
+            packs,
         })
     }
 

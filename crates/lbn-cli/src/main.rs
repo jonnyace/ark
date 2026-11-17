@@ -104,6 +104,8 @@ enum PackCmd {
     },
     /// Sign a built pack's pack.json (writes pack.json.minisig).
     Sign { dir: PathBuf, key: PathBuf },
+    /// Sign a catalog.json (writes catalog.json.minisig).
+    SignCatalog { file: PathBuf, key: PathBuf },
     /// Write a pack folder as a single .lbpack file (media stored, text compressed).
     Zip { dir: PathBuf, out: PathBuf },
     /// Show a pack's manifest summary (folder, .lbpack or URL).
@@ -271,6 +273,18 @@ fn run(cli: Cli) -> R<()> {
             });
         }
         Cmd::Pack(PackCmd::Sign { dir, key }) => sign_dir(&dir, &key)?,
+        Cmd::Pack(PackCmd::SignCatalog { file, key }) => {
+            let data = std::fs::read(&file).map_err(|e| e.to_string())?;
+            let c = lbn_core::catalog::parse(&data).map_err(|e| e.to_string())?;
+            let sk = minisign::SecretKeyBox::from_string(&std::fs::read_to_string(&key).map_err(|e| e.to_string())?)
+                .and_then(|b| b.into_unencrypted_secret_key())
+                .map_err(|e| e.to_string())?;
+            let tc = format!("lastbook-next catalog {} published {} sha256:{}", c.title, c.published, lbn_core::hash::sha256_hex(&data));
+            let sig = minisign::sign(None, &sk, std::io::Cursor::new(&data), Some(&tc), Some("signature from lastbook-next")).map_err(|e| e.to_string())?;
+            let mut out = file.clone().into_os_string();
+            out.push(".minisig");
+            std::fs::write(out, sig.to_string()).map_err(|e| e.to_string())?;
+        }
         Cmd::Pack(PackCmd::Zip { dir, out }) => {
             let mbytes = std::fs::read(dir.join(MANIFEST_NAME)).map_err(|e| e.to_string())?;
             let p = manifest::parse(&mbytes).map_err(|e| e.to_string())?;
