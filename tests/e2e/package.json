@@ -1,0 +1,11 @@
+{
+  "name": "@lastbook-next/e2e",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:browser": "playwright test -c playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.1"
+  }
+}
