@@ -302,7 +302,16 @@ impl Store {
         can_activate(m, current.as_ref(), opts).map_err(|e| NativeError::coded("downgrade", e.to_string()))?;
         let rel = format!("packs/{}/{}", m.id, v.parsed.install_dir_name());
         let dest = self.root.join(&rel);
-        let already = self.builds()?.into_iter().any(|b| b.manifest_sha256 == v.parsed.sha256 && b.id == m.id);
+        let existing = self.builds()?.into_iter().find(|b| b.manifest_sha256 == v.parsed.sha256 && b.id == m.id);
+        // The same build is already registered: keep it if intact; if it is damaged (a repair), replace its folder
+        // with the freshly verified copy.
+        let replace_damaged = existing.as_ref().is_some_and(|b| self.quick_health(b) != PackHealth::Ok);
+        if replace_damaged {
+            let b = existing.as_ref().unwrap();
+            std::fs::rename(self.build_dir(b), self.root.join("trash").join(format!("damaged-{}", crate::util::random_id())))?;
+            self.indexes.lock().unwrap().remove(&b.manifest_sha256);
+        }
+        let already = existing.is_some() && !replace_damaged;
         if !already {
             std::fs::create_dir_all(dest.parent().unwrap())?;
             if dest.exists() {
