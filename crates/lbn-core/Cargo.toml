@@ -1,0 +1,21 @@
+[package]
+name = "lbn-core"
+description = "Lastbook Next engine core: pack format, verification, search, citations, retrieval prompts, personal-data schema. Pure Rust, no I/O; builds for native and wasm32."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+hex.workspace = true
+thiserror.workspace = true
+postcard.workspace = true
+minisign-verify.workspace = true
+rust-stemmers.workspace = true
+ts-rs = { version = "11", optional = true, features = ["serde-json-impl", "no-serde-warnings"] }
+
+[features]
+ts = ["dep:ts-rs"]
