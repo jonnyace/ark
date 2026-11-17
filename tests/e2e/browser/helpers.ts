@@ -1,15 +1,19 @@
-import { expect, test as base, webkit, type Page } from "@playwright/test";
+import { expect, test as base, chromium, firefox, webkit, type Page } from "@playwright/test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-// WebKit (like Safari) gives no file storage to private/ephemeral windows, so WebKit tests run in a normal
-// (persistent) profile. Other browsers use Playwright's default contexts.
-export const test = base.extend({
-  context: async ({ browserName, context, baseURL, viewport }, use) => {
-    if (browserName !== "webkit") return use(context);
-    const dir = mkdtempSync(join(tmpdir(), "lbn-wk-"));
-    const ctx = await webkit.launchPersistentContext(dir, { baseURL, viewport: viewport ?? undefined, acceptDownloads: true });
+// WebKit (like Safari) gives no file storage to private/ephemeral windows, so WebKit tests always run in a normal
+// (persistent) profile. Tests that store large files (the 1.1 GB model) set `persistent: true` for every browser:
+// Playwright's default contexts are incognito-like, and Chromium keeps incognito storage in memory, which fails on
+// smaller machines (seen on GitHub's 16 GB runner) although a real browser profile stores on disk.
+export const test = base.extend<{ persistent: boolean }>({
+  persistent: [false, { option: true }],
+  context: async ({ browserName, context, baseURL, viewport, persistent }, use) => {
+    if (browserName !== "webkit" && !persistent) return use(context);
+    const dir = mkdtempSync(join(tmpdir(), "lbn-p-"));
+    const engine = { chromium, firefox, webkit }[browserName];
+    const ctx = await engine.launchPersistentContext(dir, { baseURL, viewport: viewport ?? undefined, acceptDownloads: true });
     await use(ctx);
     await ctx.close();
     rmSync(dir, { recursive: true, force: true });

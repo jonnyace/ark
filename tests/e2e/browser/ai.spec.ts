@@ -1,6 +1,8 @@
 import { expect } from "@playwright/test";
 import { test, installFromAddress } from "./helpers";
 
+test.use({ persistent: true }); // the model is 1.1 GB: store it on disk like a real browser profile
+
 // Criterion 6: real in-browser inference (wllama, CPU, this Chromium), grounded with citations; measured, not mocked.
 test("browser local AI answers from the library with citations", async ({ page, browserName }) => {
   test.skip(browserName === "webkit", "WebKit's 1000 MB quota here is below the 1.5B model; see the low-space and small-model tests");
