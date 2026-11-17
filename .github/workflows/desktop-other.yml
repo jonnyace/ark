@@ -1,26 +1,49 @@
-# UNTESTED configuration for Windows and macOS desktop builds (no such machines were available while writing it).
-# Builds the runner and the Tauri bundles unsigned. Signing/notarization are separate, manual steps (docs/BUILDING.md).
+# Windows and macOS desktop builds on GitHub's hosted runners (unsigned). Each job also runs the Rust test suite
+# natively, builds the llama.cpp runner with the platform compiler (runner/CMakeLists.txt) and runs one real answer
+# with the model, then uploads the bundles. Signing and notarization stay separate, manual steps (docs/BUILDING.md).
 name: desktop-other
 on: workflow_dispatch
 permissions: { contents: read }
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - os: macos-14
-            runner: bash runner/build-macos.sh
-            bundles: app,dmg
-          - os: windows-2022
-            runner: bash runner/build-windows.sh   # needs the toolchain listed at the top of that script
-            bundles: nsis
+          - { os: macos-14, bundles: "app,dmg", runner_dir: ".dev-cache/runner-bin-macos", exe: "" }
+          - { os: windows-2022, bundles: nsis, runner_dir: ".dev-cache/bin-win", exe: ".exe" }
     runs-on: ${{ matrix.os }}
+    defaults: { run: { shell: bash } }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22.23.4 }
       - run: corepack enable && corepack prepare pnpm@11.20.0 --activate && pnpm install --frozen-lockfile
       - run: rustup show
-      - run: ${{ matrix.runner }}
+      - name: Rust tests (native)
+        run: cargo test --workspace --locked
+      - name: llama.cpp runner (platform compiler)
+        run: |
+          L=$(runner/fetch-llama.sh)
+          cmake -S runner -B .dev-cache/runner-cmake -DLLAMA_DIR="$PWD/$L" -DCMAKE_BUILD_TYPE=Release
+          cmake --build .dev-cache/runner-cmake --config Release --parallel
+          mkdir -p "${{ matrix.runner_dir }}"
+          find .dev-cache/runner-cmake -name "lastbook-llm${{ matrix.exe }}" -type f -exec cp {} "${{ matrix.runner_dir }}/" \;
+          cp "$L/LICENSE" "${{ matrix.runner_dir }}/LICENSE-llama.cpp.txt"
+          ls -la "${{ matrix.runner_dir }}"
+      - name: One real answer with the model (CPU)
+        run: |
+          curl -sSfL -o model.gguf "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf"
+          echo "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e  model.gguf" | shasum -a 256 -c
+          python3 tools/runner_probe.py "${{ matrix.runner_dir }}/lastbook-llm${{ matrix.exe }}" model.gguf
       - run: bash build/gen-ts.sh && bash build/build-wasm.sh && (cd apps/web && npx vite build)
       - run: cd apps/desktop && npx tauri build --bundles ${{ matrix.bundles }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: lastbook-ark-${{ matrix.os }}-unsigned
+          path: |
+            target/release/bundle/**/*.dmg
+            target/release/bundle/**/*.exe
+            apps/desktop/src-tauri/target/release/bundle/**/*.dmg
+            apps/desktop/src-tauri/target/release/bundle/**/*-setup.exe
+          if-no-files-found: warn
