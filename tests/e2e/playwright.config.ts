@@ -8,6 +8,12 @@ export default defineConfig({
   reporter: [["list"], ["json", { outputFile: "../../.dev-cache/e2e/browser-results.json" }]],
   use: { baseURL: "http://127.0.0.1:18787/", viewport: { width: 1100, height: 900 }, screenshot: "only-on-failure" },
   outputDir: "../../.dev-cache/e2e/browser-output",
+  projects: [
+    { name: "chromium", use: { browserName: "chromium" } },
+    // Compatibility runs: everything except the long real-model test, which needs Chromium features (JSPI, memory64).
+    { name: "firefox", use: { browserName: "firefox" }, testIgnore: /offline\.spec/ },
+    { name: "webkit", use: { browserName: "webkit" }, testIgnore: /offline\.spec/ },
+  ],
   webServer: {
     command: "node server.mjs 18787 ../../apps/web/dist ../../dist/test-packs",
     url: "http://127.0.0.1:18787/",

@@ -1,4 +1,18 @@
-import { expect, type Page } from "@playwright/test";
+import { expect, test as base, webkit, type Page } from "@playwright/test";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+
+// WebKit (like Safari) gives no file storage to private/ephemeral windows, so WebKit tests run in a normal
+// (persistent) profile. Other browsers use Playwright's default contexts.
+export const test = base.extend({
+  context: async ({ browserName, context, baseURL, viewport }, use) => {
+    if (browserName !== "webkit") return use(context);
+    const ctx = await webkit.launchPersistentContext(mkdtempSync(join(tmpdir(), "lbn-wk-")), { baseURL, viewport: viewport ?? undefined, acceptDownloads: true });
+    await use(ctx);
+    await ctx.close();
+  },
+});
 
 export const CATALOG = "http://127.0.0.1:18787/packs/catalog.json";
 

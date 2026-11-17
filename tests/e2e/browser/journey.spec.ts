@@ -1,8 +1,8 @@
-import { test, expect } from "@playwright/test";
-import { openCatalog, installFromCatalog, uri } from "./helpers";
+import { expect } from "@playwright/test";
+import { test, openCatalog, installFromCatalog, uri } from "./helpers";
 
 // Criterion 2/4 (browser part): install from a signed catalog, then search, read, watch and look at the map.
-test("install sample packs and use every viewer", async ({ page }) => {
+test("install sample packs and use every viewer", async ({ page, browserName }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your offline library");
   await openCatalog(page);
@@ -31,7 +31,12 @@ test("install sample packs and use every viewer", async ({ page }) => {
   await expect.poll(() => v.evaluate((e: HTMLVideoElement) => Math.floor(e.currentTime))).toBeGreaterThanOrEqual(13);
 
   await page.goto("/" + uri("lbn:org.lastbook.sample.map/ithaca#at=42.4396,-76.4970,15"));
-  await expect(page.locator('[data-testid="map"][data-loaded="true"]')).toBeVisible({ timeout: 30_000 });
+  if (browserName === "firefox") {
+    // Headless Firefox on this machine has no WebGL (even when forced): the app must say so instead of failing quietly.
+    await expect(page.getByRole("alert")).toContainText("cannot draw maps: WebGL is not available");
+  } else {
+    await expect(page.locator('[data-testid="map"][data-loaded="true"]')).toBeVisible({ timeout: 30_000 });
+  }
 
   await page.goto("/" + uri("lbn:org.lastbook.sample.encyclopedia/boiling-point#sec=altitude"));
   await expect(page.frameLocator('[data-testid="html-view"]').locator("#altitude.lbn-target")).toBeVisible();

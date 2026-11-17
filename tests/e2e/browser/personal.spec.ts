@@ -1,6 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { expect } from "@playwright/test";
 import { readFileSync } from "node:fs";
-import { installFromAddress, uri } from "./helpers";
+import { test, installFromAddress, uri } from "./helpers";
 
 // Criterion 10 (browser part): data from an older schema is migrated with a backup kept; bookmarks and notes export.
 test("personal data from schema 1 is migrated, kept and exportable", async ({ page }) => {

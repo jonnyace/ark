@@ -1,5 +1,5 @@
-import { test, expect } from "@playwright/test";
-import { installFromAddress, server } from "./helpers";
+import { expect } from "@playwright/test";
+import { test, installFromAddress, server } from "./helpers";
 
 const P = "http://127.0.0.1:18787/packs/";
 
