@@ -34,7 +34,7 @@ if [ "$E2E" = 1 ]; then
   step "Browser end-to-end";    tests/e2e/make-test-packs.sh; (cd tests/e2e && TMPDIR="$ROOT/.dev-cache/tmp" npx playwright test)
   if command -v xvfb-run >/dev/null; then
     step "Firefox with a display (WebGL map)"
-    (cd tests/e2e && LBN_HEADED=1 TMPDIR="$ROOT/.dev-cache/tmp" xvfb-run -a -s "-screen 0 1280x1000x24" npx playwright test journey --project firefox)
+    (cd tests/e2e && LBN_HEADED=1 TMPDIR="$ROOT/.dev-cache/tmp" xvfb-run -a -s "-screen 0 1280x1000x24" npx playwright test journey offline --project firefox)
   fi
 fi
 if [ "$DESKTOP" = 1 ]; then

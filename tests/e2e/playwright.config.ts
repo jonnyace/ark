@@ -12,8 +12,8 @@ export default defineConfig({
   projects: [
     { name: "chromium", use: { browserName: "chromium" } },
     // Compatibility runs: everything except the long real-model test, which needs Chromium features (JSPI, memory64).
-    { name: "firefox", use: { browserName: "firefox" }, testIgnore: /offline\.spec/ },
-    { name: "webkit", use: { browserName: "webkit" }, testIgnore: /offline\.spec/ },
+    { name: "firefox", use: { browserName: "firefox" }, },
+    { name: "webkit", use: { browserName: "webkit" }, },
   ],
   webServer: {
     command: "node server.mjs 18787 ../../apps/web/dist ../../dist/test-packs",

@@ -20,7 +20,7 @@ Status values: `todo`, `pass` (evidence in TESTING.md), `blocked` (reason in STA
 |---|---|---|---|
 | 1 | Clean-machine install documented and exercised | `tests/clean-install/run.sh`: apt install of the .deb on plain Debian 13, journey online + offline | pass |
 | 2 | Full sample-library journey on Linux desktop | WebDriver E2E against the Tauri build under Xvfb | pass (7/7 + 14/14) |
-| 3 | PWA cold-starts offline after first install | Playwright: install, close, server stopped, new browser process offline | pass (Chromium) |
+| 3 | PWA cold-starts offline after first install | Playwright: install, close, server stopped, new browser process offline | pass (Chromium, Firefox, WebKit) |
 | 4 | Search, documents, maps, video with network denied | Desktop container `--network none`; PWA offline cold start | pass |
 | 5 | Desktop AI answers offline; citations open | E2E asks a question in `--network none`, opens each citation | pass |
 | 6 | Browser AI capability and limits documented | Real wllama answers in Chromium/Firefox; WebKit quota limit; docs/AI.md | pass |

@@ -13,7 +13,7 @@ the acceptance matrix is in PLAN.md.
   video seek/play/transcript, offline map, real local AI answer with citations that open, refusal when the library
   does not cover a question. `.deb` installed and exercised on a clean Debian 13 image.
 - **Browser app (PWA)**: same journey in Chromium, Firefox and WebKit (Playwright builds); offline cold start in a new
-  browser process with the server stopped (Chromium); OPFS + IndexedDB storage with eviction detection and repair;
+  browser process with the server stopped (Chromium, Firefox, WebKit); OPFS + IndexedDB storage with eviction detection and repair;
   persistence request; private-window detection; personal data export.
 - **Local AI**: Qwen2.5-1.5B-Instruct (Apache-2.0) on llama.cpp b12032, CPU; grounded answers 7/7 on the sample set;
   guards against loops and misread numbers; browser inference (wllama) in Chromium and Firefox, measured.

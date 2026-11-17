@@ -54,7 +54,7 @@ with the new citation target, a `personal-…-v1.sqlite` backup kept, and `lastb
 | Spec | Chromium 159 | Firefox | WebKit 27.2 |
 |---|---|---|---|
 | journey (catalog, 4 packs, search, HTML, PDF, video seek/play/transcript, map, article, missing pack) | pass | pass (map: headless Firefox has no WebGL; the app's explicit message is asserted) | pass |
-| offline cold start: new browser process, server stopped, offline | pass | not run | not run |
+| offline cold start: new browser process, server stopped, offline (search, PDF, video, map) | pass | pass (map drawn in the headed run) | pass |
 | tampered pack and corrupted transfer rejected | pass | pass | pass |
 | interrupted download resumes from the exact byte (`bytes=300000-`); outage → failed job survives reload → resumes | pass | pass | pass |
 | failed update keeps old version; rollback | pass | pass | pass |
@@ -114,7 +114,7 @@ were in this machine's RAM-backed /tmp (99 % full): the Firefox model download s
 
 ## Coverage limits (not tested)
 - Windows and macOS builds and runtime (configurations exist; no machines).
-- Real Safari (macOS/iOS), mobile browsers, offline cold start outside Chromium.
+- Real Safari (macOS/iOS) and mobile browsers (Playwright's WebKit build on Linux is not Safari).
 - GPU inference on other GPUs (NVIDIA, Intel, Apple Metal); machines with little RAM (fit check measured only here).
 - Manual screen-reader use (only automated axe checks).
 - Very large packs (index is held in memory per pack; tested up to the 2.8 GB imported library).
