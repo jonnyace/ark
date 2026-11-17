@@ -1,6 +1,6 @@
 [package]
 name = "lbn-core"
-description = "Lastbook Next engine core: pack format, verification, search, citations, retrieval prompts, personal-data schema. Pure Rust, no I/O; builds for native and wasm32."
+description = "Lastbook Ark engine core: pack format, verification, search, citations, retrieval prompts, personal-data schema. Pure Rust, no I/O; builds for native and wasm32."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

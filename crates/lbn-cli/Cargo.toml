@@ -1,6 +1,6 @@
 [package]
 name = "lbn-cli"
-description = "lastbook: command-line tool to build, sign, inspect, verify, install and search Lastbook Next packs."
+description = "lastbook: command-line tool to build, sign, inspect, verify, install and search Lastbook Ark packs."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

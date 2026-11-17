@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct TrustedKey {
-    /// Short name shown to people ("Lastbook Next sample publisher").
+    /// Short name shown to people ("Lastbook Ark sample publisher").
     pub name: String,
     /// The minisign public key, base64 (the second line of a `minisign.pub` file).
     pub public_key: String,

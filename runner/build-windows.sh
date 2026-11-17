@@ -1,5 +1,5 @@
 #!/bin/bash
-# ADAPTED from Lastbook packaging/llm/build_llm_windows.sh (MIT, Lastbook contributors). UNTESTED in lastbook-next:
+# ADAPTED from Lastbook packaging/llm/build_llm_windows.sh (MIT, Lastbook contributors). UNTESTED in lastbook-ark:
 # no Windows machine was available. Output goes to $W/bin-win (default W=.dev-cache) instead of derived/llm/.
 # Builds lastbook-llm.exe for 64-bit Windows: llama.cpp at the pinned tag with Vulkan (any recent GPU) and every CPU variant
 # as a fallback, linked to our runner with nothing that can open a socket (no RPC backend, no common library beyond the

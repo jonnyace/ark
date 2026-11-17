@@ -1,6 +1,6 @@
 [package]
 name = "lbn-native"
-description = "Lastbook Next native platform adapter: pack store with staged/atomic installs, downloads, zip import, SQLite registry and personal data, llama.cpp runner control, and the native engine dispatcher."
+description = "Lastbook Ark native platform adapter: pack store with staged/atomic installs, downloads, zip import, SQLite registry and personal data, llama.cpp runner control, and the native engine dispatcher."
 version.workspace = true
 edition.workspace = true
 license.workspace = true

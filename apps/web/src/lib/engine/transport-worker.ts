@@ -8,7 +8,7 @@ interface Build { id: string; manifest_sha256: string; dir: string }
 
 async function activeDir(pack: string): Promise<string> {
   const db: IDBDatabase = await new Promise((res, rej) => {
-    const r = indexedDB.open("lastbook-next");
+    const r = indexedDB.open("lastbook-ark");
     r.onsuccess = () => res(r.result);
     r.onerror = () => rej(r.error);
   });

@@ -4,7 +4,7 @@ Each entry: the decision, why, and what would change it. Newest entries at the b
 "Experiment" means something was run on the test machine; results are in TESTING.md.
 
 ## D-001 New repository; reuse upstream by copying with attribution
-lastbook-next is a new repository (`~/src/lastbook-next`), not a fork. Upstream Lastbook
+lastbook-ark is a new repository (`~/src/lastbook-ark`), not a fork. Upstream Lastbook
 (Immortal-Protocols/lastbook, MIT) and lastbook-omarchy (MIT, same code base plus Arch packaging, upstream PR #60)
 are read-only references. Reused, with attribution in NOTICE.md and file headers:
 - `runner/lastbook_llm.cpp`, `runner/fit_unused_win.cpp` (pipe-only llama.cpp runner) and the build script logic.
@@ -139,8 +139,8 @@ the grounded check where CPU scores 7/7, so the packaged app keeps the CPU path 
 (it ships its own WebKit without GStreamer otherwise); that needed `patchelf` in the build image.
 
 ## D-021 Publisher key held in 1Password; development key retired
-Decided with the project owner on 2026-11-17: a new minisign key, "Lastbook Next publisher", signs packs, catalogs and
-release checksums. Its secret exists only in 1Password (vault Eve); `build/with-signing-key.sh` fetches it into a
+Decided with the project owner on 2026-11-17: a new minisign key, "Lastbook Ark publisher", signs packs, catalogs and
+release checksums. Its secret exists only in the maintainers' 1Password vault; `build/with-signing-key.sh` fetches it into a
 private temporary file for the duration of a signing command. `keys/trusted.json` trusts only this key; the
 development key used during development was removed from the trust list and its secret deleted, so packs signed with
 it now show as untrusted. A future maintainer without this secret publishes under their own key (docs/BUILDING.md).

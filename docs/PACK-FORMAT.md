@@ -1,4 +1,4 @@
-# Lastbook Next pack format, version 1
+# Lastbook Ark pack format, version 1
 
 A **pack** is an immutable, versioned bundle of library content (documents, encyclopedia articles, videos, maps) or of
 one AI model. Packs are installed, verified, activated, rolled back and removed independently. This document is the
@@ -36,7 +36,7 @@ Transports:
   "description": "…",
   "language": "en",
   "created": "2026-11-17",
-  "publisher": {"name": "Lastbook Next contributors", "url": "https://…"},
+  "publisher": {"name": "Lastbook Ark contributors", "url": "https://…"},
   "license": {"spdx": "CC0-1.0", "attribution": "…", "file": "LICENSES/CC0-1.0.txt", "redistributable": true},
   "compat": {"min_engine_api": 1, "note": "optional text for people"},
   "resources": [ … ],

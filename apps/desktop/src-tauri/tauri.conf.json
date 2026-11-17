@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Lastbook Next",
+  "productName": "Lastbook Ark",
   "version": "0.9.0-rc.1",
-  "identifier": "org.lastbook.next",
+  "identifier": "org.lastbook.ark",
   "build": {
     "frontendDist": "../../web/dist"
   },
@@ -11,7 +11,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Lastbook Next",
+        "title": "Lastbook Ark",
         "width": 1200,
         "height": 850,
         "minWidth": 360,
@@ -44,7 +44,7 @@
     "targets": "all",
     "category": "Education",
     "shortDescription": "Offline knowledge library with optional local AI",
-    "longDescription": "Lastbook Next keeps documents, maps, videos and encyclopedias on your computer and works with every network disconnected. An optional local AI answers questions from your library with citations.",
+    "longDescription": "Lastbook Ark keeps documents, maps, videos and encyclopedias on your computer and works with every network disconnected. An optional local AI answers questions from your library with citations.",
     "license": "MIT",
     "icon": [
       "icons/32x32.png",
@@ -67,8 +67,8 @@
         ],
         "files": {
           "/usr/bin/lastbook": "../../../.dev-cache/container-target/release/lastbook",
-          "/usr/share/doc/lastbook-next/LICENSE": "../../../LICENSE",
-          "/usr/share/doc/lastbook-next/NOTICE.md": "../../../NOTICE.md"
+          "/usr/share/doc/lastbook-ark/LICENSE": "../../../LICENSE",
+          "/usr/share/doc/lastbook-ark/NOTICE.md": "../../../NOTICE.md"
         }
       },
       "appimage": {

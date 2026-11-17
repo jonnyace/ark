@@ -22,7 +22,7 @@ BT
 /F1 11 Tf
 0 -30 Td
 14 TL
-(Sample content written for Lastbook Next, based on public guidance from Ready.gov \(US) Tj T*
+(Sample content written for Lastbook Ark, based on public guidance from Ready.gov \(US) Tj T*
 (Federal Emergency Management Agency\). Check current official guidance for your area.) Tj T*
 T*
 (A basic emergency supply kit helps a household get through the first days after a) Tj T*
@@ -116,7 +116,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 9 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
 endobj
 11 0 obj
-<< /Title (Emergency Supplies Checklist - Lastbook Next sample) /Producer (lastbook-next tools/make_pdf.py) >>
+<< /Title (Emergency Supplies Checklist - Lastbook Ark sample) /Producer (lastbook-ark tools/make_pdf.py) >>
 endobj
 xref
 0 12

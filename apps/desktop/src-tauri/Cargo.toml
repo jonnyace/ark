@@ -1,6 +1,6 @@
 [package]
-name = "lastbook-next-desktop"
-description = "Lastbook Next desktop app (Tauri 2): the shared web UI over the native engine."
+name = "lastbook-ark-desktop"
+description = "Lastbook Ark desktop app (Tauri 2): the shared web UI over the native engine."
 version = "0.9.0-rc.1"
 edition = "2021"
 license = "MIT"
@@ -10,7 +10,7 @@ rust-version = "1.95"
 [workspace]
 
 [[bin]]
-name = "lastbook-next"
+name = "lastbook-ark"
 path = "src/main.rs"
 
 [build-dependencies]

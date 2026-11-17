@@ -28,7 +28,7 @@ pub fn find_runner(extra: &[PathBuf]) -> Option<PathBuf> {
     if let Some(d) = &exe_dir {
         dirs.push(d.clone());
         dirs.push(d.join("runner"));
-        dirs.push(d.join("../lib/lastbook-next/runner"));
+        dirs.push(d.join("../lib/lastbook-ark/runner"));
     }
     dirs.extend(extra.iter().cloned());
     dirs.into_iter().map(|d| d.join(RUNNER_NAME)).find(|p| p.is_file())

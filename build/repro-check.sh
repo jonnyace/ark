@@ -28,8 +28,8 @@ for i in 1 2; do LBN_ENV=CARGO_TARGET_DIR=/src/.dev-cache/repro-target-$i build/
 report "lbn-wasm module (container)" "$(h .dev-cache/repro-target-1/wasm32-unknown-unknown/release/lbn_wasm.wasm)" "$(h .dev-cache/repro-target-2/wasm32-unknown-unknown/release/lbn_wasm.wasm)"
 
 if [ "${1:-}" = "--desktop" ]; then
-  cp dist/desktop/lastbook-next_*_amd64.deb "$W/a.deb"; cp dist/desktop/lastbook-next "$W/a.bin"
+  cp dist/desktop/lastbook-ark_*_amd64.deb "$W/a.deb"; cp dist/desktop/lastbook-ark "$W/a.bin"
   build/desktop.sh >/dev/null 2>&1
-  report "desktop binary" "$(h "$W/a.bin")" "$(h dist/desktop/lastbook-next)"
-  report "desktop .deb" "$(h "$W/a.deb")" "$(h dist/desktop/lastbook-next_*_amd64.deb)"
+  report "desktop binary" "$(h "$W/a.bin")" "$(h dist/desktop/lastbook-ark)"
+  report "desktop .deb" "$(h "$W/a.deb")" "$(h dist/desktop/lastbook-ark_*_amd64.deb)"
 fi

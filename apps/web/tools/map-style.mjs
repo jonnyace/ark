@@ -8,7 +8,7 @@ import { layers, namedFlavor } from "@protomaps/basemaps";
 const [, , out, flavor = "light", lang = "en"] = process.argv;
 const style = {
   version: 8,
-  name: `Lastbook Next offline map (${flavor})`,
+  name: `Lastbook Ark offline map (${flavor})`,
   glyphs: "fonts/{fontstack}/{range}.pbf",
   sprite: `sprites/${flavor}`,
   sources: {

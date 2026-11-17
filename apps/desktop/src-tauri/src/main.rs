@@ -1,4 +1,4 @@
-// Lastbook Next desktop: the shared web UI (apps/web) in a Tauri window over the native engine (lbn-native).
+// Lastbook Ark desktop: the shared web UI (apps/web) in a Tauri window over the native engine (lbn-native).
 //
 // - `engine` IPC command: one JSON request in, one JSON reply out (lbn-core API). Engine events go to the window as
 //   "engine-event". The window's capabilities allow only these commands and events (capabilities/main.json).
@@ -290,5 +290,5 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![engine_call, pick_path, pick_text_file, save_text_file, media_base])
         .run(tauri::generate_context!())
-        .expect("error while running Lastbook Next");
+        .expect("error while running Lastbook Ark");
 }

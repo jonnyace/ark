@@ -68,7 +68,7 @@ impl Fetcher {
             .http_status_as_error(false)
             .timeout_connect(Some(Duration::from_secs(20)))
             .timeout_recv_body(Some(Duration::from_secs(60)))
-            .user_agent("lastbook-next")
+            .user_agent("lastbook-ark")
             .build()
             .into();
         Fetcher { agent }

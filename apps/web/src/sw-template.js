@@ -1,4 +1,4 @@
-// Lastbook Next service worker (generated from src/sw-template.js at build time).
+// Lastbook Ark service worker (generated from src/sw-template.js at build time).
 //
 // - Precaches every file of this app build, so the app starts with all networks off.
 // - A new build installs into a new cache; if that install fails (network lost half-way), the old worker and its

@@ -6,7 +6,7 @@
  "description": "An offline street map of central Ithaca, NY (zoom 0-15) from OpenStreetMap, with its own fonts, icons and style. 2.8 MB.",
  "language": "en",
  "created": "2026-11-15",
- "publisher": {"name": "Lastbook Next contributors", "url": "https://protomaps.com"},
+ "publisher": {"name": "Lastbook Ark contributors", "url": "https://protomaps.com"},
  "license": {"spdx": "ODbL-1.0", "attribution": "© OpenStreetMap contributors. Map data available under the Open Database License. Tiles: Protomaps basemap build 20261115 (v4.15.2).", "file": "LICENSES/ODbL-1.0.txt", "redistributable": true},
  "compat": {"min_engine_api": 1},
  "resources": [

@@ -6,7 +6,7 @@
  "description": "A small language model that runs on this computer's processor. About 1.1 GB to download and about 1.9 GB of memory while answering. Answers only from your installed library and cites its sources; it can still be wrong.",
  "language": "en",
  "created": "2026-11-17",
- "publisher": {"name": "Qwen team, Alibaba Cloud (weights); packed by Lastbook Next contributors", "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF"},
+ "publisher": {"name": "Qwen team, Alibaba Cloud (weights); packed by Lastbook Ark contributors", "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF"},
  "license": {"spdx": "Apache-2.0", "attribution": "Qwen2.5-1.5B-Instruct © Alibaba Cloud, Apache License 2.0.", "file": "model/LICENSE", "redistributable": true},
  "compat": {"min_engine_api": 1, "note": "Needs about 4 GB of RAM in total. CPU only; no graphics card needed."},
  "resources": [

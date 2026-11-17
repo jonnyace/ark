@@ -1,4 +1,4 @@
-# Building, testing and distributing Lastbook Next
+# Building, testing and distributing Lastbook Ark
 
 Everything here runs on an ordinary Linux machine with Docker. No account, service or machine of the original
 authors is needed. CI (`.github/workflows/`) only calls these same scripts.
@@ -46,11 +46,11 @@ build/repro-check.sh [--desktop]   # build twice, compare bytes
 
 ## Becoming the publisher (new maintainer)
 
-The apps trust the keys in `keys/trusted.json`, embedded at build time. Today that is the "Lastbook Next publisher" key,
+The apps trust the keys in `keys/trusted.json`, embedded at build time. Today that is the "Lastbook Ark publisher" key,
 whose secret is kept in the current maintainers' secret store (never in the repository). A maintainer who takes over
 without access to it publishes under their own key:
 
-1. `lastbook key gen ~/.config/lastbook-next/keys/publisher --name "Your project"` (keep the `.key` secret; offline
+1. `lastbook key gen ~/.config/lastbook-ark/keys/publisher --name "Your project"` (keep the `.key` secret; offline
    backup recommended).
 2. Put the public key in `keys/trusted.json` (and remove keys you do not control). The apps embed this list at build
    time; people can add more keys at run time (`trusted-keys.json` in the data folder).
@@ -58,7 +58,7 @@ without access to it publishes under their own key:
    only on disk while signing) packs (`lastbook pack build … --sign key`), catalogs (`lastbook pack sign-catalog`) and release checksums
    (`build/release.sh` with `LBN_SIGNING_KEY`).
 4. Host `dist/packs/` on any static HTTPS server (catalog + pack folders + `.lbpack` files). Range requests make
-   downloads resumable. The PWA can be hosted on the same server (`lastbook-next-web-<version>.tar.gz`); for
+   downloads resumable. The PWA can be hosted on the same server (`lastbook-ark-web-<version>.tar.gz`); for
    multi-threaded browser AI the host should send `Cross-Origin-Opener-Policy: same-origin` and
    `Cross-Origin-Embedder-Policy: require-corp` (the service worker adds them to cached responses after the first
    visit).

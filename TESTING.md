@@ -1,6 +1,6 @@
 # Testing
 
-Test machine: Beelink SER8 (AMD Ryzen, 16 threads, 27 GiB RAM), Debian 13, headless, no GPU used. Rust 1.95.0,
+Test machine: small-form-factor PC (AMD Ryzen with Radeon 780M-class iGPU, 16 threads, 27 GiB RAM), Debian 13, headless, no GPU used. Rust 1.95.0,
 Node 22.23.4, Docker 29.9. Desktop tests run in the pinned build container (Debian 13 + WebKitGTK 2.x) under Xvfb,
 driven by WebDriver (tauri-driver + WebKitWebDriver). Browser tests use Playwright 1.65.1 builds of Chromium 159,
 Firefox and WebKit 27.2. Every result below was produced by a run on this machine (dates 2026-11-16/17); nothing is
@@ -45,9 +45,9 @@ estimated unless it says so.
   WebKit ignores `default` on late-added tracks; an ask event race in the UI.
 
 ### Clean-machine install — `tests/clean-install/run.sh`
-Plain `debian:trixie-slim` (pinned digest), `apt-get install ./lastbook-next_0.9.0-rc.1_amd64.deb`: installs app,
+Plain `debian:trixie-slim` (pinned digest), `apt-get install ./lastbook-ark_0.9.0-rc.1_amd64.deb`: installs app,
 CLI and runner with dependencies resolved by apt. Then install phase 7/7 and offline phase 14/14 on
-`/usr/bin/lastbook-next`; a schema-1 personal database seeded beforehand ("older app") is migrated, its bookmark shown
+`/usr/bin/lastbook-ark`; a schema-1 personal database seeded beforehand ("older app") is migrated, its bookmark shown
 with the new citation target, a `personal-…-v1.sqlite` backup kept, and `lastbook export` writes the data.
 
 ### Browser (PWA) — `tests/e2e/browser/` (Playwright)
@@ -97,7 +97,7 @@ only). Not checked: AppImage, model packs.
 
 ### Windows build, cross-compiled from Linux and run under Wine (`build/windows-cross.sh`)
 Wine is not Windows; these results show the Windows build compiles and its non-GUI parts work.
-- `lastbook.exe`, `lastbook-next.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
+- `lastbook.exe`, `lastbook-ark.exe` (Tauri desktop) and an unsigned NSIS installer (14 MB) build with MinGW-w64.
 - All 44 Rust tests compiled for `x86_64-pc-windows-gnu` pass under Wine, including the install-safety suite against a
   real HTTP server (renames, paths, resume, tamper, rollback).
 - Windows CLI under Wine: installed the four signed sample packs, verify/search/resolve/export work.
@@ -118,7 +118,7 @@ Wine is not Windows; these results show the Windows build compiles and its non-G
 After switching to the publisher key (packs, catalog, CLI, web app and desktop rebuilt and re-signed), all steps
 passed (exit 0): fmt, clippy `-D warnings`, Rust tests, wasm32, TS drift, svelte-check, web build; browser suite
 36 passed on Chromium, Firefox and WebKit (including offline cold start on all three), plus headed Firefox drawing the
-map online and offline; desktop journey 7/7 and 14/14 offline ("signed by Lastbook Next publisher"); AppImage 14/14
+map online and offline; desktop journey 7/7 and 14/14 offline ("signed by Lastbook Ark publisher"); AppImage 14/14
 offline; clean-machine install 7/7 + 14/14 + migrated bookmark + CLI export; real-model grounded answers 7/7.
 The GPU probe ran in the previous full run (commit 12926c0). An earlier run failed once because Playwright profiles
 were in a RAM-backed /tmp; they now go to `.dev-cache/tmp`.

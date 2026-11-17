@@ -21,10 +21,10 @@ build/in-container.sh '
 '
 mkdir -p dist/desktop
 B=.dev-cache/container-target/release
-cp "$B/lastbook-next" "$B/lastbook" dist/desktop/
+cp "$B/lastbook-ark" "$B/lastbook" dist/desktop/
 rm -rf dist/desktop/runner && cp -r .dev-cache/runner-bin dist/desktop/runner   # found beside the binary when run unpacked
 VER=$(sed -n 's/^version = "\(.*\)"/\1/p' apps/desktop/src-tauri/Cargo.toml | head -1)
 rm -f dist/desktop/*.deb dist/desktop/*.AppImage
-cp "$B"/bundle/deb/*.deb "dist/desktop/lastbook-next_${VER}_amd64.deb"
-cp "$B"/bundle/appimage/*.AppImage "dist/desktop/lastbook-next_${VER}_x86_64.AppImage" 2>/dev/null || true
+cp "$B"/bundle/deb/*.deb "dist/desktop/lastbook-ark_${VER}_amd64.deb"
+cp "$B"/bundle/appimage/*.AppImage "dist/desktop/lastbook-ark_${VER}_x86_64.AppImage" 2>/dev/null || true
 ls -la dist/desktop

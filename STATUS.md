@@ -45,7 +45,7 @@ the acceptance matrix is in PLAN.md.
 - Kiwix ZIM and Lastbook 1.x map import (reported as unsupported; originals kept).
 - Native mobile apps (engine API and `lbn-core` are ready for them).
 - Very large libraries: the search index is held in memory per pack (fine for the 2.8 GB imported library).
-- **Publisher key**: decided 2026-11-17: a new "Lastbook Next publisher" key; its secret is only in 1Password (Eve);
+- **Publisher key**: decided 2026-11-17: a new "Lastbook Ark publisher" key; its secret is only in the maintainers' 1Password vault;
   the retired development key is no longer trusted. `build/public-readiness.sh` is the release gate.
 
 - Mobile browsers: the owner decided (2026-11-17) not to accept the Android SDK licence for emulator tests;

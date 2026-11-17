@@ -44,12 +44,12 @@ if [ "$DESKTOP" = 1 ]; then
   rm -rf .dev-cache/e2e/desktop-data
   LBN_ENV=LBN_DATA=/src/.dev-cache/e2e/desktop-data tests/e2e/desktop/run.sh \
     "tests/e2e/server.mjs 18787 /src/apps/web/dist /src/dist/packs > /tmp/srv.log 2>&1 & sleep 1; node tests/e2e/desktop/journey.mjs" \
-    /src/dist/desktop/lastbook-next install /src/.dev-cache/e2e
+    /src/dist/desktop/lastbook-ark install /src/.dev-cache/e2e
   LBN_NETWORK=none LBN_ENV=LBN_DATA=/src/.dev-cache/e2e/desktop-data tests/e2e/desktop/run.sh tests/e2e/desktop/journey.mjs \
-    /src/dist/desktop/lastbook-next offline /src/.dev-cache/e2e
+    /src/dist/desktop/lastbook-ark offline /src/.dev-cache/e2e
   step "AppImage, offline"
   LBN_NETWORK=none LBN_ENV=LBN_DATA=/src/.dev-cache/e2e/desktop-data tests/e2e/desktop/run.sh tests/e2e/desktop/journey.mjs \
-    "/src/dist/desktop/lastbook-next_$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)_x86_64.AppImage" offline /src/.dev-cache/e2e
+    "/src/dist/desktop/lastbook-ark_$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)_x86_64.AppImage" offline /src/.dev-cache/e2e
 fi
 if [ "$CLEAN" = 1 ]; then
   step "Clean-machine install";  tests/clean-install/run.sh

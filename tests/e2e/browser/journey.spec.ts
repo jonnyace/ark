@@ -6,7 +6,7 @@ test("install sample packs and use every viewer", async ({ page, browserName }) 
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Your offline library");
   await openCatalog(page);
-  await expect(page.getByText("signed by Lastbook Next publisher")).toBeVisible();
+  await expect(page.getByText("signed by Lastbook Ark publisher")).toBeVisible();
   for (const id of ["docs", "video", "map", "encyclopedia"]) await installFromCatalog(page, `org.lastbook.sample.${id}`);
 
   await page.goto("/#/search?q=" + encodeURIComponent("bleach drops gallon"));

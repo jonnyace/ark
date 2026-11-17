@@ -12,13 +12,13 @@ tarit() { # out.tar.gz dir [transform-name]
   tar --sort=name --mtime='2026-01-01 00:00:00Z' --owner=0 --group=0 --numeric-owner --pax-option=exthdr.name=%d/PaxHeaders/%f,delete=atime,delete=ctime \
       -C "$(dirname "$2")" -cf - "$(basename "$2")" | gzip -n -9 > "$1"
 }
-cp dist/desktop/lastbook-next_${VER}_amd64.deb "$OUT/"
-cp dist/desktop/lastbook-next_${VER}_x86_64.AppImage "$OUT/" 2>/dev/null || echo "no AppImage built"
+cp dist/desktop/lastbook-ark_${VER}_amd64.deb "$OUT/"
+cp dist/desktop/lastbook-ark_${VER}_x86_64.AppImage "$OUT/" 2>/dev/null || echo "no AppImage built"
 T=$(mktemp -d)
 mkdir -p "$T/lastbook-cli-$VER-linux-x86_64" && cp dist/desktop/lastbook LICENSE NOTICE.md "$T/lastbook-cli-$VER-linux-x86_64/"
 tarit "$OUT/lastbook-cli-$VER-linux-x86_64.tar.gz" "$T/lastbook-cli-$VER-linux-x86_64"
-cp -r apps/web/dist "$T/lastbook-next-web-$VER" && cp LICENSE NOTICE.md docs/LICENSES.md "$T/lastbook-next-web-$VER/"
-tarit "$OUT/lastbook-next-web-$VER.tar.gz" "$T/lastbook-next-web-$VER"
+cp -r apps/web/dist "$T/lastbook-ark-web-$VER" && cp LICENSE NOTICE.md docs/LICENSES.md "$T/lastbook-ark-web-$VER/"
+tarit "$OUT/lastbook-ark-web-$VER.tar.gz" "$T/lastbook-ark-web-$VER"
 cp -r .dev-cache/runner-bin "$T/lastbook-llm-b12032-linux-x86_64"
 tarit "$OUT/lastbook-llm-b12032-linux-x86_64.tar.gz" "$T/lastbook-llm-b12032-linux-x86_64"
 rm -rf "$T"
@@ -35,7 +35,7 @@ cat > "$OUT/BUILD-INFO.json" <<JSON
   "node": "$(node --version 2>/dev/null)",
   "build_image": "debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 + build/docker/Dockerfile",
   "llama_cpp": "b12032 (dde879bc4f954b809892fd0d660515f42536394a)",
-  "signing": "minisign, Lastbook Next publisher key (keys/publisher.pub), signature applied after the build"
+  "signing": "minisign, Lastbook Ark publisher key (keys/publisher.pub), signature applied after the build"
 }
 JSON
 (cd "$OUT" && find . -type f ! -name SHA256SUMS ! -name '*.minisig' -printf '%P\n' | sort | xargs sha256sum > SHA256SUMS)

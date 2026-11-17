@@ -8,7 +8,7 @@
 // --measure stops after the fit line and loads nothing.
 //
 // Requests, one a line on standard input:
-//   (lastbook-next adds optional "penalty_repeat" and "penalty_last_n" to "gen".)
+//   (lastbook-ark adds optional "penalty_repeat" and "penalty_last_n" to "gen".)
 //   {"op":"gen","id":1,"segments":[["<|turn>",true],["text",false],...],"max_tokens":1800,"temp":0.2,"top_k":64,"top_p":0.95,
 //    "min_p":0.05,"seed":1,"stop":["<|tool_response>"]}
 //       A segment marked true is template markup and its special tokens are read as such. Text marked false never is: a document
@@ -271,7 +271,7 @@ static void generate(Engine & e, const json & req) {
     const auto t1 = clock::now();
 
     llama_sampler * smpl = llama_sampler_chain_init(llama_sampler_chain_default_params());
-    // lastbook-next: optional repetition penalty over the last N generated tokens (small models can loop).
+    // lastbook-ark: optional repetition penalty over the last N generated tokens (small models can loop).
     if (req.value("penalty_repeat", 1.0f) != 1.0f) {
         llama_sampler_chain_add(smpl, llama_sampler_init_penalties(llama_vocab_n_tokens(e.vocab), req.value("penalty_last_n", 64),
                                                                    req.value("penalty_repeat", 1.0f), 0.0f, 0.0f));

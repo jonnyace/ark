@@ -65,7 +65,7 @@ for d in sorted(os.listdir(out)):
                   "manifest": f"{d}/pack.json", "manifest_sha256": hashlib.sha256(raw).hexdigest(),
                   "lbpack": f"{d}.lbpack", "lbpack_bytes": os.path.getsize(lb),
                   "lbpack_sha256": hashlib.sha256(open(lb, "rb").read()).hexdigest()})
-cat = {"format": "lastbook-catalog", "format_version": 1, "title": "Lastbook Next sample packs",
+cat = {"format": "lastbook-catalog", "format_version": 1, "title": "Lastbook Ark sample packs",
        "published": "2026-11-17", "expires": "2027-11-17", "packs": packs}
 open(os.path.join(out, "catalog.json"), "w").write(json.dumps(cat, indent=1) + "\n")
 with open(os.path.join(out, "SHA256SUMS"), "w") as f:

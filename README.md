@@ -1,4 +1,4 @@
-# Lastbook Next
+# Lastbook Ark
 
 An open-source, offline knowledge library with optional local AI. Install packs of documents, PDFs, videos,
 encyclopedias and maps once, then disconnect every network: browse, search, read, follow citations, watch and seek
@@ -19,12 +19,12 @@ No account, server, subscription, activation, CDN or remote font is ever needed 
 
 ```bash
 sha256sum -c SHA256SUMS --ignore-missing          # after `lastbook verify-file SHA256SUMS` or minisign
-sudo apt install ./lastbook-next_0.9.0-rc.1_amd64.deb
-lastbook-next                                      # or "Lastbook Next" in the application menu
+sudo apt install ./lastbook-ark_0.9.0-rc.1_amd64.deb
+lastbook-ark                                      # or "Lastbook Ark" in the application menu
 ```
 
-Tested on Debian 13 (clean container, offline). It installs `/usr/bin/lastbook-next`, the `lastbook` command-line
-tool and the local AI runner. Your library and notes live in `~/.local/share/org.lastbook.next`. Then open **Packs**:
+Tested on Debian 13 (clean container, offline). It installs `/usr/bin/lastbook-ark`, the `lastbook` command-line
+tool and the local AI runner. Your library and notes live in `~/.local/share/org.lastbook.ark`. Then open **Packs**:
 pick packs from a catalog address, or open `.lbpack` files you copied from a USB drive.
 
 ## Install (browser)

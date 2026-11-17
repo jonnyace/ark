@@ -1,5 +1,5 @@
 {
-  "name": "@lastbook-next/desktop",
+  "name": "@lastbook-ark/desktop",
   "private": true,
   "version": "0.9.0-rc.1",
   "scripts": { "tauri": "tauri" },

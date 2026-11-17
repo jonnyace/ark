@@ -1,7 +1,7 @@
 {
   # Optional Nix entry points for development and for a reproducible build of the CLI. Nix is never needed to run
   # the apps. The desktop bundles are built in the pinned container (build/desktop.sh); see DECISIONS.md D-018.
-  description = "Lastbook Next: offline knowledge library with optional local AI";
+  description = "Lastbook Ark: offline knowledge library with optional local AI";
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/b349185bb79c7cf7ad8ea8c097931730bf473c71"; # nixos-26.05, 2026-11-15
   outputs = { self, nixpkgs }:
     let
@@ -28,7 +28,7 @@
           cargoLock.lockFile = ./Cargo.lock;
           cargoBuildFlags = [ "-p" "lbn-cli" ];
           cargoTestFlags = [ "-p" "lbn-core" ];
-          meta = { description = "Build, inspect, verify, install and search Lastbook Next packs"; license = pkgs.lib.licenses.mit; mainProgram = "lastbook"; };
+          meta = { description = "Build, inspect, verify, install and search Lastbook Ark packs"; license = pkgs.lib.licenses.mit; mainProgram = "lastbook"; };
         };
         default = lastbook-cli;
       });

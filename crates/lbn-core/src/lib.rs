@@ -1,4 +1,4 @@
-//! lbn-core: the platform-independent engine of Lastbook Next.
+//! lbn-core: the platform-independent engine of Lastbook Ark.
 //!
 //! Everything here is pure computation over bytes and values: no files, no network, no clocks.
 //! Platform adapters (`lbn-native`, `lbn-wasm` + the browser worker) do the I/O and call into this crate,
