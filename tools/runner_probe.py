@@ -10,7 +10,7 @@ seg = [["<|im_start|>system\n", True], ["Answer in one sentence using only the s
        ["Source [S1]: Bring water to a rolling boil for one minute to kill germs. At elevations above 6,500 feet, boil for three minutes.\n\nQuestion: How long should I boil water at high altitude?", False],
        ["<|im_end|>\n<|im_start|>assistant\n", True]]
 t0 = time.time()
-p = subprocess.Popen([runner, "--model", model, "--ctx", "4096", *cpu, *extra], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=open("/dev/null", "w"), text=True)
+p = subprocess.Popen([runner, "--model", model, "--ctx", "4096", *cpu, *extra], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
 peak = [0]
 def watch():
     while p.poll() is None:

@@ -576,7 +576,15 @@ async function streamTo(path: string, stream: ReadableStream<Uint8Array>, from: 
       const { value, done } = await reader.read();
       if (done) break;
       if (at + value.length > size) fail("size", `${path} is larger than the manifest says`);
-      h.write(value, { at });
+      try {
+        h.write(value, { at });
+      } catch (e: any) {
+        // A full disk or browser quota is not a network problem: say so, so the person frees space instead of retrying.
+        if (e?.name === "QuotaExceededError" || /space|quota/i.test(String(e?.message))) {
+          fail("no_space", `not enough browser storage to write ${path}: free space on this device or remove packs, then resume`);
+        }
+        throw e;
+      }
       at += value.length;
       progress(value.length);
     }
