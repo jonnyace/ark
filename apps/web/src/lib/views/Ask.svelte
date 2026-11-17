@@ -92,6 +92,8 @@
         {#if result.outcome === "cancelled"}<p class="warn small">Stopped before the end.</p>{/if}
         {#if result.answer.not_found}<p class="small">The model found that the sources do not answer this.</p>{/if}
         {#if result.answer.uncited}<p class="warn small">The model did not mark which source each sentence came from. Check the sources below before relying on it.</p>{/if}
+        {#if result.answer.unverified_numbers.length}<p class="bad small" data-testid="unverified" role="alert">Check these numbers yourself: {result.answer.unverified_numbers.join(", ")} {result.answer.unverified_numbers.length === 1 ? "does" : "do"} not appear in the source cited for {result.answer.unverified_numbers.length === 1 ? "it" : "them"}. The model may have misread the source.</p>{/if}
+        {#if result.answer.repeats_removed}<p class="warn small">Removed {result.answer.repeats_removed} repeated sentence{result.answer.repeats_removed === 1 ? "" : "s"}.</p>{/if}
         {#if result.answer.unknown_keys.length}<p class="warn small">Removed references to sources it was not given: {result.answer.unknown_keys.join(", ")}.</p>{/if}
       {/if}
       <h2>Sources it was given</h2>

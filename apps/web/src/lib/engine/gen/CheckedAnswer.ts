@@ -21,4 +21,13 @@ not_found: boolean,
 /**
  * True when the answer has text but cites nothing: shown with a warning.
  */
-uncited: boolean, };
+uncited: boolean, 
+/**
+ * Numbers (doses, quantities, times) in cited sentences that do not appear in the sources those sentences cite.
+ * Shown as a warning: the model may have misread or invented them.
+ */
+unverified_numbers: Array<string>, 
+/**
+ * Sentences dropped because they repeated an earlier sentence word for word.
+ */
+repeats_removed: number, };

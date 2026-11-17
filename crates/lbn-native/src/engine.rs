@@ -874,11 +874,26 @@ impl NativeEngine {
         }
         status("generating");
         let prompt = rag::build_prompt(tpl, q, &sources);
-        let g = self.ai.generate(&prompt, &info.defaults, &tpl.stop(), |t| self.emit(Event::AskToken { ask: ask.into(), text: t.into() }), || cancel.load(Ordering::Relaxed))?;
+        // Stop early when the model starts repeating itself (small models can loop until the token limit).
+        let written = std::cell::RefCell::new(String::new());
+        let looped = std::cell::Cell::new(false);
+        let g = self.ai.generate(
+            &prompt,
+            &info.defaults,
+            &tpl.stop(),
+            |t| {
+                written.borrow_mut().push_str(t);
+                if t.contains(['.', ']', '!', '?']) && rag::is_looping(&written.borrow()) {
+                    looped.set(true);
+                }
+                self.emit(Event::AskToken { ask: ask.into(), text: t.into() })
+            },
+            || cancel.load(Ordering::Relaxed) || looped.get(),
+        )?;
         let mut checked = rag::check_answer(&g.text, &sources);
         // Every cited target must exist in the installed library.
         checked.cited.retain(|c| self.resolve(&c.citation).valid);
-        let outcome = if g.reason == "cancel" { "cancelled" } else { "answered" };
+        let outcome = if g.reason == "cancel" && !looped.get() { "cancelled" } else { "answered" };
         if outcome == "answered" {
             let _ = self.personal.save_answer(&SavedAnswer {
                 id: ask.into(),

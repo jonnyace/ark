@@ -11,7 +11,7 @@ https://github.com/jonnyace/lastbook-omarchy (upstream PR #60).
 
 | What | Where here | How |
 |---|---|---|
-| `packaging/llm/lastbook_llm.cpp`, `fit_unused_win.cpp` — pipe-only llama.cpp runner | `runner/` | Copied unchanged |
+| `packaging/llm/lastbook_llm.cpp`, `fit_unused_win.cpp` — pipe-only llama.cpp runner | `runner/` | Copied; lastbook-next adds an optional repetition penalty to `gen` |
 | `packaging/llm/build_llm_linux.sh` | `runner/build.sh` | Adapted (CPU default, optional Vulkan, Ninja optional) |
 | Library safety rules: stage beside, verify every SHA-256, switch atomically, unpack guards | `crates/lbn-core/src/{path,install}.rs`, `crates/lbn-native` | Re-implemented in Rust |
 | Assistant rules: cite every claim, never invent keys, "Not found in the library", retrieved text is untrusted | `crates/lbn-core/src/rag.rs` | Rewritten for a small model |

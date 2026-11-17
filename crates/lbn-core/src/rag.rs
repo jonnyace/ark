@@ -172,6 +172,13 @@ pub struct CheckedAnswer {
     pub not_found: bool,
     /// True when the answer has text but cites nothing: shown with a warning.
     pub uncited: bool,
+    /// Numbers (doses, quantities, times) in cited sentences that do not appear in the sources those sentences cite.
+    /// Shown as a warning: the model may have misread or invented them.
+    #[serde(default)]
+    pub unverified_numbers: Vec<String>,
+    /// Sentences dropped because they repeated an earlier sentence word for word.
+    #[serde(default)]
+    pub repeats_removed: u32,
 }
 
 /// Normalise and check an answer against the sources it was given.
@@ -243,9 +250,135 @@ pub fn check_answer(raw: &str, sources: &[Source]) -> CheckedAnswer {
     }
     cleaned.push_str(r);
     let cleaned = cleaned.replace(" .", ".").trim().to_string();
+    let (cleaned, repeats_removed) = drop_repeats(&cleaned);
+    let unverified_numbers = unverified_numbers(&cleaned, sources);
     let not_found = cleaned.to_lowercase().contains("not found in the library");
     let uncited = !not_found && cited.is_empty() && !cleaned.is_empty();
-    CheckedAnswer { text: cleaned, cited, unknown_keys: unknown, not_found, uncited }
+    CheckedAnswer { text: cleaned, cited, unknown_keys: unknown, not_found, uncited, unverified_numbers, repeats_removed }
+}
+
+/// Split after sentence ends, keeping the citation keys that follow a sentence with it.
+fn sentences(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let chars: Vec<char> = text.chars().collect();
+    let mut i = 0;
+    while i < chars.len() {
+        cur.push(chars[i]);
+        if matches!(chars[i], '.' | '!' | '?' | '\n') {
+            // absorb trailing citation keys: ". [S1][S2]"
+            let mut j = i + 1;
+            let mut tail = String::new();
+            while j < chars.len() && (chars[j] == ' ' || chars[j] == '[') {
+                if chars[j] == '[' {
+                    let close = chars[j..].iter().position(|&c| c == ']');
+                    match close {
+                        Some(k) if k <= 5 => {
+                            tail.extend(&chars[j..=j + k]);
+                            j += k + 1;
+                            continue;
+                        }
+                        _ => break,
+                    }
+                }
+                tail.push(chars[j]);
+                j += 1;
+            }
+            if tail.contains('[') {
+                cur.push_str(tail.trim_end());
+                i = j;
+            } else {
+                i += 1;
+            }
+            out.push(std::mem::take(&mut cur));
+            continue;
+        }
+        i += 1;
+    }
+    if !cur.trim().is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
+/// True when the text being written has started to loop: its last complete sentence already appeared twice before.
+/// Used to stop generation early (the repeats are removed by `check_answer` anyway).
+pub fn is_looping(text: &str) -> bool {
+    let all = sentences(text);
+    // Only complete sentences count; the last element may still be growing.
+    let complete: Vec<String> = all.iter().filter(|s| s.trim_end().ends_with(['.', '!', '?', ']'])).map(|s| norm_sentence(s)).collect();
+    let Some(last) = complete.last() else { return false };
+    last.len() > 8 && complete.iter().filter(|s| *s == last).count() >= 3
+}
+
+fn norm_sentence(s: &str) -> String {
+    let mut t = String::new();
+    let mut in_key = false;
+    for c in s.chars() {
+        match c {
+            '[' => in_key = true,
+            ']' => in_key = false,
+            c if !in_key && c.is_alphanumeric() => t.extend(c.to_lowercase()),
+            _ => {}
+        }
+    }
+    t
+}
+
+fn drop_repeats(text: &str) -> (String, u32) {
+    let mut seen = std::collections::HashSet::new();
+    let mut out = String::new();
+    let mut removed = 0;
+    for s in sentences(text) {
+        let n = norm_sentence(&s);
+        if n.len() > 8 && !seen.insert(n) {
+            removed += 1;
+            continue;
+        }
+        out.push_str(&s);
+    }
+    let out = out.trim().to_string();
+    // A sentence cut off by the length limit after a loop is dropped too.
+    (out, removed)
+}
+
+/// Numbers in a sentence, normalised ("1,000" -> "1000", "6.5" stays): digits only, so "8 drops" -> "8".
+fn numbers(s: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let chars: Vec<char> = s.chars().collect();
+    for (i, &c) in chars.iter().enumerate() {
+        if c.is_ascii_digit() || (c == '.' && !cur.is_empty() && chars.get(i + 1).is_some_and(|n| n.is_ascii_digit())) {
+            cur.push(c);
+        } else if c == ',' && !cur.is_empty() && chars.get(i + 1).is_some_and(|n| n.is_ascii_digit()) {
+            // thousands separator
+        } else if !cur.is_empty() {
+            out.push(std::mem::take(&mut cur));
+        }
+    }
+    if !cur.is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
+fn unverified_numbers(text: &str, sources: &[Source]) -> Vec<String> {
+    let mut bad = Vec::new();
+    for s in sentences(text) {
+        let keys: Vec<&str> = sources.iter().map(|x| x.key.as_str()).filter(|k| s.contains(&format!("[{k}]"))).collect();
+        if keys.is_empty() {
+            continue;
+        }
+        let body: String = s.split('[').next().unwrap_or("").to_string();
+        let src_nums: std::collections::HashSet<String> =
+            sources.iter().filter(|x| keys.contains(&x.key.as_str())).flat_map(|x| numbers(&x.text)).collect();
+        for n in numbers(&body) {
+            if !src_nums.contains(&n) && !bad.contains(&n) {
+                bad.push(n);
+            }
+        }
+    }
+    bad
 }
 
 fn is_key(k: &str) -> bool {
@@ -310,5 +443,25 @@ mod tests {
         assert!(c.not_found && !c.uncited);
         let d = check_answer("See [note] and [S1", &s);
         assert_eq!(d.text, "See [note] and [S1");
+    }
+
+    #[test]
+    fn flags_numbers_not_in_cited_sources_and_drops_loops() {
+        let s = select_sources(
+            "bleach water",
+            &[src(1, "Add 8 drops of bleach per gallon of water; use 5 teaspoons for a 200-liter barrel."), src(2, "Boil water for 1 minute.")],
+            &RetrievalConfig::default(),
+        )
+        .unwrap();
+        let a = check_answer("Add 8 drops per gallon [S1]. Add 20 liters for a 200-liter barrel [S1]. Boil for 1 minute [S2]. Boil for 1 minute [S2]. Boil for 1 minute [S2].", &s);
+        assert_eq!(a.unverified_numbers, vec!["20"]);
+        assert_eq!(a.repeats_removed, 2);
+        assert_eq!(a.text.matches("Boil for 1 minute").count(), 1);
+        // A number checked against the wrong source is flagged too.
+        let b = check_answer("Boil for 8 minutes [S2].", &s);
+        assert_eq!(b.unverified_numbers, vec!["8"]);
+        assert!(check_answer("Use 1,000 mL [S1].", &s).unverified_numbers == vec!["1000"]);
+        assert!(!is_looping("Boil for 1 minute [S2]. Boil for 1 minute [S2]. Boil"));
+        assert!(is_looping("Boil for 1 minute [S2]. Cool it. Boil for 1 minute [S2]. Boil for 1 minute [S2]."));
     }
 }

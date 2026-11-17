@@ -754,7 +754,17 @@ async function runAsk(askId: string, q: string, model: string, signal: AbortSign
   }
   if (ai.loadedPack() !== model) { status("loading_model"); await loadModel(model); }
   status("generating");
-  const g = await ai.generate(prep.prompt, info.defaults, prep.stop, (t) => emit({ event: "ask_token", data: { ask: askId, text: t } }), signal);
+  // Stop early when the model starts repeating itself (the repeats are removed when the answer is checked).
+  const loop = new AbortController();
+  signal.addEventListener("abort", () => loop.abort());
+  let written = "";
+  let looped = false;
+  const g = await ai.generate(prep.prompt, info.defaults, prep.stop, (t) => {
+    written += t;
+    if (/[.!?\]]/.test(t) && core.is_looping(written)) { looped = true; loop.abort(); }
+    emit({ event: "ask_token", data: { ask: askId, text: t } });
+  }, loop.signal);
+  if (looped) g.cancelled = false;
   const checked = JSON.parse(coreCall(() => core.check_answer(g.text, JSON.stringify(prep.sources))));
   const valid = [];
   for (const c of checked.cited) if ((await resolve(c.citation)).valid) valid.push(c);

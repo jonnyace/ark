@@ -224,7 +224,8 @@ impl Ai {
         let l = guard.as_mut().ok_or_else(|| NativeError::coded("no_model", "no model is loaded"))?;
         let segs: Vec<Value> = segments.iter().map(|Segment(t, sp)| json!([t, sp])).collect();
         let req = json!({"op": "gen", "id": 1, "segments": segs, "max_tokens": s.max_tokens, "temp": s.temperature,
-                         "top_k": s.top_k, "top_p": s.top_p, "min_p": s.min_p, "seed": s.seed, "stop": stop});
+                         "top_k": s.top_k, "top_p": s.top_p, "min_p": s.min_p, "seed": s.seed, "stop": stop,
+                         "penalty_repeat": s.repeat_penalty, "penalty_last_n": s.repeat_last_n});
         writeln!(l.stdin, "{req}")?;
         l.stdin.flush()?;
         let mut text = String::new();

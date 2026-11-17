@@ -1,6 +1,6 @@
 {
  "id": "org.lastbook.model.qwen2.5-1.5b-instruct",
- "version": "2.5.0-q4km.1",
+ "version": "2.5.0-q4km.2",
  "kind": "model",
  "title": "Local AI: Qwen2.5 1.5B Instruct (recommended)",
  "description": "A small language model that runs on this computer's processor. About 1.1 GB to download and about 1.9 GB of memory while answering. Answers only from your installed library and cites its sources; it can still be wrong.",
@@ -25,7 +25,7 @@
   "template": "chatml",
   "context_length": 4096,
   "parameters": "1.54B",
-  "defaults": {"temperature": 0.1, "top_k": 40, "top_p": 0.9, "min_p": 0.05, "max_tokens": 400, "seed": 1},
+  "defaults": {"temperature": 0.1, "top_k": 40, "top_p": 0.9, "min_p": 0.05, "max_tokens": 400, "seed": 1, "repeat_penalty": 1.1, "repeat_last_n": 64},
   "memory_bytes": 1900000000,
   "min_ram_bytes": 4000000000,
   "languages": ["en", "zh", "fr", "es", "de", "pt", "ru", "ja", "ko", "vi", "th", "ar"]

@@ -464,6 +464,12 @@ fn run(cli: Cli) -> R<()> {
                                             if a.uncited {
                                                 println!("(warning: the model did not cite its sources; check the sources below)");
                                             }
+                                            if !a.unverified_numbers.is_empty() {
+                                                println!("(warning: these numbers are not in the cited sources; check them: {})", a.unverified_numbers.join(", "));
+                                            }
+                                            if a.repeats_removed > 0 {
+                                                println!("(removed {} repeated sentences)", a.repeats_removed);
+                                            }
                                             if !a.unknown_keys.is_empty() {
                                                 println!("(removed citations to sources it was not given: {})", a.unknown_keys.join(", "));
                                             }

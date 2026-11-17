@@ -120,6 +120,18 @@ pub struct GenSettings {
     pub min_p: f32,
     pub max_tokens: u32,
     pub seed: u32,
+    /// Repetition penalty (1.0 = off) over the last `repeat_last_n` generated tokens.
+    #[serde(default = "one")]
+    pub repeat_penalty: f32,
+    #[serde(default = "sixty_four")]
+    pub repeat_last_n: u32,
+}
+
+fn one() -> f32 {
+    1.0
+}
+fn sixty_four() -> u32 {
+    64
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]

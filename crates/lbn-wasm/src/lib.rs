@@ -237,3 +237,9 @@ pub fn parse_catalog(bytes: &[u8], today: &str) -> Result<String, JsValue> {
     let expired = lbn_core::catalog::is_expired(&c, today);
     Ok(serde_json::json!({"catalog": c, "expired": expired}).to_string())
 }
+
+/// True when the streamed answer has started to loop (stop generating).
+#[wasm_bindgen]
+pub fn is_looping(text: &str) -> bool {
+    rag::is_looping(text)
+}

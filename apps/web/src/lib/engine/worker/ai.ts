@@ -93,7 +93,7 @@ export async function load(pack: string, file: File, ctx: number) {
 
 export async function generate(
   prompt: string,
-  s: { temperature: number; top_k: number; top_p: number; min_p: number; max_tokens: number; seed: number },
+  s: { temperature: number; top_k: number; top_p: number; min_p: number; max_tokens: number; seed: number; repeat_penalty?: number; repeat_last_n?: number },
   stop: string[],
   onToken: (t: string) => void,
   signal: AbortSignal,
@@ -114,6 +114,8 @@ export async function generate(
       top_p: s.top_p,
       min_p: s.min_p,
       seed: s.seed,
+      penalty_repeat: s.repeat_penalty ?? 1.0,
+      penalty_last_n: s.repeat_last_n ?? 64,
       stop,
       abortSignal: signal,
       onData: (chunk: any) => {
