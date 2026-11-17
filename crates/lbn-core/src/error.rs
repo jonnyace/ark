@@ -30,8 +30,8 @@ impl Error {
         match self {
             Error::Manifest(_) => "manifest",
             Error::UnsafePath { .. } => "unsafe_path",
-            Error::SizeMismatch { .. } => "size_mismatch",
-            Error::HashMismatch { .. } => "hash_mismatch",
+            Error::SizeMismatch { .. } => "size",
+            Error::HashMismatch { .. } => "checksum",
             Error::Signature(_) => "signature",
             Error::Incompatible(_) => "incompatible",
             Error::Index(_) => "index",

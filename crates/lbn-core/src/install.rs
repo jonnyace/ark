@@ -149,12 +149,7 @@ pub struct JobProgress {
 }
 
 pub fn job_error(e: &Error) -> JobError {
-    let code = match e {
-        Error::SizeMismatch { .. } => "size",
-        Error::HashMismatch { .. } => "checksum",
-        other => other.code(),
-    };
-    JobError { code: code.into(), message: e.to_string() }
+    JobError { code: e.code().into(), message: e.to_string() }
 }
 
 #[cfg(test)]
@@ -181,7 +176,7 @@ mod tests {
     fn checks_files() {
         let f = FileEntry { path: "x".into(), size: 3, sha256: sha256_hex(b"abc") };
         assert!(check_file(&f, 3, &sha256_hex(b"abc")).is_ok());
-        assert_eq!(check_file(&f, 3, &sha256_hex(b"abd")).unwrap_err().code(), "hash_mismatch");
+        assert_eq!(check_file(&f, 3, &sha256_hex(b"abd")).unwrap_err().code(), "checksum");
         assert_eq!(job_error(&check_file(&f, 4, "").unwrap_err()).code, "size");
     }
 
