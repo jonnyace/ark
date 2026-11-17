@@ -16,9 +16,12 @@
     const r = res;
     (async () => {
       const t = eng().t;
-      src = await t.fileUrl(r.pack, r.path);
-      if (r.transcript) vtt = await t.fileUrl(r.pack, r.transcript);
+      const media = await t.mediaUrl(r.pack, r.path);
+      // Captions are read through the transport and handed to <track> as a local Blob URL: this works the same in
+      // browsers and in WebKitGTK, whose track loader does not read custom schemes.
+      if (r.transcript) vtt = URL.createObjectURL(new Blob([await t.readFile(r.pack, r.transcript)], { type: "text/vtt" }));
       if (r.poster) poster = await t.fileUrl(r.pack, r.poster);
+      src = media; // render the <video> only now, with its track: WebKit ignores `default` on tracks added later
     })().catch((e) => (err = `This video could not be opened: ${e.message}`));
   });
   $effect(() => {
@@ -31,6 +34,10 @@
   function loaded() {
     seek(start);
   }
+  $effect(() => {
+    // Make sure the caption track loads even where `default` was not applied.
+    if (video && vtt && video.textTracks[0] && video.textTracks[0].mode === "disabled") video.textTracks[0].mode = "showing";
+  });
   function trackLoaded(e: Event) {
     const tt = (e.target as HTMLTrackElement).track;
     cues = Array.from(tt.cues ?? []).map((c: any) => ({ start: c.startTime, end: c.endTime, text: c.text.replace(/<[^>]+>/g, "") }));

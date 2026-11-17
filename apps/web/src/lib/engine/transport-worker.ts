@@ -71,6 +71,9 @@ export async function createWorkerTransport(): Promise<Transport> {
       if (!urls.has(key)) urls.set(key, URL.createObjectURL(await opfsFile(pack, path)));
       return urls.get(key)!;
     },
+    mediaUrl(pack, path) {
+      return this.fileUrl(pack, path);
+    },
     readFile: async (pack, path) => (await opfsFile(pack, path)).arrayBuffer(),
     readRange: async (pack, path, offset, length) => (await opfsFile(pack, path)).slice(offset, offset + length).arrayBuffer(),
     async pickPackSource(kind) {

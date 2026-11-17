@@ -11,12 +11,16 @@ const url = (pack: string, path: string) => `${base}/${encodeURIComponent(pack)}
 
 export async function createTauriTransport(): Promise<Transport> {
   let cb: (e: Event) => void = () => {};
+  const media = await invoke<string | null>("media_base");
   await listen<string>("engine-event", (e) => cb(JSON.parse(e.payload)));
   return {
     platform: "desktop",
-    send: (json) => invoke<string>("engine", { request: json }),
+    send: (json) => invoke<string>("engine_call", { request: json }),
     onEvent: (f) => { cb = f; },
     fileUrl: async (pack, path) => url(pack, path),
+    // WebKitGTK cannot play media from a custom scheme; the app's loopback media responder serves it (see main.rs).
+    mediaUrl: async (pack, path) =>
+      media ? `${media}/${encodeURIComponent(pack)}/${path.split("/").map(encodeURIComponent).join("/")}` : url(pack, path),
     async readFile(pack, path) {
       const r = await fetch(url(pack, path));
       if (!r.ok) throw new Error(`${path}: ${r.status}`);

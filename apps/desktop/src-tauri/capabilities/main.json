@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "main",
+  "description": "The app's own window: engine calls and engine events only. No remote content, no shell, no filesystem plugin.",
+  "windows": ["main"],
+  "permissions": ["core:event:default", "core:app:default"]
+}

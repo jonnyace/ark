@@ -1,6 +1,8 @@
 [workspace]
 resolver = "2"
 members = ["crates/lbn-core", "crates/lbn-native", "crates/lbn-cli", "crates/lbn-wasm"]
+# The desktop app is its own workspace (it needs platform SDKs; see build/desktop.sh).
+exclude = ["apps/desktop/src-tauri"]
 
 [workspace.package]
 version = "0.9.0-rc.1"

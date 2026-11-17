@@ -12,6 +12,8 @@ export interface Transport {
   onEvent(cb: (e: Event) => void): void;
   /** URL a <video>, <img> or pdf.js can load for a pack file. */
   fileUrl(pack: string, path: string): Promise<string>;
+  /** URL for <video>/<audio> (may differ from fileUrl where the media stack needs plain HTTP). */
+  mediaUrl(pack: string, path: string): Promise<string>;
   /** Whole file contents (small files: HTML, VTT, styles, glyphs). */
   readFile(pack: string, path: string): Promise<ArrayBuffer>;
   /** Byte range of a file (PMTiles). */
