@@ -1,0 +1,16 @@
+import { defineConfig } from "@playwright/test";
+
+// Browser suite for the PWA. The server serves the built app and dist/test-packs (tests/e2e/make-test-packs.sh).
+export default defineConfig({
+  testDir: "browser",
+  timeout: 120_000,
+  workers: 1,
+  reporter: [["list"], ["json", { outputFile: "../../.dev-cache/e2e/browser-results.json" }]],
+  use: { baseURL: "http://127.0.0.1:18787/", viewport: { width: 1100, height: 900 }, screenshot: "only-on-failure" },
+  outputDir: "../../.dev-cache/e2e/browser-output",
+  webServer: {
+    command: "node server.mjs 18787 ../../apps/web/dist ../../dist/test-packs",
+    url: "http://127.0.0.1:18787/",
+    reuseExistingServer: false,
+  },
+});

@@ -17,6 +17,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".mjs": "text/ja
 const faults = new Map();
 let down = false;
 const counts = new Map();
+const log = []; // [path, range header] of every request, for tests that check resumption
 
 function send(req, res, file) {
   let st;
@@ -46,8 +47,11 @@ function send(req, res, file) {
     s.on("data", (chunk) => {
       if (f.corrupt) { chunk = Buffer.from(chunk); chunk[0] ^= 0xff; f.corrupt = false; }
       if (f.cutAfter != null && sent + chunk.length > f.cutAfter) {
-        res.write(chunk.subarray(0, Math.max(0, f.cutAfter - sent)));
-        s.destroy(); res.destroy(); return;
+        // Send what fits, stall, then drop the connection: the client sees a body shorter than Content-Length, as when
+        // a real connection dies. (Closing at once would let the browser discard the still-queued bytes.)
+        s.destroy();
+        res.write(chunk.subarray(0, Math.max(0, f.cutAfter - sent)), () => setTimeout(() => res.socket?.destroy(), 1500));
+        return;
       }
       sent += chunk.length;
       res.write(chunk);
@@ -68,8 +72,10 @@ http.createServer((req, res) => {
     });
     return;
   }
+  if (url.pathname === "/__log") { res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify(log)); return; }
   if (url.pathname === "/__counts") { res.writeHead(200, { "Content-Type": "application/json" }).end(JSON.stringify(Object.fromEntries(counts))); return; }
   counts.set(url.pathname, (counts.get(url.pathname) ?? 0) + 1);
+  log.push([url.pathname, req.headers.range ?? null]);
   const p = decodeURIComponent(url.pathname);
   if (p.startsWith("/packs/")) {
     if (down) { res.destroy(); return; }
