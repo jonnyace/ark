@@ -185,7 +185,7 @@ pub struct CheckedAnswer {
 
 /// Normalise and check an answer against the sources it was given.
 pub fn check_answer(raw: &str, sources: &[Source]) -> CheckedAnswer {
-    // [S1, S2] / [S1; S2] / [S1 S2] -> [S1][S2]
+    // [S1, S2] / [S1; S2] / [S1 S2] / [Source S2] / [Sources S1 and S2] -> [S1][S2]
     let mut text = String::new();
     let mut rest = raw.trim();
     while let Some(i) = rest.find('[') {
@@ -194,8 +194,11 @@ pub fn check_answer(raw: &str, sources: &[Source]) -> CheckedAnswer {
         match after.find(']') {
             Some(j) if j <= 40 => {
                 let inner = &after[..j];
-                let keys: Vec<&str> =
-                    inner.split(|c: char| c == ',' || c == ';' || c.is_whitespace()).filter(|k| !k.is_empty()).collect();
+                // Small models sometimes spell a citation out ("[Source S2] recommends ..."); it is still a citation.
+                let keys: Vec<&str> = inner
+                    .split(|c: char| c == ',' || c == ';' || c.is_whitespace())
+                    .filter(|k| !k.is_empty() && !["source", "sources", "and"].contains(&k.to_lowercase().as_str()))
+                    .collect();
                 if !keys.is_empty() && keys.iter().all(|k| is_key(k)) {
                     for k in keys {
                         text.push_str(&format!("[{}]", k.to_uppercase()));
@@ -532,6 +535,10 @@ mod tests {
         assert_eq!(a.cited[0].citation, "lbn:p.a.b/r1#page=1");
         assert_eq!(a.unknown_keys, vec!["S9"]);
         assert!(!a.uncited);
+        let spelled = check_answer("[Source S2] says boil it. Cool it [Sources S1 and S2].", &s);
+        assert_eq!(spelled.text, "[S2] says boil it. Cool it [S1][S2].");
+        assert!(!spelled.uncited);
+        assert_eq!(check_answer("See [Source notes] here.", &s).text, "See [Source notes] here.");
         let b = check_answer("Just boil it.", &s);
         assert!(b.uncited);
         let c = check_answer("Not found in the library.", &s);
