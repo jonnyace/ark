@@ -27,6 +27,9 @@ docker run --name "$NAME" "${MOUNTS[@]}" ark-library-arch-build:dev bash -c "
   su builder -c 'cd /build && makepkg --noconfirm --nodeps 2>&1' > /out/makepkg.log 2>&1 || { tail -40 /out/makepkg.log; exit 1; }
   grep -E 'Finished making|test result' /out/makepkg.log | tail -6
   cp /build/*.pkg.tar.zst /out/
+  # The test image is cached, so its package database ages: bring the system to today's repository first (a full -Syu;
+  # Arch does not support partial upgrades), or pacman asks the mirrors for package versions they no longer have.
+  pacman -Syu --noconfirm > /out/pacman-sync.log 2>&1 || { tail -20 /out/pacman-sync.log; exit 1; }
   pacman -U --noconfirm /out/ark-library-*.pkg.tar.zst > /out/pacman.log 2>&1 || { tail -20 /out/pacman.log; exit 1; }
   pacman -Q ark-library gst-plugin-dav1d gst-libav
   ls /usr/lib/ark-library/runner/lastbook-llm
