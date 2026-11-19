@@ -13,7 +13,7 @@ endobj
 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>
 endobj
 5 0 obj
-<< /Length 920 >>
+<< /Length 911 >>
 stream
 BT
 /F2 18 Tf
@@ -22,8 +22,8 @@ BT
 /F1 11 Tf
 0 -30 Td
 14 TL
-(Sample content written for Lastbook Ark, based on public guidance from Ready.gov \(US) Tj T*
-(Federal Emergency Management Agency\). Check current official guidance for your area.) Tj T*
+(Sample content written for Ark, based on public guidance from Ready.gov \(US Federal) Tj T*
+(Emergency Management Agency\). Check current official guidance for your area.) Tj T*
 T*
 (A basic emergency supply kit helps a household get through the first days after a) Tj T*
 (disaster, when power, water and shops may not be available.) Tj T*
@@ -116,7 +116,7 @@ endobj
 << /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 9 0 R /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> >>
 endobj
 11 0 obj
-<< /Title (Emergency Supplies Checklist - Lastbook Ark sample) /Producer (lastbook-ark tools/make_pdf.py) >>
+<< /Title (Emergency Supplies Checklist - Ark sample) /Producer (ark-library tools/make_pdf.py) >>
 endobj
 xref
 0 12
@@ -126,14 +126,14 @@ xref
 0000000134 00000 n 
 0000000231 00000 n 
 0000000333 00000 n 
-0000001304 00000 n 
-0000001440 00000 n 
-0000002128 00000 n 
-0000002264 00000 n 
-0000002907 00000 n 
-0000003044 00000 n 
+0000001295 00000 n 
+0000001431 00000 n 
+0000002119 00000 n 
+0000002255 00000 n 
+0000002898 00000 n 
+0000003035 00000 n 
 trailer
 << /Size 12 /Root 1 0 R /Info 11 0 R /ID [<6c626e2d73616d706c652d706466> <6c626e2d73616d706c652d706466>] >>
 startxref
-3169
+3150
 %%EOF
