@@ -1,0 +1,71 @@
+{
+  "format": "lastbook-pack",
+  "format_version": 1,
+  "id": "org.lastbook.sample.video",
+  "version": "2026.11.17",
+  "kind": "video",
+  "title": "Sample video: storing drinking water",
+  "description": "A 40-second captioned video with a WebVTT transcript, for testing playback, seeking and timestamp citations.",
+  "language": "en",
+  "created": "2026-11-17",
+  "publisher": {
+    "name": "Ark contributors"
+  },
+  "license": {
+    "spdx": "CC0-1.0",
+    "attribution": "Made for Ark with tools/make_video.py; dedicated to the public domain.",
+    "file": "LICENSES/CC0-1.0.txt",
+    "redistributable": true
+  },
+  "compat": {
+    "min_engine_api": 1
+  },
+  "resources": [
+    {
+      "id": "storing-water",
+      "type": "video",
+      "title": "Storing drinking water",
+      "path": "res/storing-water.webm",
+      "media_type": "video/webm",
+      "source": {
+        "publisher": "Ark contributors",
+        "retrieved": "2026-11-17"
+      },
+      "duration_s": 40.0,
+      "transcript": "res/storing-water.en.vtt",
+      "poster": "res/storing-water.poster.webp",
+      "category": "water",
+      "summary": "How much water to store, for how long, in what containers, and when to replace it."
+    }
+  ],
+  "files": [
+    {
+      "path": "LICENSES/CC0-1.0.txt",
+      "size": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": "index/search.lbi",
+      "size": 761,
+      "sha256": "c81353bbaa510dd7fc059526437908c309b6a391598702016539e0cdf64a7ae6"
+    },
+    {
+      "path": "res/storing-water.en.vtt",
+      "size": 466,
+      "sha256": "b5ae2381442687edeecae2b13f3768098307aac791e1121caa7690f26a4c885e"
+    },
+    {
+      "path": "res/storing-water.poster.webp",
+      "size": 9842,
+      "sha256": "238c4226aa2189636c2e811d200b3580a9a578bc8dee5745389a833f319e5f4b"
+    },
+    {
+      "path": "res/storing-water.webm",
+      "size": 872771,
+      "sha256": "de309738e9436829da80dc2da218e09cc5597eca193dfebf83ab34b6d78dc5e7"
+    }
+  ],
+  "index": {
+    "search": "index/search.lbi"
+  }
+}

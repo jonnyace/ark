@@ -1,0 +1,53 @@
+{
+ "format": "lastbook-catalog",
+ "format_version": 1,
+ "title": "Ark sample packs",
+ "published": "2026-11-17",
+ "expires": "2027-11-17",
+ "packs": [
+  {
+   "id": "org.lastbook.sample.docs",
+   "version": "2026.11.17",
+   "kind": "documents",
+   "title": "Sample documents: safe water and emergency supplies",
+   "description": "A short guide to making water safe to drink and a three-page emergency supplies checklist (PDF). Sample content for testing Ark; check current official guidance.",
+   "license": "CC0-1.0",
+   "bytes": 19471,
+   "manifest": "org.lastbook.sample.docs/pack.json",
+   "manifest_sha256": "5b60cb2e35ec1d66589d2503ffe2d1dc5af72b31739b38887dde7796205e86a2"
+  },
+  {
+   "id": "org.lastbook.sample.encyclopedia",
+   "version": "2026.11.17",
+   "kind": "encyclopedia",
+   "title": "Sample encyclopedia",
+   "description": "Three short articles (boiling point, magnetic compass, water cycle) for testing encyclopedia packs and cross-pack search.",
+   "license": "CC0-1.0",
+   "bytes": 13123,
+   "manifest": "org.lastbook.sample.encyclopedia/pack.json",
+   "manifest_sha256": "76478bc456837c9672e79bd571b9cc2e4ac1f454d72cf615562b0f7ede4063de"
+  },
+  {
+   "id": "org.lastbook.sample.map",
+   "version": "2026.11.15",
+   "kind": "map",
+   "title": "Sample map: Ithaca, New York",
+   "description": "An offline street map of central Ithaca, NY (zoom 0-15) from OpenStreetMap, with its own fonts, icons and style. 2.8 MB.",
+   "license": "ODbL-1.0",
+   "bytes": 2836042,
+   "manifest": "org.lastbook.sample.map/pack.json",
+   "manifest_sha256": "4c90ec2fd315fcb0b6e299f979df8714b60a2a4abd1919b6e7740206a99dc729"
+  },
+  {
+   "id": "org.lastbook.sample.video",
+   "version": "2026.11.17",
+   "kind": "video",
+   "title": "Sample video: storing drinking water",
+   "description": "A 40-second captioned video with a WebVTT transcript, for testing playback, seeking and timestamp citations.",
+   "license": "CC0-1.0",
+   "bytes": 890888,
+   "manifest": "org.lastbook.sample.video/pack.json",
+   "manifest_sha256": "f3e9d4e8811872867508fe00eac3e13379661a1e30c07b482d3094927f4533df"
+  }
+ ]
+}

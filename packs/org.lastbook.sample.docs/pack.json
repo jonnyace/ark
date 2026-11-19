@@ -1,0 +1,96 @@
+{
+  "format": "lastbook-pack",
+  "format_version": 1,
+  "id": "org.lastbook.sample.docs",
+  "version": "2026.11.17",
+  "kind": "documents",
+  "title": "Sample documents: safe water and emergency supplies",
+  "description": "A short guide to making water safe to drink and a three-page emergency supplies checklist (PDF). Sample content for testing Ark; check current official guidance.",
+  "language": "en",
+  "created": "2026-11-17",
+  "publisher": {
+    "name": "Ark contributors"
+  },
+  "license": {
+    "spdx": "CC0-1.0",
+    "attribution": "Written for Ark; dedicated to the public domain. Summarises public guidance from the US CDC and Ready.gov (US government works).",
+    "file": "LICENSES/CC0-1.0.txt",
+    "redistributable": true
+  },
+  "compat": {
+    "min_engine_api": 1
+  },
+  "resources": [
+    {
+      "id": "water-guide",
+      "type": "html",
+      "title": "Making water safe to drink",
+      "path": "res/water-guide.html",
+      "media_type": "text/html",
+      "source": {
+        "publisher": "Ark contributors",
+        "retrieved": "2026-11-17",
+        "notes": "Based on public guidance from the US Centers for Disease Control and Prevention and Ready.gov."
+      },
+      "sections": [
+        {
+          "id": "when",
+          "title": "When water may be unsafe"
+        },
+        {
+          "id": "boil",
+          "title": "Boiling water"
+        },
+        {
+          "id": "bleach",
+          "title": "Disinfecting with household bleach"
+        },
+        {
+          "id": "store",
+          "title": "Storing safe water"
+        }
+      ],
+      "category": "water",
+      "summary": "When tap water may be unsafe; boiling; disinfecting with household bleach; storing safe water."
+    },
+    {
+      "id": "supplies-checklist",
+      "type": "pdf",
+      "title": "Emergency Supplies Checklist",
+      "path": "res/supplies-checklist.pdf",
+      "media_type": "application/pdf",
+      "source": {
+        "publisher": "Ark contributors",
+        "retrieved": "2026-11-17",
+        "notes": "Based on public guidance from Ready.gov (FEMA)."
+      },
+      "pages": 3,
+      "category": "preparedness"
+    }
+  ],
+  "files": [
+    {
+      "path": "LICENSES/CC0-1.0.txt",
+      "size": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": "index/search.lbi",
+      "size": 6703,
+      "sha256": "bde80d1ce7936b27a1ab51c7f34ff990ba0f4ff3f3a24122d321c6df46db8bae"
+    },
+    {
+      "path": "res/supplies-checklist.pdf",
+      "size": 3537,
+      "sha256": "f1733e95a5310c6b8845b2e7640f485a66ca78ac2d81a20e9dc4ac548c060f08"
+    },
+    {
+      "path": "res/water-guide.html",
+      "size": 2183,
+      "sha256": "688fa09d9a34900cf80e4c0d5cc07e3002bb5224cd5180a2a1c36d73aa2c9a21"
+    }
+  ],
+  "index": {
+    "search": "index/search.lbi"
+  }
+}

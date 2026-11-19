@@ -1,0 +1,109 @@
+{
+  "format": "lastbook-pack",
+  "format_version": 1,
+  "id": "org.lastbook.sample.encyclopedia",
+  "version": "2026.11.17",
+  "kind": "encyclopedia",
+  "title": "Sample encyclopedia",
+  "description": "Three short articles (boiling point, magnetic compass, water cycle) for testing encyclopedia packs and cross-pack search.",
+  "language": "en",
+  "created": "2026-11-17",
+  "publisher": {
+    "name": "Ark contributors"
+  },
+  "license": {
+    "spdx": "CC0-1.0",
+    "attribution": "Written for Ark; dedicated to the public domain.",
+    "file": "LICENSES/CC0-1.0.txt",
+    "redistributable": true
+  },
+  "compat": {
+    "min_engine_api": 1
+  },
+  "resources": [
+    {
+      "id": "boiling-point",
+      "type": "article",
+      "title": "Boiling point",
+      "path": "articles/boiling-point.html",
+      "media_type": "text/html",
+      "sections": [
+        {
+          "id": "altitude",
+          "title": "Altitude"
+        },
+        {
+          "id": "pressure-cooker",
+          "title": "Pressure cookers"
+        }
+      ],
+      "category": "science"
+    },
+    {
+      "id": "magnetic-compass",
+      "type": "article",
+      "title": "Magnetic compass",
+      "path": "articles/magnetic-compass.html",
+      "media_type": "text/html",
+      "sections": [
+        {
+          "id": "declination",
+          "title": "Declination"
+        },
+        {
+          "id": "use",
+          "title": "Using a compass with a map"
+        }
+      ],
+      "category": "navigation"
+    },
+    {
+      "id": "water-cycle",
+      "type": "article",
+      "title": "Water cycle",
+      "path": "articles/water-cycle.html",
+      "media_type": "text/html",
+      "sections": [
+        {
+          "id": "stages",
+          "title": "Stages"
+        },
+        {
+          "id": "groundwater",
+          "title": "Groundwater"
+        }
+      ],
+      "category": "science"
+    }
+  ],
+  "files": [
+    {
+      "path": "LICENSES/CC0-1.0.txt",
+      "size": 7048,
+      "sha256": "a2010f343487d3f7618affe54f789f5487602331c0a8d03f49e9a7c547cf0499"
+    },
+    {
+      "path": "articles/boiling-point.html",
+      "size": 869,
+      "sha256": "c7c090d7207a8afd38d39d0197f082c32fbbb882528844d85d4d2e3ea77fbd95"
+    },
+    {
+      "path": "articles/magnetic-compass.html",
+      "size": 775,
+      "sha256": "b48f94d8fe338efc76f8f7803672c7ea61ef13f9130eb3932293888b83b47634"
+    },
+    {
+      "path": "articles/water-cycle.html",
+      "size": 732,
+      "sha256": "4d97fe5fbe000d2573546a18e524b4d94a57e6bbf16cd7048ec383c69088b216"
+    },
+    {
+      "path": "index/search.lbi",
+      "size": 3699,
+      "sha256": "b74b55475288ce7dc7f7da8cba7b97b7ff8d862738291469cd1886ecf4ebcdfc"
+    }
+  ],
+  "index": {
+    "search": "index/search.lbi"
+  }
+}
