@@ -17,6 +17,6 @@ LBN_IMAGE=ark-library-wincross:dev LBN_ENV=CARGO_TARGET_DIR=/src/.dev-cache/win-
 '
 rm -rf dist/windows; mkdir -p dist/windows; T=.dev-cache/win-target/x86_64-pc-windows-gnu/release
 cp $T/ark-pack.exe $T/ark-library.exe dist/windows/
-cp "$T"/bundle/nsis/*-setup.exe dist/windows/ark-library_0.9.0-rc.1_x64-setup-unsigned.exe
+cp "$T"/bundle/nsis/*-setup.exe "dist/windows/ark-library_$(build/check-versions.sh)_x64-setup-unsigned.exe"
 cp -r .dev-cache/bin-win dist/windows/runner
 ls -la dist/windows

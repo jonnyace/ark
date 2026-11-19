@@ -18,6 +18,7 @@ for a in "$@"; do case "$a" in
 [ -s "$HOME/.nvm/nvm.sh" ] && source "$HOME/.nvm/nvm.sh" >/dev/null
 step() { printf '\n== %s\n' "$*"; }
 
+step "One version everywhere";  build/check-versions.sh
 step "Rust format";             cargo fmt --all --check
 step "Rust lint";               cargo clippy -q --workspace --all-targets --locked -- -D warnings
 step "Rust tests";              cargo test -q --workspace --locked 2>&1 | grep -E "test result|FAILED|panicked" ; test "${PIPESTATUS[0]}" = 0
