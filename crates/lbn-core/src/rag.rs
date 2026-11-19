@@ -21,8 +21,10 @@ Rules:
 pub const NOT_FOUND: &str = "Not found in the library.";
 
 /// Repeated at the end of the user turn: small models follow the most recent instruction best.
+// The format example must carry no content: a small model copied an earlier one ("Boil the water for one minute")
+// into answers as if it were a source fact.
 pub const ANSWER_REMINDER: &str = "Answer in one to three short sentences using only the sources above. \
-Put the key of the source you used at the end of each sentence, for example: Boil the water for one minute [S2].";
+Put the key of the source you used at the end of each sentence: a sentence that uses source S2 ends with [S2].";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 pub enum Template {
