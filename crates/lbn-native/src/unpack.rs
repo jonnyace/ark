@@ -2,7 +2,7 @@
 //! manifest are taken, links are refused, sizes are enforced while copying, and nothing is written outside staging.
 use crate::util::join_rel;
 use crate::{NativeError, Result};
-use lbn_core::manifest::{self, ParsedManifest, MANIFEST_NAME, SIGNATURE_NAME};
+use lbn_core::manifest::{self, Manifest, ParsedManifest, MANIFEST_NAME, SIGNATURE_NAME};
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
@@ -10,9 +10,17 @@ use std::path::Path;
 const MAX_SMALL: u64 = 1 << 20;
 
 /// Copy a pack directory into staging. Returns the parsed manifest (signature and hashes are checked later).
-pub fn stage_from_dir(src: &Path, staged: &Path, mut progress: impl FnMut(u64)) -> Result<ParsedManifest> {
+/// `progress` gets the manifest and each block of bytes copied; an error from it (e.g. cancelled) stops the copy.
+pub fn stage_from_dir(
+    src: &Path,
+    staged: &Path,
+    mut progress: impl FnMut(&Manifest, u64) -> Result<()>,
+) -> Result<ParsedManifest> {
     let mbytes = read_regular(&src.join(MANIFEST_NAME), 32 << 20)?;
     let parsed = manifest::parse(&mbytes)?;
+    let m = &parsed.manifest;
+    let mut progress = |n: u64| progress(m, n);
+    progress(0)?;
     std::fs::create_dir_all(staged)?;
     std::fs::write(staged.join(MANIFEST_NAME), &mbytes)?;
     match read_regular(&src.join(SIGNATURE_NAME), MAX_SMALL) {
@@ -24,7 +32,7 @@ pub fn stage_from_dir(src: &Path, staged: &Path, mut progress: impl FnMut(u64)) 
         let from = join_rel(src, &f.path)?;
         let to = join_rel(staged, &f.path)?;
         if std::fs::metadata(&to).map(|m| m.len() == f.size).unwrap_or(false) {
-            progress(f.size);
+            progress(f.size)?;
             continue; // resumed import: hashes are checked before activation anyway
         }
         let md = std::fs::symlink_metadata(&from)
@@ -39,7 +47,12 @@ pub fn stage_from_dir(src: &Path, staged: &Path, mut progress: impl FnMut(u64)) 
 }
 
 /// Extract a `.lbpack` into staging, strictly.
-pub fn stage_from_zip(zip_path: &Path, staged: &Path, mut progress: impl FnMut(u64)) -> Result<ParsedManifest> {
+/// `progress` works as for [`stage_from_dir`].
+pub fn stage_from_zip(
+    zip_path: &Path,
+    staged: &Path,
+    mut progress: impl FnMut(&Manifest, u64) -> Result<()>,
+) -> Result<ParsedManifest> {
     let file = File::open(zip_path)?;
     let mut zip =
         zip::ZipArchive::new(file).map_err(|e| NativeError::coded("unpack", format!("not a readable pack file: {e}")))?;
@@ -72,6 +85,9 @@ pub fn stage_from_zip(zip_path: &Path, staged: &Path, mut progress: impl FnMut(u
             None => return Err(NativeError::coded("manifest", format!("{name} is in the pack file but not in its manifest"))),
         }
     }
+    let m = &parsed.manifest;
+    let mut progress = |n: u64| progress(m, n);
+    progress(0)?;
     std::fs::create_dir_all(staged)?;
     std::fs::write(staged.join(MANIFEST_NAME), &mbytes)?;
     if let Ok(mut e) = zip.by_name(SIGNATURE_NAME) {
@@ -81,7 +97,7 @@ pub fn stage_from_zip(zip_path: &Path, staged: &Path, mut progress: impl FnMut(u
     for f in &parsed.manifest.files {
         let to = join_rel(staged, &f.path)?;
         if std::fs::metadata(&to).map(|m| m.len() == f.size).unwrap_or(false) {
-            progress(f.size);
+            progress(f.size)?;
             continue;
         }
         let mut e = zip
@@ -131,7 +147,7 @@ fn read_limited(r: &mut impl Read, max: u64) -> Result<Vec<u8>> {
 }
 
 /// Copy at most `size` bytes; more (a lying size header, a zip bomb) is an error. Writes `<to>.part`, then renames.
-fn copy_limited(r: &mut impl Read, to: &Path, size: u64, progress: &mut impl FnMut(u64)) -> Result<()> {
+fn copy_limited(r: &mut impl Read, to: &Path, size: u64, progress: &mut impl FnMut(u64) -> Result<()>) -> Result<()> {
     let part =
         to.with_extension(format!("{}part", to.extension().map(|e| format!("{}.", e.to_string_lossy())).unwrap_or_default()));
     let mut out = File::create(&part)?;
@@ -149,7 +165,11 @@ fn copy_limited(r: &mut impl Read, to: &Path, size: u64, progress: &mut impl FnM
             return Err(NativeError::coded("size", format!("{} is larger than the manifest says", to.display())));
         }
         out.write_all(&buf[..n])?;
-        progress(n as u64);
+        if let Err(e) = progress(n as u64) {
+            drop(out);
+            let _ = std::fs::remove_file(&part);
+            return Err(e);
+        }
     }
     out.sync_all()?;
     if done != size {
