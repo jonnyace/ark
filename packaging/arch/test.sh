@@ -8,7 +8,9 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"; cd "$ROOT"
 VER=$(sed -n 's/^_ver=//p' packaging/arch/PKGBUILD)
 OUT="$ROOT/.dev-cache/arch-pkg"; rm -rf "$OUT"; mkdir -p "$OUT"
-git archive --prefix="ark-library-$VER/" -o "$OUT/ark-library-$VER.tar.gz" HEAD
+# Same layout as GitHub's tag archive, which the PKGBUILD downloads: one top folder named after the repository.
+# Its bytes differ from GitHub's, so makepkg below skips the PKGBUILD's checksum (which is for the published tag).
+git archive --prefix="ark-$VER/" -o "$OUT/ark-library-$VER.tar.gz" HEAD
 cp packaging/arch/PKGBUILD "$OUT/"
 docker build -q -t ark-library-arch-build:dev -f packaging/arch/test.Dockerfile packaging/arch >/dev/null
 TD="$ROOT/.dev-cache/container-cargo/bin/tauri-driver"
@@ -24,7 +26,7 @@ echo "== build with makepkg, install with pacman, install journey"
 docker run --name "$NAME" "${MOUNTS[@]}" ark-library-arch-build:dev bash -c "
   set -e
   mkdir /build && cp /out/PKGBUILD /out/ark-library-$VER.tar.gz /build/ && chown -R builder /build
-  su builder -c 'cd /build && makepkg --noconfirm --nodeps 2>&1' > /out/makepkg.log 2>&1 || { tail -40 /out/makepkg.log; exit 1; }
+  su builder -c 'cd /build && makepkg --noconfirm --nodeps --skipchecksums 2>&1' > /out/makepkg.log 2>&1 || { tail -40 /out/makepkg.log; exit 1; }
   grep -E 'Finished making|test result' /out/makepkg.log | tail -6
   cp /build/*.pkg.tar.zst /out/
   # The test image is cached, so its package database ages: bring the system to today's repository first (a full -Syu;
