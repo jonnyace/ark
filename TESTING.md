@@ -73,6 +73,12 @@ with the new citation target, a `personal-…-v1.sqlite` backup kept, and `ark-p
 - `tools/ai_eval.py` on the sample library, 1.5B: 2/7 with rules only in the system prompt → **7/7** after repeating the
   citation rule at the end of the prompt; still 7/7 after the repetition/number guards. 0.5B: 3/7, including a wrong
   bleach dose — not recommended.
+- Per CPU kernel (2026-11-18): `ai_eval.py` with the runner limited to one ggml CPU variant at a time, on this Ryzen
+  (Zen 4). Before: x64, sandybridge, skylakex, icelake, cascadelake, cooperlake, zen4 7/7; **haswell and sse42 6/7**
+  (haswell is what GitHub's AMD EPYC runners load), copying the prompt's format example "boil for one minute" into
+  the high-elevation answer. Neutral example alone: 5–6/7 everywhere (the model summarised the encyclopedia's
+  boiling-point line instead). Neutral example + one retry restricted to sources that state the asked-for amount:
+  **7/7 on all nine variants**; the retry fired only for that question (about 4 s extra).
 - Real imported Lastbook library (234 items, 2.8 GB): answers cite real PDF pages and video moments. One answer looped
   and contained an invented quantity ("20 liters of bleach"); after the guards (D-017) the same question stops at 204
   tokens with the correct "2 drops per liter" cited and no unverified numbers.

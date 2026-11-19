@@ -989,27 +989,45 @@ impl NativeEngine {
             });
         }
         status("generating");
-        let prompt = rag::build_prompt(tpl, q, &sources);
         // Stop early when the model starts repeating itself (small models can loop until the token limit).
-        let written = std::cell::RefCell::new(String::new());
         let looped = std::cell::Cell::new(false);
-        let g = self.ai.generate(
-            &prompt,
-            &info.defaults,
-            &tpl.stop(),
-            |t| {
-                written.borrow_mut().push_str(t);
-                if t.contains(['.', ']', '!', '?']) && rag::is_looping(&written.borrow()) {
-                    looped.set(true);
-                }
-                self.emit(Event::AskToken { ask: ask.into(), text: t.into() })
-            },
-            || cancel.load(Ordering::Relaxed) || looped.get(),
-        )?;
-        let mut checked = rag::check_answer(&g.text, &sources);
+        let run = |sources: &[rag::Source]| -> Result<_> {
+            let written = std::cell::RefCell::new(String::new());
+            looped.set(false);
+            let g = self.ai.generate(
+                &rag::build_prompt(tpl, q, sources),
+                &info.defaults,
+                &tpl.stop(),
+                |t| {
+                    written.borrow_mut().push_str(t);
+                    if t.contains(['.', ']', '!', '?']) && rag::is_looping(&written.borrow()) {
+                        looped.set(true);
+                    }
+                    self.emit(Event::AskToken { ask: ask.into(), text: t.into() })
+                },
+                || cancel.load(Ordering::Relaxed) || looped.get(),
+            )?;
+            let checked = rag::check_answer(&g.text, sources);
+            // A loop stop is a finished (trimmed) answer, not a cancellation.
+            let cancelled = g.reason == "cancel" && !looped.get();
+            Ok((g, checked, cancelled))
+        };
+        let (mut g, mut checked, mut cancelled) = run(&sources)?;
+        let mut sources = sources;
+        // One more attempt, with the sources reversed, when the answer cites nothing or skips the amount asked for.
+        let retry = if cancelled { None } else { rag::retry_reason(q, &checked) };
+        if let Some(again) = retry.and_then(|why| rag::sources_for_retry(q, why, &sources)) {
+            status("retrying");
+            let (g2, c2, cancelled2) = run(&again)?;
+            if cancelled2 {
+                cancelled = true;
+            } else if rag::retry_reason(q, &c2).is_none() {
+                (g, checked, sources) = (g2, c2, again);
+            }
+        }
         // Every cited target must exist in the installed library.
         checked.cited.retain(|c| self.resolve(&c.citation).valid);
-        let outcome = if g.reason == "cancel" && !looped.get() { "cancelled" } else { "answered" };
+        let outcome = if cancelled { "cancelled" } else { "answered" };
         if outcome == "answered" {
             let _ = self.personal.save_answer(&SavedAnswer {
                 id: ask.into(),

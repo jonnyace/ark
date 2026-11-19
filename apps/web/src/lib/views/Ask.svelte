@@ -22,7 +22,7 @@
     handle(e);
   });
   function handle(e: any) {
-    if (e.event === "ask_status" && e.data.ask === ask) status = e.data.status;
+    if (e.event === "ask_status" && e.data.ask === ask) { status = e.data.status; if (status === "retrying") stream = ""; }
     if (e.event === "ask_token" && e.data.ask === ask) stream += e.data.text;
     if (e.event === "ask_done" && e.data.ask === ask) { result = e.data; ask = null; say(e.data.outcome === "answered" ? "Answer ready" : e.data.outcome === "no_evidence" ? "The library does not cover this" : "Stopped"); }
     if (e.event === "ask_error" && e.data.ask === ask) { err = `${e.data.message}`; ask = null; say("The answer failed"); }
@@ -44,7 +44,7 @@
   async function cancel() {
     if (ask) await eng().call({ cmd: "cancel_ask", args: { ask } });
   }
-  const statusText: Record<string, string> = { starting: "Starting…", searching: "Searching your library…", loading_model: "Loading the model into memory (this can take a while the first time)…", generating: "Writing an answer from the sources…" };
+  const statusText: Record<string, string> = { starting: "Starting…", searching: "Searching your library…", loading_model: "Loading the model into memory (this can take a while the first time)…", generating: "Writing an answer from the sources…", retrying: "That answer missed the question; trying once more from the sources…" };
   // Split the answer into text and citation keys so each [S1] becomes a link to its exact source.
   function parts(text: string) {
     return text.split(/(\[S\d+\])/).map((p) => ({ p, key: /^\[S\d+\]$/.test(p) ? p.slice(1, -1) : null }));
