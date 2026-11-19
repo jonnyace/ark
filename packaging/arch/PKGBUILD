@@ -20,10 +20,10 @@ makedepends=('rust' 'rust-wasm' 'cargo' 'nodejs' 'pnpm' 'cmake' 'ninja' 'git' 'p
 optdepends=('xdg-desktop-portal-gtk: native file dialogs on Wayland compositors such as Hyprland')
 options=('!lto' '!debug')
 source=("$pkgname-$_ver.tar.gz::https://github.com/jonnyace/ark/archive/refs/tags/v$_ver.tar.gz")
-sha256sums=('SKIP')   # set to the tag tarball's SHA-256 when the tag is published
+sha256sums=('6f098588e967f6caa723b5218eaf0aa58d4663da577747a791c8b357043be82c')
 
 prepare() {
-  cd "$pkgname-$_ver"
+  cd "ark-$_ver"   # GitHub names the tag archive after the repository
   export CARGO_HOME="$srcdir/cargo-home"
   cargo fetch --locked --target "$(rustc -vV | sed -n 's/host: //p')"
   (cd apps/desktop/src-tauri && cargo fetch --locked)
@@ -31,7 +31,7 @@ prepare() {
 }
 
 build() {
-  cd "$pkgname-$_ver"
+  cd "ark-$_ver"   # GitHub names the tag archive after the repository
   export CARGO_HOME="$srcdir/cargo-home" CARGO_TARGET_DIR="$srcdir/target"
   W="$PWD/.dev-cache" runner/build.sh                   # llama.cpp b12032 (pinned), CPU, all x86-64 variants;
                                                          # output in .dev-cache/runner-bin, where tauri.conf expects it
@@ -42,13 +42,13 @@ build() {
 }
 
 check() {
-  cd "$pkgname-$_ver"
+  cd "ark-$_ver"   # GitHub names the tag archive after the repository
   export CARGO_HOME="$srcdir/cargo-home" CARGO_TARGET_DIR="$srcdir/target"
   cargo test --release --locked -p lbn-core -p lbn-native
 }
 
 package() {
-  cd "$pkgname-$_ver"
+  cd "ark-$_ver"   # GitHub names the tag archive after the repository
   install -Dm755 "$srcdir/target/release/ark-library" "$pkgdir/usr/bin/ark-library"
   install -Dm755 "$srcdir/target/release/ark-pack" "$pkgdir/usr/bin/ark-pack"
   install -d "$pkgdir/usr/lib/ark-library/runner"
