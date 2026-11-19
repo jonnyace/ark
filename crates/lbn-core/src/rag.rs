@@ -22,7 +22,7 @@ pub const NOT_FOUND: &str = "Not found in the library.";
 
 /// Repeated at the end of the user turn: small models follow the most recent instruction best.
 // The format example must carry no content: a small model copied an earlier one ("Boil the water for one minute")
-// into answers as if it were a source fact.
+// into answers as if it were a source fact, which also hid the answer's failure from `retry_reason`.
 pub const ANSWER_REMINDER: &str = "Answer in one to three short sentences using only the sources above. \
 Put the key of the source you used at the end of each sentence: a sentence that uses source S2 ends with [S2].";
 
@@ -385,6 +385,64 @@ fn unverified_numbers(text: &str, sources: &[Source]) -> Vec<String> {
     bad
 }
 
+const NUMBER_WORDS: &[&str] =
+    &["one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "half", "a dozen"];
+const TIME_UNITS: &[&str] = &["second", "minute", "hour", "day", "week", "month", "year"];
+
+fn has_amount(sentence: &str) -> bool {
+    let s = sentence.to_lowercase();
+    !numbers(&s).is_empty() || s.split(|c: char| !c.is_alphanumeric()).any(|w| NUMBER_WORDS.contains(&w))
+}
+
+/// Whether `text` states the kind of amount `question` asks for, or `None` when the question asks for no amount.
+/// "How long/how often" needs an amount and a unit of time in one sentence ("every" counts for "how often");
+/// "how many/how much" needs an amount.
+fn states_asked_amount(question: &str, text: &str) -> Option<bool> {
+    let q = question.to_lowercase();
+    let sents = sentences(text);
+    if q.contains("how long") || q.contains("how often") {
+        Some(sents.iter().any(|s| {
+            let l = s.to_lowercase();
+            TIME_UNITS.iter().any(|u| l.contains(u)) && (has_amount(&l) || (q.contains("how often") && l.contains("every")))
+        }))
+    } else if q.contains("how many") || q.contains("how much") {
+        Some(sents.iter().any(|s| has_amount(s)))
+    } else {
+        None
+    }
+}
+
+/// Why a checked answer deserves one more generation, or `None` when it is usable as it stands. Small models sometimes
+/// summarise a nearby source without answering, or drop the citation keys; both are cheap to detect, and a second
+/// attempt with `sources_for_retry` usually fixes them. "Not found" is never retried.
+pub fn retry_reason(question: &str, a: &CheckedAnswer) -> Option<&'static str> {
+    if a.not_found || a.text.trim().is_empty() {
+        return None;
+    }
+    if a.uncited {
+        return Some("uncited");
+    }
+    (states_asked_amount(question, &a.text) == Some(false)).then_some("missing_amount")
+}
+
+/// Sources for the one retry, renumbered S1.. so the prompt reads naturally. When the answer skipped the amount asked
+/// for, only the sources that state such an amount are kept (a source that talks around the question, such as an
+/// encyclopedia line saying "boil longer at altitude" without a time, is what small models summarise instead);
+/// `None` when no source states one, since a retry could not do better. Otherwise the order is reversed, so the
+/// model reads a different source first.
+pub fn sources_for_retry(question: &str, reason: &str, sources: &[Source]) -> Option<Vec<Source>> {
+    let chosen: Vec<&Source> = if reason == "missing_amount" {
+        let v: Vec<&Source> = sources.iter().filter(|s| states_asked_amount(question, &s.text) == Some(true)).collect();
+        if v.is_empty() {
+            return None;
+        }
+        v
+    } else {
+        sources.iter().rev().collect()
+    };
+    Some(chosen.into_iter().enumerate().map(|(i, s)| Source { key: format!("S{}", i + 1), ..s.clone() }).collect())
+}
+
 fn is_key(k: &str) -> bool {
     let k = k.trim();
     k.len() >= 2 && k.len() <= 4 && (k.starts_with('S') || k.starts_with('s')) && k[1..].bytes().all(|b| b.is_ascii_digit())
@@ -407,6 +465,39 @@ mod tests {
             },
             text.into(),
         )
+    }
+
+    #[test]
+    fn retries_answers_that_dodge_the_amount_or_cite_nothing() {
+        let s = select_sources(
+            "boil water altitude",
+            &[
+                src(1, "Boiling point is 93 degrees at 2,000 metres."),
+                src(2, "Boil water one minute; at altitude three minutes."),
+            ],
+            &RetrievalConfig::default(),
+        )
+        .unwrap();
+        let dodge = check_answer("At 2,000 metres water boils near 93 degrees [S1].", &s);
+        assert_eq!(retry_reason("How long should I boil water at high elevation?", &dodge), Some("missing_amount"));
+        let good = check_answer("At high elevation, boil water for three minutes [S2].", &s);
+        assert_eq!(retry_reason("How long should I boil water at high elevation?", &good), None);
+        assert_eq!(retry_reason("How many drops?", &check_answer("Add 8 drops [S1].", &s)), None);
+        assert_eq!(retry_reason("How much water per person?", &check_answer("Store one gallon [S1].", &s)), None);
+        assert_eq!(retry_reason("How often should I replace it?", &check_answer("Replace it every six months [S1].", &s)), None);
+        assert_eq!(retry_reason("What is a compass?", &check_answer("A flashlight and a radio.", &s)), Some("uncited"));
+        assert_eq!(retry_reason("How long?", &check_answer("Not found in the library.", &s)), None);
+        let q = "How long should I boil water at high elevation?";
+        let r = sources_for_retry(q, "missing_amount", &s).unwrap();
+        assert_eq!(r.len(), 1, "only the source that states a time");
+        assert_eq!(r[0].key, "S1");
+        assert!(r[0].text.starts_with("Boil water one minute"));
+        let only_decoy =
+            select_sources("boil water", &[src(1, "Water boils at 93 degrees.")], &RetrievalConfig::default()).unwrap();
+        assert!(sources_for_retry(q, "missing_amount", &only_decoy).is_none());
+        let r = sources_for_retry("What is a compass?", "uncited", &s).unwrap();
+        assert_eq!((r[0].key.as_str(), r[1].key.as_str()), ("S1", "S2"));
+        assert_eq!(r[0].text, s[1].text);
     }
 
     #[test]

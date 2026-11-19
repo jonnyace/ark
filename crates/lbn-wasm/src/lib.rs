@@ -197,6 +197,26 @@ pub fn check_answer(raw: &str, sources_json: &str) -> Result<String, JsValue> {
     Ok(to_json(&rag::check_answer(raw, &sources)))
 }
 
+/// Why a checked answer (JSON from `check_answer`) deserves one more generation, or null. See `rag::retry_reason`.
+#[wasm_bindgen]
+pub fn retry_reason(question: &str, checked_json: &str) -> Result<Option<String>, JsValue> {
+    let checked: rag::CheckedAnswer = from_json(checked_json)?;
+    Ok(rag::retry_reason(question, &checked).map(String::from))
+}
+
+/// The retry's sources and prompt, in the same shape as `prepare_answer`, or {"sources": null} when a retry
+/// could not do better. `reason` comes from `retry_reason`.
+#[wasm_bindgen]
+pub fn prepare_retry(question: &str, reason: &str, sources_json: &str, template: &str) -> Result<String, JsValue> {
+    let sources: Vec<Source> = from_json(sources_json)?;
+    let tpl = Template::from_id(template).ok_or_else(|| bad("unknown prompt template"))?;
+    let Some(again) = rag::sources_for_retry(question, reason, &sources) else {
+        return Ok(r#"{"sources":null}"#.into());
+    };
+    let prompt: String = rag::build_prompt(tpl, question, &again).iter().map(|s| s.0.as_str()).collect();
+    Ok(serde_json::json!({"sources": again, "prompt": prompt, "stop": tpl.stop()}).to_string())
+}
+
 /// Migrate stored personal data of `schema` to the current schema (refuses newer schemas).
 #[wasm_bindgen]
 pub fn personal_migrate(schema: u32, data_json: &str) -> Result<String, JsValue> {

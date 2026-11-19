@@ -763,17 +763,33 @@ async function runAsk(askId: string, q: string, model: string, signal: AbortSign
   if (ai.loadedPack() !== model) { status("loading_model"); await loadModel(model); }
   status("generating");
   // Stop early when the model starts repeating itself (the repeats are removed when the answer is checked).
-  const loop = new AbortController();
-  signal.addEventListener("abort", () => loop.abort());
-  let written = "";
-  let looped = false;
-  const g = await ai.generate(prep.prompt, info.defaults, prep.stop, (t) => {
-    written += t;
-    if (/[.!?\]]/.test(t) && core.is_looping(written)) { looped = true; loop.abort(); }
-    emit({ event: "ask_token", data: { ask: askId, text: t } });
-  }, loop.signal);
-  if (looped) g.cancelled = false;
-  const checked = JSON.parse(coreCall(() => core.check_answer(g.text, JSON.stringify(prep.sources))));
+  const attempt = async (p: { sources: any[]; prompt: string; stop: string[] }) => {
+    const loop = new AbortController();
+    const onAbort = () => loop.abort();
+    signal.addEventListener("abort", onAbort);
+    let written = "";
+    let looped = false;
+    const g = await ai.generate(p.prompt, info.defaults, p.stop, (t) => {
+      written += t;
+      if (/[.!?\]]/.test(t) && core.is_looping(written)) { looped = true; loop.abort(); }
+      emit({ event: "ask_token", data: { ask: askId, text: t } });
+    }, loop.signal);
+    signal.removeEventListener("abort", onAbort);
+    if (looped) g.cancelled = false;
+    const checked = JSON.parse(coreCall(() => core.check_answer(g.text, JSON.stringify(p.sources))));
+    return { g, checked, p };
+  };
+  let r = await attempt(prep);
+  // One more attempt, with the sources reversed, when the answer cites nothing or skips the amount asked for.
+  const why = r.g.cancelled ? null : coreCall(() => core.retry_reason(q, JSON.stringify(r.checked)));
+  const again = why ? JSON.parse(coreCall(() => core.prepare_retry(q, why, JSON.stringify(prep.sources), info.template))) : null;
+  if (again?.sources) {
+    status("retrying");
+    const r2 = await attempt(again);
+    if (r2.g.cancelled) r = { ...r, g: { ...r.g, cancelled: true } };
+    else if (!coreCall(() => core.retry_reason(q, JSON.stringify(r2.checked)))) r = r2;
+  }
+  const { g, checked } = r;
   const valid = [];
   for (const c of checked.cited) if ((await resolve(c.citation)).valid) valid.push(c);
   checked.cited = valid;
@@ -783,5 +799,5 @@ async function runAsk(askId: string, q: string, model: string, signal: AbortSign
     d.answers = [{ id: askId, question: q, answer: checked.text, citations: valid.map((c: any) => c.citation), model, at: now() }, ...d.answers].slice(0, 200);
     await db.put("kv", { schema: PERSONAL_SCHEMA, data: d }, "personal");
   }
-  return { ask: askId, question: q, outcome, answer: checked, sources: toSources(prep.sources), model: b.title, stats: g.stats };
+  return { ask: askId, question: q, outcome, answer: checked, sources: toSources(r.p.sources), model: b.title, stats: g.stats };
 }
