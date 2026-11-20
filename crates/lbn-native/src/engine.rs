@@ -741,27 +741,29 @@ impl NativeEngine {
                     j.progress.title = "Importing an existing Lastbook library".into();
                     report(self, j, true);
                     legacy_import::stage(&lib, &staged, false)?;
-                } else if p.is_dir() {
-                    let mut done = 0u64;
-                    let parsed = unpack::stage_from_dir(&p, &staged, |n| {
-                        done += n;
-                    })?;
-                    j.progress.pack_id = parsed.manifest.id.clone();
-                    j.progress.version = parsed.manifest.version.clone();
-                    j.progress.title = parsed.manifest.title.clone();
-                    j.progress.bytes_total = parsed.manifest.total_bytes();
-                    j.progress.bytes_done = done;
                 } else {
-                    let mut done = 0u64;
-                    let parsed = unpack::stage_from_zip(&p, &staged, |n| {
-                        done += n;
-                        if cancel.load(Ordering::Relaxed) {}
-                    })?;
-                    j.progress.pack_id = parsed.manifest.id.clone();
-                    j.progress.version = parsed.manifest.version.clone();
-                    j.progress.title = parsed.manifest.title.clone();
-                    j.progress.bytes_total = parsed.manifest.total_bytes();
-                    j.progress.bytes_done = done;
+                    // Copying a large local pack takes minutes: report it like a download, and let it be cancelled.
+                    j.progress.bytes_done = 0;
+                    let step = |m: &manifest::Manifest, n: u64| {
+                        if j.progress.pack_id.is_empty() {
+                            j.progress.pack_id = m.id.clone();
+                            j.progress.version = m.version.clone();
+                            j.progress.title = m.title.clone();
+                            j.progress.files_total = m.files.len() as u32;
+                            j.progress.bytes_total = m.total_bytes();
+                        }
+                        j.progress.bytes_done += n;
+                        report(self, j, n == 0);
+                        if cancel.load(Ordering::Relaxed) {
+                            return Err(NativeError::coded("cancelled", "stopped"));
+                        }
+                        Ok(())
+                    };
+                    if p.is_dir() {
+                        unpack::stage_from_dir(&p, &staged, step)?;
+                    } else {
+                        unpack::stage_from_zip(&p, &staged, step)?;
+                    }
                 }
             }
         }
@@ -776,6 +778,7 @@ impl NativeEngine {
         report(self, j, true);
         let v = self.store.verify_staged(&staged, j.allow_unsigned, |n| {
             j.progress.bytes_done = (j.progress.bytes_done + n).min(total);
+            report(self, j, false);
         })?;
         j.progress.pack_id = v.parsed.manifest.id.clone();
         j.progress.version = v.parsed.manifest.version.clone();

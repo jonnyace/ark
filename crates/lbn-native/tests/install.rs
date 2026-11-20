@@ -232,6 +232,33 @@ fn signed_pack_installs_and_unsigned_needs_consent() {
     assert_eq!(r["valid"], true);
 }
 
+/// A large local pack takes minutes to copy: the job must say what it is copying and how much, or the app shows
+/// "0/0 MB" and the CLI gives up waiting.
+#[test]
+fn local_install_reports_progress_while_copying() {
+    let t = tempfile::tempdir().unwrap();
+    let k = keys();
+    let pack = build_pack(&t.path().join("p1"), "1.0.0", "boil");
+    let e = open(&t.path().join("data"), &k);
+    let j = e.call(Command::Install { source: local(&pack), allow_unsigned: true, allow_downgrade: false }).unwrap();
+    let job = j["job"].as_str().unwrap().to_string();
+    let mut copying = None;
+    loop {
+        match e.rx.recv_timeout(Duration::from_secs(60)).expect("job event") {
+            Event::Job(p) if p.job == job => match p.state {
+                JobState::Downloading if copying.is_none() => copying = Some((p.title.clone(), p.bytes_total)),
+                JobState::Done => break,
+                JobState::Failed | JobState::Cancelled | JobState::Paused => panic!("{:?} {:?}", p.state, p.error),
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+    let (title, total) = copying.expect("a progress event while copying");
+    assert_eq!(title, "Test docs");
+    assert!(total > 3_000_000, "{total}");
+}
+
 #[test]
 fn tampered_packs_are_rejected_before_activation() {
     let t = tempfile::tempdir().unwrap();

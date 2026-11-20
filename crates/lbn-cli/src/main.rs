@@ -386,7 +386,7 @@ fn run(cli: Cli) -> R<()> {
                 source.clone()
             } else {
                 tmp = std::env::temp_dir().join(format!("lbn-verify-{}", lbn_native::util::random_id()));
-                lbn_native::unpack::stage_from_zip(&source, &tmp, |_| {}).map_err(|e| e.to_string())?;
+                lbn_native::unpack::stage_from_zip(&source, &tmp, |_, _| Ok(())).map_err(|e| e.to_string())?;
                 tmp.clone()
             };
             let store_dir = std::env::temp_dir().join(format!("lbn-verify-store-{}", lbn_native::util::random_id()));
